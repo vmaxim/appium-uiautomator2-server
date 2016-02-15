@@ -19,11 +19,12 @@ public class AppiumUiAutomator2Server {
 
     private static final int port = 4456;
     private static ServerInstrumentation serverInstrumentation = null;
+    private Context ctx = null;
 
     @Test
-    public void startServer(){
+    public void startServer() {
         if (serverInstrumentation == null) {
-            Context ctx = InstrumentationRegistry.getInstrumentation().getContext();
+            ctx = InstrumentationRegistry.getInstrumentation().getContext();
             serverInstrumentation = ServerInstrumentation.getInstance(ctx, port);
             serverInstrumentation.startServer();
             Log.i("AppiumUiAutomator2Server", "Server Started");
