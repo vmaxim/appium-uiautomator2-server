@@ -1,0 +1,14 @@
+{
+  "name": "uiautomator2",
+  "version": "1.0.2",
+  "description": "\"Uiatomator driver\"",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "PrakashGoulla",
+  "license": "ISC",
+  "scripts": {
+    "prepublish": "gradle assembleDebugAndroidTest"
+  }
+}
