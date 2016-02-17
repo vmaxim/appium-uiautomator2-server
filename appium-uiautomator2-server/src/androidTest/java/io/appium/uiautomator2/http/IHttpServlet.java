@@ -13,6 +13,8 @@
  */
 package io.appium.uiautomator2.http;
 
+import io.appium.uiautomator2.handler.RequestHandler;
+
 public interface IHttpServlet {
   public void handleHttpRequest(IHttpRequest IHttpRequest, IHttpResponse httpResponse)
       throws Exception;

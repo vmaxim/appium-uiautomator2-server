@@ -52,11 +52,11 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
         Log.i("channel read: " + request.getMethod().toString() + " " + request.getUri());
 
-        IHttpRequest IHttpRequest = new NettyHttpRequest(request);
+        IHttpRequest httpRequest = new NettyHttpRequest(request);
         IHttpResponse httpResponse = new NettyHttpResponse(response);
 
         for (IHttpServlet handler : httpHandlers) {
-            handler.handleHttpRequest(IHttpRequest, httpResponse);
+            handler.handleHttpRequest(httpRequest, httpResponse);
             if (httpResponse.isClosed()) {
                 break;
             }

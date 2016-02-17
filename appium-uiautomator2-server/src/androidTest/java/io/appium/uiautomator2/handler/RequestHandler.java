@@ -5,6 +5,7 @@ import org.json.JSONException;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.http.IHttpResponse;
 import io.appium.uiautomator2.server.AppiumServlet;
+import io.netty.handler.codec.http.HttpRequest;
 
 public abstract class RequestHandler {
 
@@ -26,4 +27,8 @@ public abstract class RequestHandler {
     }
 
     public abstract String handle(IHttpRequest request) throws JSONException;
+
+    public final String safeHandle(IHttpRequest request) throws JSONException {
+        return handle(request);
+    }
 }
