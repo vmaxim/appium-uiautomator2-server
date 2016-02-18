@@ -32,8 +32,8 @@ public class AppiumServlet implements IHttpServlet {
     }
 
     private void init() {
-        register(postHandler, new FindElement("/wd/hub/session"));
-        register(getHandler, new Click("/wd/hub/sessions"));
+        register(postHandler, new FindElement("/wd/hub/find"));
+        register(getHandler, new Click("/wd/hub/click"));
     }
 
     protected void register(Map<String, RequestHandler> registerOn, RequestHandler handler) {

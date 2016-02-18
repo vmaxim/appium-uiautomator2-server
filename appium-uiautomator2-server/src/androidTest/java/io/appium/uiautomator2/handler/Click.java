@@ -1,16 +1,14 @@
 package io.appium.uiautomator2.handler;
 
-
 import android.util.Log;
 
 import org.json.JSONException;
 
 import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.http.IHttpResponse;
 
-public class Click extends RequestHandler{
+public class Click extends RequestHandler {
 
-    public Click(String mappedUri){
+    public Click(String mappedUri) {
         super(mappedUri);
     }
 

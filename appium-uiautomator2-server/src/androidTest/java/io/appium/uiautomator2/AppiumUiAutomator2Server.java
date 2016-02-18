@@ -17,7 +17,7 @@ import io.appium.uiautomator2.util.Log;
 @RunWith(AndroidJUnit4.class)
 public class AppiumUiAutomator2Server {
 
-    private static final int port = 4456;
+    private static final int port = 8080;
     private static ServerInstrumentation serverInstrumentation = null;
     private Context ctx = null;
 
@@ -28,6 +28,12 @@ public class AppiumUiAutomator2Server {
             serverInstrumentation = ServerInstrumentation.getInstance(ctx, port);
             serverInstrumentation.startServer();
             Log.i("AppiumUiAutomator2Server", "Server Started");
+            try {
+                System.out.println("Sleep for sometime, end of test kills the server otherwise");
+                Thread.sleep(50000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
