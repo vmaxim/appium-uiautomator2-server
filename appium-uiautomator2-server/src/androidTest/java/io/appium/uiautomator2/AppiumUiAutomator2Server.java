@@ -26,13 +26,9 @@ public class AppiumUiAutomator2Server {
         if (serverInstrumentation == null) {
             ctx = InstrumentationRegistry.getInstrumentation().getContext();
             serverInstrumentation = ServerInstrumentation.getInstance(ctx, port);
-            serverInstrumentation.startServer();
-            Log.i("AppiumUiAutomator2Server", "Server Started");
-            try {
-                System.out.println("Sleep for sometime, end of test kills the server otherwise");
-                Thread.sleep(50000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            while (true) {
+                serverInstrumentation.startServer();
+                Log.i("AppiumUiAutomator2Server", "Server Started");
             }
         }
     }
