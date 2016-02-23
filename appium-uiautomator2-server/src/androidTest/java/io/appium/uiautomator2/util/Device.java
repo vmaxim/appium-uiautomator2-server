@@ -4,9 +4,12 @@ import android.support.test.InstrumentationRegistry;
 import android.support.test.uiautomator.UiDevice;
 
 public abstract class Device {
-    private static final UiDevice uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    private static UiDevice uiDevice = null;
 
-    public static final UiDevice device() {
+    public static final UiDevice getUiDevice() {
+        if(uiDevice == null){
+            uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+        }
         return uiDevice;
     }
 }

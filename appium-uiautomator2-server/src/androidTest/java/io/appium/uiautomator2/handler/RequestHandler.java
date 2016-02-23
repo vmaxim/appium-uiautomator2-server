@@ -1,6 +1,7 @@
 package io.appium.uiautomator2.handler;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.http.IHttpResponse;
@@ -24,6 +25,14 @@ public abstract class RequestHandler {
             return (String) request.data().get(AppiumServlet.ELEMENT_ID_KEY);
         }
         return null;
+    }
+
+    public JSONObject getPayload(IHttpRequest request) throws JSONException {
+        String json = request.body();
+        if (json != null && !json.isEmpty()) {
+            return new JSONObject(json);
+        }
+        return new JSONObject();
     }
 
     public abstract String handle(IHttpRequest request) throws JSONException;

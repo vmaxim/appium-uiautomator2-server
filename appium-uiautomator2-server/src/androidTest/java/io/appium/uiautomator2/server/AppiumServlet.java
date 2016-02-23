@@ -7,6 +7,7 @@ import java.util.Map;
 
 import io.appium.uiautomator2.handler.Click;
 import io.appium.uiautomator2.handler.FindElement;
+import io.appium.uiautomator2.handler.NewSession;
 import io.appium.uiautomator2.handler.RequestHandler;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.http.IHttpResponse;
@@ -32,6 +33,7 @@ public class AppiumServlet implements IHttpServlet {
     }
 
     private void init() {
+        register(postHandler, new NewSession("/wd/hub/session"));
         register(postHandler, new FindElement("/wd/hub/find"));
         register(getHandler, new Click("/wd/hub/click"));
     }
@@ -109,6 +111,13 @@ public class AppiumServlet implements IHttpServlet {
     }
 
     public void handleRequest(IHttpRequest request, IHttpResponse response, RequestHandler handler) throws Exception {
+        if ("/favicon.ico".equals(request.uri()) && handler == null) {
+            response.setStatus(404).end();
+            return;
+        } else if (handler == null) {
+            response.setStatus(404).end();
+            return;
+        }
         String result;
         result = handler.safeHandle(request);
         handleResponse(request, response, result);

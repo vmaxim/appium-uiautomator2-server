@@ -3,6 +3,7 @@ package io.appium.uiautomator2.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.appium.uiautomator2.AppiumUiAutomator2Server;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -52,6 +53,7 @@ public class HttpServer {
     }
 
     public void stop() {
+        AppiumUiAutomator2Server.isStopServer(true);
         if (serverThread == null) {
             throw new IllegalStateException("Server is not running");
         }
