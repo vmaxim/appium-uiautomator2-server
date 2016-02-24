@@ -22,31 +22,16 @@ import java.util.Map;
 public class Session {
   public static final String SEND_KEYS_TO_ELEMENT = "sendKeysToElement";
   public static final String NATIVE_EVENTS_PROPERTY = "nativeEvents";
-
-  private JSONObject capabilities = null;
 //  private KnownElements knownElements = null;
   private String sessionId = null;
   private Map<String, JSONObject> commandConfiguration;
 
-  public Session(JSONObject capabilities, String sessionId) {
-    this.capabilities = capabilities;
+  public Session(String sessionId) {
     this.sessionId = sessionId;
 //    this.knownElements = new KnownElements();
     this.commandConfiguration = new HashMap<String, JSONObject>();
     JSONObject configJsonObject = new JSONObject();
-    try {
-      boolean nativeEvents = true;
-      if (capabilities.has(NATIVE_EVENTS_PROPERTY)) {
-        nativeEvents = capabilities.getBoolean(NATIVE_EVENTS_PROPERTY);
-      }
-      configJsonObject.put(NATIVE_EVENTS_PROPERTY, nativeEvents);
-    } catch (JSONException e) {
-    }
     this.commandConfiguration.put(SEND_KEYS_TO_ELEMENT, configJsonObject);
-  }
-
-  public JSONObject getCapabilities() {
-    return capabilities;
   }
 
 //  public KnownElements getKnownElements() {

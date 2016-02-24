@@ -20,13 +20,10 @@ public class NewSession extends RequestHandler{
     @Override
     public String handle(IHttpRequest request) throws JSONException {
 
-        JSONObject payload = getPayload(request);
-        JSONObject desiredCapabilities = payload.getJSONObject("desiredCapabilities");
-
         appiumUiAutomatorDriver = new AppiumUiAutomatorDriver();
         String sessionID = null;
         try {
-            sessionID = appiumUiAutomatorDriver.initializeSession(desiredCapabilities);
+            sessionID = appiumUiAutomatorDriver.initializeSession();
         } catch (Exception e) {
             Log.e("Error creating session ", e.toString());
         }

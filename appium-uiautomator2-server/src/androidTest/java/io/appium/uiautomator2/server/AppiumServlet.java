@@ -10,6 +10,7 @@ import io.appium.uiautomator2.handler.Click;
 import io.appium.uiautomator2.handler.FindElement;
 import io.appium.uiautomator2.handler.NewSession;
 import io.appium.uiautomator2.handler.RequestHandler;
+import io.appium.uiautomator2.handler.Status;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.http.IHttpResponse;
 import io.appium.uiautomator2.http.IHttpServlet;
@@ -34,9 +35,10 @@ public class AppiumServlet implements IHttpServlet {
     }
 
     private void init() {
+        register(getHandler, new Status("/wd/hub/status"));
         register(postHandler, new NewSession("/wd/hub/session"));
         register(postHandler, new FindElement("/wd/hub/find"));
-        register(getHandler, new Click("/wd/hub/click"));
+        register(postHandler, new Click("/wd/hub/click"));
         register(getHandler, new CaptureScreenshot("/wd/hub/session/:sessionId/screenshot"));
     }
 
