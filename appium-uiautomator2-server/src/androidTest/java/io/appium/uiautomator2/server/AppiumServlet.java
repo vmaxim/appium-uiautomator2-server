@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.appium.uiautomator2.handler.CaptureScreenshot;
 import io.appium.uiautomator2.handler.Click;
 import io.appium.uiautomator2.handler.FindElement;
 import io.appium.uiautomator2.handler.NewSession;
@@ -36,6 +37,7 @@ public class AppiumServlet implements IHttpServlet {
         register(postHandler, new NewSession("/wd/hub/session"));
         register(postHandler, new FindElement("/wd/hub/find"));
         register(getHandler, new Click("/wd/hub/click"));
+        register(getHandler, new CaptureScreenshot("/wd/hub/session/:sessionId/screenshot"));
     }
 
     protected void register(Map<String, RequestHandler> registerOn, RequestHandler handler) {

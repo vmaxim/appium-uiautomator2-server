@@ -31,6 +31,7 @@ public class AppiumUiAutomator2Server {
             while (!isStopServer) {
                 serverInstrumentation.startServer();
             }
+//            Thread.sleep(1000);
             Log.i("[AppiumUiAutomator2Server]", " ***************Stopping the Server***************");
         }
     }
