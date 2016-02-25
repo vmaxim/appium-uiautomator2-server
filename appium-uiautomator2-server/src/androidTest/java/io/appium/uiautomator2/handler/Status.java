@@ -1,6 +1,7 @@
 package io.appium.uiautomator2.handler;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import io.appium.uiautomator2.http.IHttpRequest;
 
@@ -11,6 +12,10 @@ public class Status extends RequestHandler {
     }
     @Override
     public String handle(IHttpRequest request) throws JSONException {
-        return "Status invoked";
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("status", 0);
+        jsonObject.put("statusCode", 200);
+        jsonObject.put("value", "Status invoked");
+        return jsonObject.toString();
     }
 }
