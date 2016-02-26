@@ -38,7 +38,7 @@ public class AppiumServlet implements IHttpServlet {
     private void init() {
         register(getHandler, new Status("/wd/hub/status"));
         register(postHandler, new NewSession("/wd/hub/session"));
-        register(postHandler, new FindElement("/wd/hub/find"));
+        register(postHandler, new FindElement("/wd/hub/session/:sessionId/element"));
         register(postHandler, new Click("/wd/hub/click"));
         register(getHandler, new CaptureScreenshot("/wd/hub/session/:sessionId/screenshot"));
     }

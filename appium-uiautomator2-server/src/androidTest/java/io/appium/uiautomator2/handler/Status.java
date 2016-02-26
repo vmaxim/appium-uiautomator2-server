@@ -14,10 +14,6 @@ public class Status extends RequestHandler {
 
     @Override
     public AppiumResponse handle(IHttpRequest request) throws JSONException {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("status", 0);
-        jsonObject.put("statusCode", 200);
-        jsonObject.put("value", "Status invoked");
-        return new AppiumResponse(jsonObject.toString());
+        return new AppiumResponse("Status Invoked");
     }
 }
