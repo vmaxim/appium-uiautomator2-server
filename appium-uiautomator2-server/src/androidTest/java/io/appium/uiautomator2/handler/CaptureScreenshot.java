@@ -7,6 +7,7 @@ import org.json.JSONException;
 
 import java.io.File;
 
+import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.util.Device;
 
@@ -17,7 +18,7 @@ public class CaptureScreenshot extends RequestHandler {
     }
 
     @Override
-    public String handle(IHttpRequest request) throws JSONException {
+    public AppiumResponse handle(IHttpRequest request) throws JSONException {
         final File screenshot = new File(Environment.getExternalStorageDirectory() + File.separator + "screenshot.png");
 
         Log.i("Path", Environment.getExternalStorageDirectory().toString());
@@ -30,6 +31,6 @@ public class CaptureScreenshot extends RequestHandler {
             screenshot.delete();
         }
         Device.getUiDevice().takeScreenshot(screenshot);
-        return "Screnshot taken";
+        return new AppiumResponse("Screnshot taken");
     }
 }

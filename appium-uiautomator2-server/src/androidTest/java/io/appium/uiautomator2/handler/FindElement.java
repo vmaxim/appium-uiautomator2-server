@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.json.JSONException;
 
+import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 
 public class FindElement extends RequestHandler{
@@ -14,9 +15,9 @@ public class FindElement extends RequestHandler{
     }
 
     @Override
-    public String handle(IHttpRequest request) throws JSONException {
+    public AppiumResponse handle(IHttpRequest request) throws JSONException {
         String id = getElementId(request);
         Log.i("Find invoked", "*********** Find Handler ************");
-        return "Find element";
+        return new AppiumResponse("Find element");
     }
 }

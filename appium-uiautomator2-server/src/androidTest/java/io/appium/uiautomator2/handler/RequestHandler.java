@@ -3,6 +3,7 @@ package io.appium.uiautomator2.handler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.http.IHttpResponse;
 import io.appium.uiautomator2.server.AppiumServlet;
@@ -35,9 +36,9 @@ public abstract class RequestHandler {
         return new JSONObject();
     }
 
-    public abstract String handle(IHttpRequest request) throws JSONException;
+    public abstract AppiumResponse handle(IHttpRequest request) throws JSONException;
 
-    public final String safeHandle(IHttpRequest request) throws JSONException {
+    public final AppiumResponse safeHandle(IHttpRequest request) throws JSONException {
         return handle(request);
     }
 }

@@ -11,6 +11,7 @@ import io.appium.uiautomator2.handler.FindElement;
 import io.appium.uiautomator2.handler.NewSession;
 import io.appium.uiautomator2.handler.RequestHandler;
 import io.appium.uiautomator2.handler.Status;
+import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.http.IHttpResponse;
 import io.appium.uiautomator2.http.IHttpServlet;
@@ -122,17 +123,18 @@ public class AppiumServlet implements IHttpServlet {
             response.setStatus(404).end();
             return;
         }
-        String result;
+        AppiumResponse result;
         result = handler.safeHandle(request);
         handleResponse(request, response, result);
     }
 
     protected void handleResponse(IHttpRequest request, IHttpResponse response,
-                                  String result) {
+                                  AppiumResponse result) {
         if (result != null) {
+            String resultString = result.render();
             response.setContentType("application/json");
             response.setEncoding(Charset.forName("UTF-8"));
-            response.setContent(result);
+            response.setContent(resultString);
             response.setStatus(200);
         }
         response.end();

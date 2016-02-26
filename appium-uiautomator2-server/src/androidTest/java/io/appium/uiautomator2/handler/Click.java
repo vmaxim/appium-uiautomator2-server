@@ -8,6 +8,7 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.util.Device;
 
@@ -19,7 +20,7 @@ public class Click extends RequestHandler {
     }
 
     @Override
-    public String handle(IHttpRequest request) throws JSONException {
+    public AppiumResponse handle(IHttpRequest request) throws JSONException {
         Log.i("Click Click",request.toString());
         JSONObject payload = getPayload(request);
         Log.i("Click Click",payload.toString());
@@ -29,6 +30,6 @@ public class Click extends RequestHandler {
 //        uiObject2.click();
 //        UiObject2 uiObject2 = new UiObject2(uiDevice, );
         Log.i("Click invoked", "*********** Click Handler ************");
-        return "Click element";
+        return new AppiumResponse("Click element");
     }
 }
