@@ -36,6 +36,13 @@ public abstract class RequestHandler {
         return new JSONObject();
     }
 
+    public String getSessionId(IHttpRequest request) {
+        if (request.data().containsKey(AppiumServlet.SESSION_ID_KEY)) {
+            return (String) request.data().get(AppiumServlet.SESSION_ID_KEY);
+        }
+        return null;
+    }
+
     public abstract AppiumResponse handle(IHttpRequest request) throws JSONException;
 
     public final AppiumResponse safeHandle(IHttpRequest request) throws JSONException {

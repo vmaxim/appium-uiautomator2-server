@@ -14,6 +14,6 @@ public class Status extends RequestHandler {
 
     @Override
     public AppiumResponse handle(IHttpRequest request) throws JSONException {
-        return new AppiumResponse("Status Invoked");
+        return new AppiumResponse("Random","Status Invoked");
     }
 }

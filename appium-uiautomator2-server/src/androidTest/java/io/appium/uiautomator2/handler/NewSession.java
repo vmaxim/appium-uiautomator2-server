@@ -28,6 +28,6 @@ public class NewSession extends RequestHandler{
         } catch (Exception e) {
             Log.e("Error creating session ", e.toString());
         }
-        return new AppiumResponse(sessionID);
+        return new AppiumResponse(sessionID,"");
     }
 }

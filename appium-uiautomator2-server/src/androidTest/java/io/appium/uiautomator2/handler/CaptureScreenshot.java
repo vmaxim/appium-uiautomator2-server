@@ -31,6 +31,6 @@ public class CaptureScreenshot extends RequestHandler {
             screenshot.delete();
         }
         Device.getUiDevice().takeScreenshot(screenshot);
-        return new AppiumResponse("Screnshot taken");
+        return new AppiumResponse(getSessionId(request),"Screnshot taken");
     }
 }
