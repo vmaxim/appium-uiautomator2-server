@@ -21,7 +21,7 @@ import io.netty.handler.codec.http.HttpResponse;
 public class AppiumServlet implements IHttpServlet {
 
     public static final String SESSION_ID_KEY = "SESSION_ID_KEY";
-    public static final String ELEMENT_ID_KEY = "ELEMENT_ID_KEY";
+    public static final String ELEMENT_ID_KEY = "id";
     public static final String COMMAND_NAME_KEY = "COMMAND_KEY";
     public static final String NAME_ID_KEY = "NAME_ID_KEY";
     public static final String DRIVER_KEY = "DRIVER_KEY";

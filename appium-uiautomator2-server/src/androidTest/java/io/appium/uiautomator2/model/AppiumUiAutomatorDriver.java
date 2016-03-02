@@ -18,7 +18,6 @@ public class AppiumUiAutomatorDriver {
 
         JSONObject jsonObject = new JSONObject();
         if (this.session != null) {
-//            session.getKnownElements().clear();
             return session.getSessionId();
         }
         Random random = new Random();

@@ -17,6 +17,7 @@ import io.appium.uiautomator2.util.Device;
 
 public class Click extends RequestHandler {
     private static UiDevice uiDevice = Device.getUiDevice();
+    private String TAG = "CLICK";
 
     public Click(String mappedUri) {
         super(mappedUri);
@@ -24,24 +25,14 @@ public class Click extends RequestHandler {
 
     @Override
     public AppiumResponse handle(IHttpRequest request) throws JSONException {
-        Log.i("Click Click",request.toString());
         JSONObject payload = getPayload(request);
-        Log.i("Click Click", payload.toString());
-
-        String id = getElementId(request);
-
-        Log.i("Prakash", "************Received the id************");
-
+        String id = payload.getString("id");
         AndroidElement element = KnownElements.getElementFromCache(id);
-        Log.i("Prakash", "************Found the element************");
         try {
             element.click();
         } catch (UiObjectNotFoundException e) {
             e.printStackTrace();
         }
-
-//        UiObject2 uiObject2 = new UiObject2(uiDevice, );
-        Log.i("Click invoked", "*********** Click Handler ************");
-        return new AppiumResponse(getSessionId(request),"Click element");
+        return new AppiumResponse(getSessionId(request), "Click element");
     }
 }

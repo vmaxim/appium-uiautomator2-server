@@ -1,5 +1,7 @@
 package io.appium.uiautomator2.model;
 
+import android.util.Log;
+
 import java.util.HashMap;
 import java.util.Map;
 

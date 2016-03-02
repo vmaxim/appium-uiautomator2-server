@@ -19,10 +19,10 @@ import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.KnownElements;
 import io.appium.uiautomator2.util.Device;
 
-public class FindElement extends RequestHandler{
+public class FindElement extends RequestHandler {
     private static UiDevice uiDevice = Device.getUiDevice();
 
-    public FindElement(String mappedUri){
+    public FindElement(String mappedUri) {
         super(mappedUri);
     }
 
@@ -30,21 +30,17 @@ public class FindElement extends RequestHandler{
     public AppiumResponse handle(IHttpRequest request) throws JSONException {
         KnownElements ke = new KnownElements();
         JSONObject payload = getPayload(request);
-        String method = payload.getString("using");
         String selector = payload.getString("value");
 
-        UiObject2 element = uiDevice.findObject(By.text(method));
-        Log.i("FInd", element.toString()+"^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+        UiObject2 element = uiDevice.findObject(By.text(selector));
         Random random = new Random();
-        String id =  new UUID(random.nextLong(), random.nextLong()).toString();
+        String id = new UUID(random.nextLong(), random.nextLong()).toString();
         AndroidElement androidElement = new AndroidElement(id, element);
         ke.add(androidElement);
 
         JSONObject result = new JSONObject();
         result.put("ELEMENT", id);
 
-//        String id = getElementId(request);
-        Log.i("Find invoked", "*********** Find Handler ************");
-        return new AppiumResponse(getSessionId(request),result);
+        return new AppiumResponse(getSessionId(request), result);
     }
 }
