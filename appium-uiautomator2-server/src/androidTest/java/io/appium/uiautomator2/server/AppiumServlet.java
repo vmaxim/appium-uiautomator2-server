@@ -8,8 +8,10 @@ import java.util.Map;
 import io.appium.uiautomator2.handler.CaptureScreenshot;
 import io.appium.uiautomator2.handler.Click;
 import io.appium.uiautomator2.handler.FindElement;
+import io.appium.uiautomator2.handler.GetScreenOrientation;
 import io.appium.uiautomator2.handler.NewSession;
 import io.appium.uiautomator2.handler.RequestHandler;
+import io.appium.uiautomator2.handler.RotateScreen;
 import io.appium.uiautomator2.handler.Status;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -36,11 +38,21 @@ public class AppiumServlet implements IHttpServlet {
     }
 
     private void init() {
-        register(getHandler, new Status("/wd/hub/status"));
+        registerGetHandler();
+        registerPostHandler();
+    }
+
+    private void registerPostHandler() {
         register(postHandler, new NewSession("/wd/hub/session"));
         register(postHandler, new FindElement("/wd/hub/session/:sessionId/element"));
         register(postHandler, new Click("/wd/hub/session/:sessionId/element/:id/click"));
+        register(postHandler, new RotateScreen("/wd/hub/session/:sessionId/orientation"));
+    }
+
+    private void registerGetHandler() {
+        register(getHandler, new Status("/wd/hub/status"));
         register(getHandler, new CaptureScreenshot("/wd/hub/session/:sessionId/screenshot"));
+        register(getHandler, new GetScreenOrientation("/wd/hub/session/:sessionId/orientation"));
     }
 
     protected void register(Map<String, RequestHandler> registerOn, RequestHandler handler) {
