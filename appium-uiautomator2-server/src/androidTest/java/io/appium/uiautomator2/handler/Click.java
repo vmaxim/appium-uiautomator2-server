@@ -16,8 +16,6 @@ import io.appium.uiautomator2.model.KnownElements;
 import io.appium.uiautomator2.util.Device;
 
 public class Click extends RequestHandler {
-    private static UiDevice uiDevice = Device.getUiDevice();
-    private String TAG = "CLICK";
 
     public Click(String mappedUri) {
         super(mappedUri);

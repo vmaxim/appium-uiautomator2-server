@@ -20,8 +20,6 @@ public class CaptureScreenshot extends RequestHandler {
     @Override
     public AppiumResponse handle(IHttpRequest request) throws JSONException {
         final File screenshot = new File(Environment.getExternalStorageDirectory() + File.separator + "screenshot.png");
-
-        Log.i("Path", Environment.getExternalStorageDirectory().toString());
         try {
             screenshot.getParentFile().mkdirs();
         } catch (final Exception e) {

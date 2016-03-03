@@ -22,7 +22,6 @@ public class AppiumUiAutomatorDriver {
         }
         Random random = new Random();
         this.session = new Session(new UUID(random.nextLong(), random.nextLong()).toString());
-        Log.i("::::::::::session Id:::", session.getSessionId());
         jsonObject.put("sessionId", session.getSessionId());
         return session.getSessionId();
     }
