@@ -1,6 +1,6 @@
 ### appium-uiautmator2-server
 
-A netty server that runs on the device lisening for commands.
+A netty server that runs on the device listening for commands.
 
 ### Starting server
 build the android project using the commands 
