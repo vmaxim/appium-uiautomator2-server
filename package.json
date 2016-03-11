@@ -1,14 +1,24 @@
 {
-  "name": "uiautomator2",
-  "version": "1.0.2",
-  "description": "\"Uiatomator driver\"",
+  "name": "appium-uiautomator2-server",
+  "version": "1.0.0",
+  "description": "A netty server with uiautomator2 handlers",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "postinstall": "gradle clean assembleDebug assembleDebugandroidTest"
   },
-  "author": "PrakashGoulla",
-  "license": "ISC",
-  "scripts": {
-    "prepublish": "gradle assembleDebugAndroidTest"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/appium/appium-uiautomator2-server"
+  },
+  "keywords": [
+    "appium",
+    "android",
+    "uiautomator2"
+  ],
+  "author": "https://github.com/appium",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/appium/appium-uiautomator2-server/issues"
+  },
+  "homepage": "https://github.com/appium/appium-uiautomator2-server"
   }
-}
