@@ -26,6 +26,14 @@ android {
     lintOptions {
         abortOnError false
     }
+    productFlavors {
+        unitTest {
+            applicationId 'io.appium.uiautomator2.unittest'
+        }
+        server {
+            applicationId 'io.appium.uiautomator2.server'
+        }
+    }
 }
 
 dependencies {
@@ -37,4 +45,26 @@ dependencies {
     androidTestCompile 'com.android.support:support-annotations:23.1.1'
     compile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
     compile 'com.squareup.okhttp:okhttp:2.5.0'
+}
+
+task installAUT(type: Exec) {
+    group = 'test'
+    description = 'Install app under test'
+    def adb = android.getAdbExe().toString()
+    def apk = file('..\\app\\src\\androidTestUnitTest\\java\\io\\appium\\uiautomator2\\unittest\\resource\\selendroid-test-app-debug.apk')
+    commandLine "$adb install -rg $apk".split(' ')
+    standardOutput = new ByteArrayOutputStream()
+    ext.output = {
+        return standardOutput.toString()
+    }
+    println ext.output.toString()
+}
+
+
+afterEvaluate {
+    tasks.each { task ->
+        if (task.name.startsWith('connectedUnitTestDebugAndroidTest')) {
+            task.dependsOn installAUT
+        }
+    }
 }
