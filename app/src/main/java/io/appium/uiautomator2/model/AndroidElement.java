@@ -2,6 +2,7 @@ package io.appium.uiautomator2.model;
 
 import android.graphics.Rect;
 import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
 
@@ -52,4 +53,6 @@ public interface AndroidElement {
 
     public boolean dragTo(final Object destObj, final int steps)
             throws UiObjectNotFoundException, InvalidCoordinatesException;
+
+    public AccessibilityNodeInfo getAccessibilityNodeInfo();
 }

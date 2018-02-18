@@ -13,6 +13,7 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'de.mobilej.unmock'
+apply plugin: 'jacoco'
 
 android {
     compileSdkVersion 24
@@ -32,9 +33,11 @@ android {
     buildTypes {
         debug {
             debuggable true
+            testCoverageEnabled = true 
         }
         customDebuggableBuildType {
             debuggable true
+            testCoverageEnabled = true 
         }
         applicationVariants.all { variant ->
             variant.outputs.all {
@@ -55,7 +58,11 @@ android {
         }
     }
     testOptions {
-        unitTests.returnDefaultValues = true
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+            }
+        }
     }
     packagingOptions {
         exclude 'META-INF/maven/com.google.guava/guava/pom.properties'
@@ -89,6 +96,8 @@ dependencies {
     androidTestCompile 'com.android.support:support-annotations:23.1.1'
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
     androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2.2'
+    compile 'com.google.dagger:dagger:2.10'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.10'
 }
 
 task installAUT(type: Exec) {
@@ -96,7 +105,7 @@ task installAUT(type: Exec) {
     description = 'Install app under test'
     def adb = android.getAdbExe().toString()
     def apk = file('../app/src/androidTestE2eTest/java/io/appium/uiautomator2/unittest/resource/ApiDemos-debug.apk')
-    commandLine "$adb install -rg $apk".split(' ')
+    commandLine "$adb install -r -g $apk".split(' ')
     standardOutput = new ByteArrayOutputStream()
     ext.output = {
         return standardOutput.toString()
@@ -111,3 +120,8 @@ afterEvaluate {
         }
     }
 }
+
+jacoco { 
+    toolVersion = "0.7.5.201505241946" 
+}
+

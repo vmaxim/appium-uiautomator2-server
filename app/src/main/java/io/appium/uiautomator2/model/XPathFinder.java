@@ -24,7 +24,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import java.lang.IllegalStateException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,10 +36,10 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.UiAutomatorBridge;
 import io.appium.uiautomator2.utils.Attribute;
 import io.appium.uiautomator2.utils.Device;
 import io.appium.uiautomator2.utils.Logger;
@@ -52,30 +51,17 @@ import io.appium.uiautomator2.utils.Preconditions;
  */
 public class XPathFinder implements Finder {
   private static final XPath XPATH_COMPILER = XPathFactory.newInstance().newXPath();
-  // document needs to be static so that when buildDomNode is called recursively
-  // on children they are in the same document to be appended.
-  private static Document document;
   // The two maps should be kept in sync
   private static final Map<UiElement<?, ?>, Element> TO_DOM_MAP =
       new HashMap<UiElement<?, ?>, Element>();
   private static final Map<Element, UiElement<?, ?>> FROM_DOM_MAP =
       new HashMap<Element, UiElement<?, ?>>();
-
-  public static void clearData() {
-    TO_DOM_MAP.clear();
-    FROM_DOM_MAP.clear();
-    document = null;
-  }
-
+    // document needs to be static so that when buildDomNode is called recursively
+    // on children they are in the same document to be appended.
+    private static Document document;
+    private static UiAutomationElement rootElement;
   private final String xPathString;
   private final XPathExpression xPathExpression;
-  private static UiAutomationElement rootElement;
-
-  @Override
-  public String toString() {
-    return xPathString;
-  }
-
   public XPathFinder(String xPathString) {
     this.xPathString = Preconditions.checkNotNull(xPathString);
     try {
@@ -85,31 +71,10 @@ public class XPathFinder implements Finder {
     }
   }
 
-  @Override
-  public NodeInfoList find(UiElement context) {
-    Element domNode = getDomNode((UiElement<?, ?>) context);
-    try {
-      getDocument().appendChild(domNode);
-      NodeList nodes = (NodeList) xPathExpression.evaluate(domNode, XPathConstants.NODESET);
-      NodeInfoList list = new NodeInfoList();
-
-      int nodesLength = nodes.getLength();
-        for (int i = 0; i < nodesLength; i++) {
-          if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && !FROM_DOM_MAP.get(nodes.item(i)).getClassName().equals("hierarchy")) {
-              list.addToList(FROM_DOM_MAP.get(nodes.item(i)).node);
-          }
-        }
-      return list;
-    } catch (XPathExpressionException e) {
-      throw new ElementNotFoundException( e);
-    } finally {
-      try {
-        getDocument().removeChild(domNode);
-      } catch (DOMException e) {
-        Logger.error(e, "Failed to clear document");
-        document = null; // getDocument will create new
-      }
-    }
+    public static void clearData() {
+        TO_DOM_MAP.clear();
+        FROM_DOM_MAP.clear();
+        document = null;
   }
 
   public static NodeInfoList getNodesList(String xpathExpression,  AccessibilityNodeInfo nodeInfo) throws InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception {
@@ -214,13 +179,6 @@ public class XPathFinder implements Finder {
       element.setAttribute(attr.getName(), String.valueOf(value));
   }
 
-  public UiAutomationElement getRootElement() {
-    if (rootElement == null) {
-      refreshUiElementTree();
-    }
-    return rootElement;
-  }
-
   public static void refreshUiElementTree() {
     rootElement = UiAutomationElement.newRootElement(getRootAccessibilityNode(), NotificationListener.getToastMSGs());
   }
@@ -228,7 +186,6 @@ public class XPathFinder implements Finder {
   public static void refreshUiElementTree(AccessibilityNodeInfo nodeInfo) {
     rootElement =UiAutomationElement.newRootElement(nodeInfo, null /*Toast Messages*/);
   }
-
 
   public static AccessibilityNodeInfo getRootAccessibilityNode() throws UiAutomator2Exception {
     final long timeoutMillis = 10000;
@@ -238,7 +195,7 @@ public class XPathFinder implements Finder {
     while (end > SystemClock.uptimeMillis()) {
       AccessibilityNodeInfo root = null;
       try {
-          root = UiAutomatorBridge.getInstance().getQueryController().getAccessibilityRootNode();
+          root = App.core.getQueryControllerAdapter().getAccessibilityRootNode();
       } catch (IllegalStateException ignore) {
           /**
            * Sometimes getAccessibilityRootNode() throws
@@ -282,4 +239,44 @@ public class XPathFinder implements Finder {
     }
     return name.substring(0, start);
   }
+
+    @Override
+    public String toString() {
+        return xPathString;
+    }
+
+    @Override
+    public NodeInfoList find(UiElement context) {
+        Element domNode = getDomNode((UiElement<?, ?>) context);
+        try {
+            getDocument().appendChild(domNode);
+            NodeList nodes = (NodeList) xPathExpression.evaluate(domNode, XPathConstants.NODESET);
+            NodeInfoList list = new NodeInfoList();
+
+            int nodesLength = nodes.getLength();
+            for (int i = 0; i < nodesLength; i++) {
+                if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && !FROM_DOM_MAP.get(nodes
+                        .item(i)).getClassName().equals("hierarchy")) {
+                    list.addToList(FROM_DOM_MAP.get(nodes.item(i)).node);
+                }
+            }
+            return list;
+        } catch (XPathExpressionException e) {
+            throw new ElementNotFoundException(e);
+        } finally {
+            try {
+                getDocument().removeChild(domNode);
+            } catch (DOMException e) {
+                Logger.error(e, "Failed to clear document");
+                document = null; // getDocument will create new
+            }
+        }
+    }
+
+    public UiAutomationElement getRootElement() {
+        if (rootElement == null) {
+            refreshUiElementTree();
+        }
+        return rootElement;
+    }
 }

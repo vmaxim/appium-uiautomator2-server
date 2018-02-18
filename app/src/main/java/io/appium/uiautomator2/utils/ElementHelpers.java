@@ -29,11 +29,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.appium.uiautomator2.core.AccessibilityNodeInfoHelper;
-import io.appium.uiautomator2.core.AccessibilityNodeInfoGetter;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
+import io.appium.uiautomator2.core.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.utils.UnicodeEncoder;
 
 import static io.appium.uiautomator2.utils.ReflectionUtils.method;
 
@@ -97,7 +95,7 @@ public abstract class ElementHelpers {
      */
     public static void setText(final Object element, final String text, final boolean unicodeKeyboard) throws UiObjectNotFoundException {
         String textToSend = text;
-        AccessibilityNodeInfo nodeInfo = AccessibilityNodeInfoGetter.fromUiObject(element);
+        AccessibilityNodeInfo nodeInfo = element.getAccessibilityNodeInfo();
 
         /*
          * Execute ACTION_SET_PROGRESS action (introduced in API level 24)

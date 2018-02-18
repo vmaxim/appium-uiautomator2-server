@@ -4,17 +4,10 @@ import android.os.SystemClock;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.InteractionController;
-import io.appium.uiautomator2.core.UiAutomatorBridge;
-import io.appium.uiautomator2.handler.request.SafeRequestHandler;
-import io.appium.uiautomator2.http.AppiumResponse;
-import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.KnownElements;
-import io.appium.uiautomator2.server.WDStatus;
+import io.appium.uiautomator2.core.InteractionControllerAdapter;
 import io.appium.uiautomator2.utils.Logger;
 
 public class TouchLongClick extends TouchEvent {
@@ -30,11 +23,12 @@ public class TouchLongClick extends TouchEvent {
              * the super class.
              */
 
-            InteractionController interactionController = UiAutomatorBridge.getInstance().getInteractionController();
+            InteractionControllerAdapter interactionControllerAdapter = App.core
+                    .getInteractionControllerAdapter();
 
-            if (interactionController.touchDown(x, y)) {
+            if (interactionControllerAdapter.touchDown(x, y)) {
                 SystemClock.sleep(duration);
-                if (interactionController.touchUp(x, y)) {
+                if (interactionControllerAdapter.touchUp(x, y)) {
                     return true;
                 }
             }

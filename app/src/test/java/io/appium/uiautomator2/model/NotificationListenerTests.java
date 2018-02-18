@@ -31,7 +31,8 @@ import org.powermock.reflect.Whitebox;
 
 import java.util.ArrayList;
 
-import io.appium.uiautomator2.core.UiAutomatorBridge;
+import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -45,12 +46,12 @@ import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.support.membermodification.MemberMatcher.constructor;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({UiAutomatorBridge.class, NotificationListener.class, UiAutomation.class})
-@SuppressStaticInitializationFor({"io.appium.uiautomator2.core.UiAutomatorBridge"})
+@PrepareForTest({UiAutomatorBridgeAdapter.class, NotificationListener.class, UiAutomation.class})
+@SuppressStaticInitializationFor({"io.appium.uiautomator2.core.UiAutomatorBridgeAdapter"})
 public class NotificationListenerTests {
 
     @Mock
-    UiAutomatorBridge uiAutomatorBridge;
+    UiAutomatorBridgeAdapter uiAutomatorBridgeAdapter;
 
     @Mock
     UiAutomation uiAutomation;
@@ -64,15 +65,15 @@ public class NotificationListenerTests {
     public void setup() throws Exception {
         notificationListener = constructor(NotificationListener.class).newInstance();
 
-        PowerMockito.mockStatic(UiAutomatorBridge.class);
+        PowerMockito.mockStatic(UiAutomatorBridgeAdapter.class);
         PowerMockito.mockStatic(NotificationListener.class);
-        PowerMockito.suppress(constructor(UiAutomatorBridge.class));
+        PowerMockito.suppress(constructor(UiAutomatorBridgeAdapter.class));
 
-        when(UiAutomatorBridge.getInstance()).thenReturn(uiAutomatorBridge);
+        when(App.core.getUiAutomatorBridge()).thenReturn(uiAutomatorBridgeAdapter);
 
         when(accessibilityEvent.getText()).thenReturn(new ArrayList<CharSequence>());
 
-        when(uiAutomatorBridge.getUiAutomation()).thenReturn(uiAutomation);
+        when(uiAutomatorBridgeAdapter.getUiAutomation()).thenReturn(uiAutomation);
         when(uiAutomation.executeAndWaitForEvent(
                 (Runnable) any(), (UiAutomation.AccessibilityEventFilter) any(), anyLong()))
                 .thenReturn(accessibilityEvent);

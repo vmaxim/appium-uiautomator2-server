@@ -27,8 +27,8 @@ import org.xml.sax.InputSource;
 
 import java.io.StringReader;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
+import javax.inject.Inject;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -41,14 +41,16 @@ import io.appium.uiautomator2.core.AccessibilityNodeInfoDumper;
 import io.appium.uiautomator2.model.XPathFinder;
 
 
-public abstract class XMLHierarchy {
-    // XML 1.0 Legal Characters (http://stackoverflow.com/a/4237934/347155)
-    // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
-    private final static Pattern XML10Pattern = Pattern.compile("[^" + "\u0009\r\n" +
-            "\u0020-\uD7FF" + "\uE000-\uFFFD" + "\ud800\udc00-\udbff\udfff" + "]");
+public class XMLHierarchy {
     private final static String DEFAULT_VIEW_NAME = "android.view.View";
+    private final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper;
 
-    private static XPathExpression compileXpath(String xpathExpression) throws InvalidSelectorException {
+    @Inject
+    public XMLHierarchy(AccessibilityNodeInfoDumper accessibilityNodeInfoDumper) {
+        this.accessibilityNodeInfoDumper = accessibilityNodeInfoDumper;
+    }
+
+    private XPathExpression compileXpath(String xpathExpression) throws InvalidSelectorException {
         XPath xpath = XPathFactory.newInstance().newXPath();
         XPathExpression exp = null;
         try {
@@ -59,23 +61,24 @@ public abstract class XMLHierarchy {
         return exp;
     }
 
-    public static InputSource getRawXMLHierarchy() throws UiAutomator2Exception {
+    private InputSource getRawXMLHierarchy() throws UiAutomator2Exception {
         AccessibilityNodeInfo root = XPathFinder.getRootAccessibilityNode();
         return getRawXMLHierarchy(root);
     }
 
-    public static InputSource getRawXMLHierarchy(AccessibilityNodeInfo root) throws UiAutomator2Exception {
-        String xmlDump = AccessibilityNodeInfoDumper.getWindowXMLHierarchy(root);
+    private InputSource getRawXMLHierarchy(AccessibilityNodeInfo root) throws
+            UiAutomator2Exception {
+        String xmlDump = accessibilityNodeInfoDumper.getWindowXMLHierarchy(root);
         return new InputSource(new StringReader(xmlDump));
     }
 
 
-    public static Node getFormattedXMLDoc() throws UiAutomator2Exception {
+    public Node getFormattedXMLDoc() throws UiAutomator2Exception {
         return formatXMLInput(getRawXMLHierarchy());
     }
 
 
-    public static Node formatXMLInput(InputSource input) {
+    private Node formatXMLInput(InputSource input) {
         XPath xpath = XPathFactory.newInstance().newXPath();
 
         Node root = null;
@@ -95,7 +98,7 @@ public abstract class XMLHierarchy {
     }
 
 
-    private static void annotateNodes(Node node, HashMap<String, Integer> instances) {
+    private void annotateNodes(Node node, HashMap<String, Integer> instances) {
         NodeList children = node.getChildNodes();
         for (int i = 0; i < children.getLength(); i++) {
             if (children.item(i).getNodeType() == Node.ELEMENT_NODE) {
@@ -111,7 +114,7 @@ public abstract class XMLHierarchy {
     // this allows use to use class and instance to identify a node.
     // we also take this chance to clean class names that might have dollar signs in
     // them (and other odd characters)
-    private static void visitNode(Node node, HashMap<String, Integer> instances) {
+    private void visitNode(Node node, HashMap<String, Integer> instances) {
 
         Document doc = node.getOwnerDocument();
         NamedNodeMap attributes = node.getAttributes();
@@ -139,7 +142,7 @@ public abstract class XMLHierarchy {
         instances.put(androidClass, instance + 1);
     }
 
-    private static String cleanTagName(String name) {
+    private String cleanTagName(String name) {
         if (StringUtils.isBlank(name)) {
             return DEFAULT_VIEW_NAME;
         }
@@ -148,7 +151,7 @@ public abstract class XMLHierarchy {
                 .replaceAll("[$@#&]", ".")
                 // https://github.com/appium/appium/issues/9934
                 .replaceAll("[ˊ\\s]", "");
-        fixedName = safeCharSeqToString(fixedName)
+        fixedName = accessibilityNodeInfoDumper.safeCharSeqToString(fixedName)
                 // https://github.com/appium/appium/issues/9934
                 .replace("?", "")
                 .replaceAll("\\.+", ".")
@@ -159,10 +162,5 @@ public abstract class XMLHierarchy {
         return StringUtils.isBlank(fixedName) ? DEFAULT_VIEW_NAME : fixedName;
     }
 
-    public static String safeCharSeqToString(CharSequence cs) {
-        if (cs == null) {
-            return "";
-        }
-        return XML10Pattern.matcher(String.valueOf(cs)).replaceAll("?");
-    }
+
 }

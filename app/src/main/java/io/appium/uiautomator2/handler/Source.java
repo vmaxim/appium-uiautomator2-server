@@ -11,6 +11,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -34,7 +35,8 @@ public class Source extends SafeRequestHandler {
         try {
             ReflectionUtils.clearAccessibilityCache();
 
-            final Document doc = (Document) XMLHierarchy.getFormattedXMLDoc();
+            final Document doc = (Document) new XMLHierarchy(App.core
+                    .getAccessibilityNodeInfoDumper()).getFormattedXMLDoc();
             final TransformerFactory tf = TransformerFactory.newInstance();
             final StringWriter writer = new StringWriter();
             Transformer transformer = tf.newTransformer();

@@ -16,8 +16,7 @@ import java.util.regex.Pattern;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
-import io.appium.uiautomator2.core.AccessibilityNodeInfoGetter;
-import io.appium.uiautomator2.model.internal.CustomUiDevice;
+import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.utils.Device;
 import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
@@ -30,6 +29,7 @@ import static io.appium.uiautomator2.utils.ReflectionUtils.method;
 public class UiObjectElement implements AndroidElement {
 
     private static final Pattern endsWithInstancePattern = Pattern.compile(".*INSTANCE=\\d+]$");
+    private static long TIME_IN_MS = 10000;
     private final UiObject element;
     private final String id;
     private final By by;
@@ -103,7 +103,7 @@ public class UiObjectElement implements AndroidElement {
         } else if ("displayed".equals(attr)) {
             res = element.exists();
         } else if ("password".equals(attr)) {
-            res = AccessibilityNodeInfoGetter.fromUiObject(element).isPassword();
+            res = getAccessibilityNodeInfo().isPassword();
         }  else {
             throw new NoAttributeFoundException(attr);
         }
@@ -138,8 +138,8 @@ public class UiObjectElement implements AndroidElement {
              * as an alternative creating UiObject2 with UiObject's AccessibilityNodeInfo
              * and finding the child element on UiObject2.
              */
-            AccessibilityNodeInfo nodeInfo = AccessibilityNodeInfoGetter.fromUiObject(element);
-            UiObject2 uiObject2 = (UiObject2) CustomUiDevice.getInstance().findObject(nodeInfo);
+            AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
+            UiObject2 uiObject2 = (UiObject2) UiDeviceAdapter.getInstance().findObject(nodeInfo);
             return uiObject2.findObject((BySelector) selector);
         }
         return element.getChild((UiSelector) selector);
@@ -152,8 +152,8 @@ public class UiObjectElement implements AndroidElement {
              * as an alternative creating UiObject2 with UiObject's AccessibilityNodeInfo
              * and finding the child elements on UiObject2.
              */
-            AccessibilityNodeInfo nodeInfo = AccessibilityNodeInfoGetter.fromUiObject(element);
-            UiObject2 uiObject2 = (UiObject2) CustomUiDevice.getInstance().findObject(nodeInfo);
+            AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
+            UiObject2 uiObject2 = (UiObject2) UiDeviceAdapter.getInstance().findObject(nodeInfo);
             return (List)uiObject2.findObjects((BySelector) selector);
         }
         return (List)this.getChildElements((UiSelector) selector);
@@ -281,5 +281,11 @@ public class UiObjectElement implements AndroidElement {
 
         Logger.error("Destination should be either UiObject or UiObject2");
         return false;
+    }
+
+    @Override
+    public AccessibilityNodeInfo getAccessibilityNodeInfo() {
+        return (AccessibilityNodeInfo) invoke(method(UiObject.class,
+                "findAccessibilityNodeInfo", long.class), getUiObject(), TIME_IN_MS);
     }
 }

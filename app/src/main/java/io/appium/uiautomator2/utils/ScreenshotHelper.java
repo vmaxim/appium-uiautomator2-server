@@ -24,17 +24,16 @@ import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.CompressScreenshotException;
 import io.appium.uiautomator2.common.exceptions.CropScreenshotException;
-import io.appium.uiautomator2.common.exceptions.ElementNotVisibleException;
 import io.appium.uiautomator2.common.exceptions.TakeScreenshotException;
-import io.appium.uiautomator2.model.internal.CustomUiDevice;
 
 import static android.graphics.Bitmap.CompressFormat.PNG;
 
 public class ScreenshotHelper {
 
-    private static final UiAutomation uia = CustomUiDevice.getInstance().getInstrumentation()
+    private static final UiAutomation uia = App.core.getUiDeviceAdapter().getInstrumentation()
             .getUiAutomation();
 
     /**

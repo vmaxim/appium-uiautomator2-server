@@ -25,12 +25,12 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.regex.Pattern;
+
+import javax.inject.Inject;
 
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.Logger;
-
-import static io.appium.uiautomator2.utils.XMLHierarchy.safeCharSeqToString;
-
 
 /**
  * The AccessibilityNodeInfoDumper in Android Open Source Project contains a lot of bugs which will
@@ -40,7 +40,19 @@ import static io.appium.uiautomator2.utils.XMLHierarchy.safeCharSeqToString;
  * https://code.google.com/p/android/issues/detail?id=58733 }
  */
 public class AccessibilityNodeInfoDumper {
-    private static final String[] NAF_EXCLUDED_CLASSES = new String[]{android.widget.GridView.class.getName(), android.widget.GridLayout.class.getName(), android.widget.ListView.class.getName(), android.widget.TableLayout.class.getName()};
+    // XML 1.0 Legal Characters (http://stackoverflow.com/a/4237934/347155)
+    // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+    private final static Pattern XML10Pattern = Pattern.compile("[^" + "\u0009\r\n" +
+            "\u0020-\uD7FF" + "\uE000-\uFFFD" + "\ud800\udc00-\udbff\udfff" + "]");
+    private static final String[] NAF_EXCLUDED_CLASSES = new String[]{android.widget.GridView
+            .class.getName(), android.widget.GridLayout.class.getName(), android.widget.ListView
+            .class.getName(), android.widget.TableLayout.class.getName()};
+    private UiAutomatorBridgeAdapter uiAutomatorBridgeAdapter;
+
+    @Inject
+    public AccessibilityNodeInfoDumper(UiAutomatorBridgeAdapter uiAutomatorBridgeAdapter) {
+        this.uiAutomatorBridgeAdapter = uiAutomatorBridgeAdapter;
+    }
 
     /**
      * Using {@link AccessibilityNodeInfo} this method will walk the layout hierarchy and return
@@ -48,7 +60,7 @@ public class AccessibilityNodeInfoDumper {
      *
      * @param root The root accessibility node.
      */
-    public static String getWindowXMLHierarchy(AccessibilityNodeInfo root) throws UiAutomator2Exception {
+    public String getWindowXMLHierarchy(AccessibilityNodeInfo root) throws UiAutomator2Exception {
         final long startTime = SystemClock.uptimeMillis();
         StringWriter xmlDump = new StringWriter();
         try {
@@ -62,7 +74,7 @@ public class AccessibilityNodeInfoDumper {
                 int width = -1;
                 int height = -1;
 
-                Display display = UiAutomatorBridge.getInstance().getDefaultDisplay();
+                Display display = uiAutomatorBridgeAdapter.getDefaultDisplay();
                 Point size = new Point();
                 display.getSize(size);
                 width = size.x;
@@ -88,7 +100,8 @@ public class AccessibilityNodeInfoDumper {
     }
 
 
-    private static void dumpNodeRec(AccessibilityNodeInfo node, XmlSerializer serializer, int index, int width, int height) throws IOException {
+    private void dumpNodeRec(AccessibilityNodeInfo node, XmlSerializer serializer, int index, int
+            width, int height) throws IOException {
         serializer.startTag("", "node");
         if (!nafExcludedClass(node) && !nafCheck(node))
             serializer.attribute("", "NAF", Boolean.toString(true));
@@ -113,7 +126,8 @@ public class AccessibilityNodeInfoDumper {
         serializer.attribute("", "long-clickable", Boolean.toString(node.isLongClickable()));
         serializer.attribute("", "password", Boolean.toString(node.isPassword()));
         serializer.attribute("", "selected", Boolean.toString(node.isSelected()));
-        serializer.attribute("", "bounds", AccessibilityNodeInfoHelper.getVisibleBoundsInScreen(node, width, height).toShortString());
+        serializer.attribute("", "bounds", AccessibilityNodeInfoHelper.getVisibleBoundsInScreen
+                (node, width, height).toShortString());
         serializer.attribute("", "resource-id", safeCharSeqToString(node.getViewIdResourceName()));
 
         int count = node.getChildCount();
@@ -127,7 +141,8 @@ public class AccessibilityNodeInfoDumper {
                     Logger.info(String.format("Skipping invisible child: %s", child.toString()));
                 }
             } else {
-                Logger.info(String.format("Null child %d/%d, parent: %s", i, count, node.toString()));
+                Logger.info(String.format("Null child %d/%d, parent: %s", i, count, node.toString
+                        ()));
             }
         }
         serializer.endTag("", "node");
@@ -140,7 +155,7 @@ public class AccessibilityNodeInfoDumper {
      *
      * @return true if node is excluded.
      */
-    private static boolean nafExcludedClass(AccessibilityNodeInfo node) {
+    private boolean nafExcludedClass(AccessibilityNodeInfo node) {
         String className = safeCharSeqToString(node.getClassName());
         for (String excludedClassName : NAF_EXCLUDED_CLASSES) {
             if (className.endsWith(excludedClassName)) return true;
@@ -156,8 +171,10 @@ public class AccessibilityNodeInfoDumper {
      *
      * @return false if a node fails the check, true if all is OK
      */
-    private static boolean nafCheck(AccessibilityNodeInfo node) {
-        boolean isNaf = node.isClickable() && node.isEnabled() && safeCharSeqToString(node.getContentDescription()).isEmpty() && safeCharSeqToString(node.getText()).isEmpty();
+    private boolean nafCheck(AccessibilityNodeInfo node) {
+        boolean isNaf = node.isClickable() && node.isEnabled() && safeCharSeqToString(node
+                .getContentDescription()).isEmpty() && safeCharSeqToString(node.getText())
+                .isEmpty();
         if (!isNaf) return true;
         // check children since sometimes the containing element is clickable
         // and NAF but a child's text or description is available. Will assume
@@ -175,18 +192,27 @@ public class AccessibilityNodeInfoDumper {
      *
      * @return false if node fails the check.
      */
-    private static boolean childNafCheck(AccessibilityNodeInfo node) {
+    private boolean childNafCheck(AccessibilityNodeInfo node) {
         int childCount = node.getChildCount();
         for (int x = 0; x < childCount; x++) {
             AccessibilityNodeInfo childNode = node.getChild(x);
             if (childNode == null) {
-                Logger.info(String.format("Null child %d/%d, parent: %s", x, childCount, node.toString()));
+                Logger.info(String.format("Null child %d/%d, parent: %s", x, childCount, node
+                        .toString()));
                 continue;
             }
-            if (!safeCharSeqToString(childNode.getContentDescription()).isEmpty() || !safeCharSeqToString(childNode.getText()).isEmpty())
+            if (!safeCharSeqToString(childNode.getContentDescription()).isEmpty() ||
+                    !safeCharSeqToString(childNode.getText()).isEmpty())
                 return true;
             if (childNafCheck(childNode)) return true;
         }
         return false;
+    }
+
+    public String safeCharSeqToString(CharSequence cs) {
+        if (cs == null) {
+            return "";
+        }
+        return XML10Pattern.matcher(String.valueOf(cs)).replaceAll("?");
     }
 }

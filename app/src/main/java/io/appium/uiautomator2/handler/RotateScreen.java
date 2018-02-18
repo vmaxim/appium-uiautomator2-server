@@ -5,12 +5,12 @@ import android.os.RemoteException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.OrientationEnum;
-import io.appium.uiautomator2.model.internal.CustomUiDevice;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -70,7 +70,8 @@ public class RotateScreen extends SafeRequestHandler {
             case ROTATION_90:
             case ROTATION_180:
             case ROTATION_270:
-                CustomUiDevice.getInstance().getInstrumentation().getUiAutomation().setRotation(desired.getValue());
+                App.core.getUiDeviceAdapter().getInstrumentation().getUiAutomation().setRotation
+                        (desired.getValue());
                 break;
         }
 

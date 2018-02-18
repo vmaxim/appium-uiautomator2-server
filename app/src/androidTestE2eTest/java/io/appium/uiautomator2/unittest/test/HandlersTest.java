@@ -26,8 +26,8 @@ import org.junit.runners.MethodSorters;
 import java.io.IOException;
 
 import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
+import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.model.By;
-import io.appium.uiautomator2.model.internal.CustomUiDevice;
 import io.appium.uiautomator2.server.ServerConfig;
 import io.appium.uiautomator2.server.ServerInstrumentation;
 import io.appium.uiautomator2.server.WDStatus;
@@ -895,7 +895,7 @@ public class HandlersTest {
         byte[] bytes = Base64.decode(value, Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         assertNotNull(bitmap);
-        Bitmap uiautoBitmap = CustomUiDevice.getInstance().getInstrumentation()
+        Bitmap uiautoBitmap = UiDeviceAdapter.getInstance().getInstrumentation()
                 .getUiAutomation().takeScreenshot();
         assertTrue(bitmap.sameAs(uiautoBitmap));
     }

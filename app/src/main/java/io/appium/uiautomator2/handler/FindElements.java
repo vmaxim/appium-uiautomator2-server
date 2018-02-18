@@ -16,11 +16,11 @@ import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.common.exceptions.UiSelectorSyntaxException;
-import io.appium.uiautomator2.core.AccessibilityNodeInfoGetter;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -38,7 +38,6 @@ import io.appium.uiautomator2.utils.NodeInfoList;
 import io.appium.uiautomator2.utils.UiAutomatorParser;
 
 import static io.appium.uiautomator2.handler.FindElement.getElementLocator;
-import static io.appium.uiautomator2.model.internal.CustomUiDevice.getInstance;
 import static io.appium.uiautomator2.utils.Device.getAndroidElement;
 import static io.appium.uiautomator2.utils.Device.getUiDevice;
 
@@ -56,13 +55,13 @@ public class FindElements extends SafeRequestHandler {
     private static List<Object> getXPathUiObjects(final String expression, AndroidElement element) throws ElementNotFoundException, ParserConfigurationException, InvalidSelectorException, ClassNotFoundException, UiAutomator2Exception {
         AccessibilityNodeInfo nodeInfo = null;
         if(element != null) {
-            nodeInfo = AccessibilityNodeInfoGetter.fromUiObject(element.getUiObject());
+            nodeInfo = element.getAccessibilityNodeInfo();
         }
         final NodeInfoList nodeList = XPathFinder.getNodesList(expression, nodeInfo);
         if (nodeList.size() == 0) {
             throw new ElementNotFoundException();
         }
-        return getInstance().findObjects(nodeList);
+        return App.core.getUiDeviceAdapter().findObjects(nodeList);
     }
 
     @Override
@@ -130,11 +129,13 @@ public class FindElements extends SafeRequestHandler {
     private List<Object> findElements(By by) throws ElementNotFoundException, ParserConfigurationException, ClassNotFoundException, InvalidSelectorException, UiAutomator2Exception, UiSelectorSyntaxException {
         if (by instanceof By.ById) {
             String locator = getElementLocator((ById) by);
-            return getInstance().findObjects(android.support.test.uiautomator.By.res(locator));
+            return App.core.getUiDeviceAdapter().findObjects(android.support.test.uiautomator.By
+                    .res(locator));
         } else if (by instanceof By.ByAccessibilityId) {
-            return getInstance().findObjects(android.support.test.uiautomator.By.desc(by.getElementLocator()));
+            return App.core.getUiDeviceAdapter().findObjects(android.support.test.uiautomator.By
+                    .desc(by.getElementLocator()));
         } else if (by instanceof By.ByClass) {
-            return getInstance().findObjects(android.support.test.uiautomator.By.clazz(by.getElementLocator()));
+            return App.core.getUiDeviceAdapter().findObjects(android.support.test.uiautomator.By.clazz(by.getElementLocator()));
         } else if (by instanceof By.ByXPath) {
             //TODO: need to handle the context parameter in a smart way
             return getXPathUiObjects(by.getElementLocator(), null /* AndroidElement */);

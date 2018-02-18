@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 
-import static io.appium.uiautomator2.model.internal.CustomUiDevice.getInstance;
 import static io.appium.uiautomator2.utils.Device.getAndroidElement;
 
 public class KnownElements {
@@ -43,7 +43,7 @@ public class KnownElements {
      * @return
      */
     public static AndroidElement geElement(final BySelector ui2BySelector, By by) throws ElementNotFoundException, InvalidSelectorException, UiAutomator2Exception, ClassNotFoundException {
-        Object ui2Object = getInstance().findObject(ui2BySelector);
+        Object ui2Object = App.core.getUiDeviceAdapter().findObject(ui2BySelector);
         if (ui2Object == null) {
             throw new ElementNotFoundException();
         }

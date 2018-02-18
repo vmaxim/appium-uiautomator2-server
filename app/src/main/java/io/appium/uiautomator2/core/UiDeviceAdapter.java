@@ -1,11 +1,11 @@
-package io.appium.uiautomator2.model.internal;
+package io.appium.uiautomator2.core;
 
 import android.app.Instrumentation;
 import android.os.Build;
 import android.os.SystemClock;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.BySelector;
-import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiAutomatorBridge;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiSelector;
@@ -14,7 +14,6 @@ import android.view.accessibility.AccessibilityWindowInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,22 +26,19 @@ import io.appium.uiautomator2.utils.NodeInfoList;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
 import static io.appium.uiautomator2.utils.Device.getUiDevice;
-import static io.appium.uiautomator2.utils.ReflectionUtils.getField;
-import static io.appium.uiautomator2.utils.ReflectionUtils.invoke;
-import static io.appium.uiautomator2.utils.ReflectionUtils.method;
 
-public class CustomUiDevice {
+public class UiDeviceAdapter {
 
     private static final String FIELD_M_INSTRUMENTATION = "mInstrumentation";
     private static final String FIELD_API_LEVEL_ACTUAL = "API_LEVEL_ACTUAL";
+    private static final String FIELD_UI_AUTOMATOR_BRIDGE = "mUiAutomationBridge";
     private static final boolean MULTI_WINDOW = false;
 
-    private static CustomUiDevice INSTANCE = new CustomUiDevice();
-    private final Method METHOD_FIND_MATCH;
-    private final Method METHOD_FIND_MATCHS;
-    private final Class ByMatcher;
     private final Instrumentation mInstrumentation;
     private final Object API_LEVEL_ACTUAL;
+    private final ReflectionUtils reflectionUtils;
+    private final ByMatcherAdapter byMatcherAdapter;
+    private final UiAutomatorBridge uiAutomatorBridge;
 
     /**
      * UiDevice in android open source project will Support multi-window searches for API level 21,
@@ -50,15 +46,14 @@ public class CustomUiDevice {
      * with UiAutomatorViewer customizing getWindowRoots() method to skip the multi-window search
      * based user passed property
      */
-    public CustomUiDevice() {
+    public UiDeviceAdapter(ByMatcherAdapter byMatcherAdapter, ReflectionUtils reflectionUtils) {
+        this.reflectionUtils = reflectionUtils;
+        this.byMatcherAdapter = byMatcherAdapter;
+        reflectionUtils.setTarget(Device.getUiDevice());
         try {
-
-            this.mInstrumentation = (Instrumentation) getField(UiDevice.class, FIELD_M_INSTRUMENTATION, Device.getUiDevice());
-            this.API_LEVEL_ACTUAL = getField(UiDevice.class, FIELD_API_LEVEL_ACTUAL, Device.getUiDevice());
-            METHOD_FIND_MATCH = method("android.support.test.uiautomator.ByMatcher", "findMatch", UiDevice.class, BySelector.class, AccessibilityNodeInfo[].class);
-            METHOD_FIND_MATCHS = method("android.support.test.uiautomator.ByMatcher", "findMatches", UiDevice.class, BySelector.class, AccessibilityNodeInfo[].class);
-
-            ByMatcher = ReflectionUtils.getClass("android.support.test.uiautomator" + ".ByMatcher");
+            this.mInstrumentation = reflectionUtils.getField(FIELD_M_INSTRUMENTATION);
+            this.API_LEVEL_ACTUAL = reflectionUtils.getField(FIELD_API_LEVEL_ACTUAL);
+            this.uiAutomatorBridge = reflectionUtils.getField(FIELD_UI_AUTOMATOR_BRIDGE);
         } catch (Error error) {
             Logger.error("ERROR", "error", error);
             throw error;
@@ -68,8 +63,8 @@ public class CustomUiDevice {
         }
     }
 
-    public static CustomUiDevice getInstance() {
-        return INSTANCE;
+    public UiAutomatorBridge getUiAutomatorBridge() {
+        return uiAutomatorBridge;
     }
 
     public Instrumentation getInstrumentation(){
@@ -80,11 +75,11 @@ public class CustomUiDevice {
      * Returns the first object to match the {@code selector} criteria.
      */
     public Object findObject(Object selector) throws ClassNotFoundException, ElementNotFoundException, InvalidSelectorException, UiAutomator2Exception {
-
         AccessibilityNodeInfo node ;
         Device.waitForIdle();
         if (selector instanceof BySelector) {
-            node = (AccessibilityNodeInfo) invoke(METHOD_FIND_MATCH, ByMatcher, Device.getUiDevice(), selector, getWindowRoots());
+            node = byMatcherAdapter.findMatch(Device.getUiDevice(), (BySelector) selector,
+                    getWindowRoots());
         } else if (selector instanceof NodeInfoList) {
             node = ((NodeInfoList) selector).getNodeList().size()>0 ? ((NodeInfoList) selector).getNodeList().get(0) : null;
             selector = By.clazz(node.getClassName().toString());
@@ -148,8 +143,7 @@ public class CustomUiDevice {
 
         ArrayList<AccessibilityNodeInfo> list = new ArrayList<AccessibilityNodeInfo>();
         if (selector instanceof BySelector) {
-            ReflectionUtils.getClass("android.support.test.uiautomator.ByMatcher");
-            Object nodes = invoke(METHOD_FIND_MATCHS, ByMatcher, getUiDevice(), selector, getWindowRoots());
+            Object nodes = byMatcherAdapter.findMatches(getUiDevice(), (BySelector) selector, getWindowRoots());
             list = (ArrayList) nodes;
         } else if (selector instanceof NodeInfoList) {
             list = ((NodeInfoList) selector).getNodeList();

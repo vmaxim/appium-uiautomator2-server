@@ -15,8 +15,8 @@
  */
 package io.appium.uiautomator2.core;
 
-import android.os.Bundle;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 
@@ -74,7 +74,8 @@ public class AccessibilityNodeInfoHelper {
      * @param text text to truncate
      * @return truncated text
      */
-    public static String truncateTextToMaxLength(final AccessibilityNodeInfo node, final String text) {
+    public static String truncateTextToMaxLength(final AccessibilityNodeInfo node, final String
+            text) {
         final int maxTextLength = node.getMaxTextLength();
         if (maxTextLength > 0 && text.length() > maxTextLength) {
             Logger.debug(String.format(
