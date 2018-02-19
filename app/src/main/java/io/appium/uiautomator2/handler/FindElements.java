@@ -28,18 +28,20 @@ import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.By;
 import io.appium.uiautomator2.model.By.ById;
 import io.appium.uiautomator2.model.KnownElements;
+import io.appium.uiautomator2.model.ManagedAndroidElement;
+import io.appium.uiautomator2.model.UiObjectElement;
 import io.appium.uiautomator2.model.XPathFinder;
 import io.appium.uiautomator2.model.internal.NativeAndroidBySelector;
 import io.appium.uiautomator2.server.WDStatus;
-import io.appium.uiautomator2.utils.Device;
+import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
-import io.appium.uiautomator2.utils.NodeInfoList;
 import io.appium.uiautomator2.utils.UiAutomatorParser;
 
+import static android.support.test.uiautomator.By.clazz;
+import static android.support.test.uiautomator.By.desc;
+import static android.support.test.uiautomator.By.res;
 import static io.appium.uiautomator2.handler.FindElement.getElementLocator;
-import static io.appium.uiautomator2.utils.Device.getAndroidElement;
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
 
 public class FindElements extends SafeRequestHandler {
 
@@ -52,13 +54,15 @@ public class FindElements extends SafeRequestHandler {
     /**
      * returns  UiObject2 for an xpath expression
      **/
-    private static List<Object> getXPathUiObjects(final String expression, AndroidElement element) throws ElementNotFoundException, ParserConfigurationException, InvalidSelectorException, ClassNotFoundException, UiAutomator2Exception {
+    private static List<AndroidElement> getXPathUiObjects(final String expression, AndroidElement
+            element) throws ElementNotFoundException, ParserConfigurationException,
+            InvalidSelectorException, ClassNotFoundException, UiAutomator2Exception {
         AccessibilityNodeInfo nodeInfo = null;
         if(element != null) {
             nodeInfo = element.getAccessibilityNodeInfo();
         }
-        final NodeInfoList nodeList = XPathFinder.getNodesList(expression, nodeInfo);
-        if (nodeList.size() == 0) {
+        final AccessibilityNodeInfoList nodeList = XPathFinder.getNodesList(expression, nodeInfo);
+        if (nodeList.isEmpty()) {
             throw new ElementNotFoundException();
         }
         return App.core.getUiDeviceAdapter().findObjects(nodeList);
@@ -76,17 +80,18 @@ public class FindElements extends SafeRequestHandler {
             final String contextId = payload.getString("context");
             Logger.info(String.format("find element command using '%s' with selector '%s'.", method, selector));
             By by = new NativeAndroidBySelector().pickFrom(method, selector);
-            Device.waitForIdle();
-            List<Object> elements ;
+            App.core.getUiDeviceAdapter().waitForIdle();
+            List<AndroidElement> elements;
             if(contextId.length() > 0) {
                 elements = this.findElements(by, contextId);
             } else {
                 elements = this.findElements(by);
             }
 
-            for (Object element : elements) {
+            for (AndroidElement element : elements) {
                 String id = UUID.randomUUID().toString();
-                AndroidElement androidElement = getAndroidElement(id, element, by);
+                ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter()
+                        .getManagedAndroidElement(id, element, by);
                 ke.add(androidElement);
                 JSONObject jsonElement = new JSONObject();
                 jsonElement.put("ELEMENT", id);
@@ -126,16 +131,15 @@ public class FindElements extends SafeRequestHandler {
         }
     }
 
-    private List<Object> findElements(By by) throws ElementNotFoundException, ParserConfigurationException, ClassNotFoundException, InvalidSelectorException, UiAutomator2Exception, UiSelectorSyntaxException {
+    private List<AndroidElement> findElements(By by) throws ElementNotFoundException,
+            ParserConfigurationException, ClassNotFoundException, InvalidSelectorException, UiAutomator2Exception, UiSelectorSyntaxException {
         if (by instanceof By.ById) {
             String locator = getElementLocator((ById) by);
-            return App.core.getUiDeviceAdapter().findObjects(android.support.test.uiautomator.By
-                    .res(locator));
+            return App.core.getUiDeviceAdapter().findObjects(res(locator));
         } else if (by instanceof By.ByAccessibilityId) {
-            return App.core.getUiDeviceAdapter().findObjects(android.support.test.uiautomator.By
-                    .desc(by.getElementLocator()));
+            return App.core.getUiDeviceAdapter().findObjects(desc(by.getElementLocator()));
         } else if (by instanceof By.ByClass) {
-            return App.core.getUiDeviceAdapter().findObjects(android.support.test.uiautomator.By.clazz(by.getElementLocator()));
+            return App.core.getUiDeviceAdapter().findObjects(clazz(by.getElementLocator()));
         } else if (by instanceof By.ByXPath) {
             //TODO: need to handle the context parameter in a smart way
             return getXPathUiObjects(by.getElementLocator(), null /* AndroidElement */);
@@ -145,22 +149,25 @@ public class FindElements extends SafeRequestHandler {
         }
 
         String msg = String.format("By locator %s is curently not supported!", by.getClass().getSimpleName());
+
         throw new UnsupportedOperationException(msg);
     }
 
-    private List<Object> findElements(By by, String contextId) throws InvalidSelectorException, ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiAutomator2Exception, UiObjectNotFoundException {
+    private List<AndroidElement> findElements(By by, String contextId) throws
+            InvalidSelectorException, ParserConfigurationException, ClassNotFoundException,
+            UiSelectorSyntaxException, UiAutomator2Exception, UiObjectNotFoundException {
 
-        AndroidElement element = KnownElements.getElementFromCache(contextId);
+        ManagedAndroidElement element = KnownElements.getElementFromCache(contextId);
         if (element == null) {
             throw new ElementNotFoundException();
         }
         if (by instanceof ById) {
             String locator = getElementLocator((ById)by);
-            return element.getChildren(android.support.test.uiautomator.By.res(locator), by);
+            return element.getChildren(res(locator), by);
         } else if (by instanceof By.ByAccessibilityId) {
-            return element.getChildren(android.support.test.uiautomator.By.desc(by.getElementLocator()), by);
+            return element.getChildren(desc(by.getElementLocator()), by);
         } else if (by instanceof By.ByClass) {
-            return element.getChildren(android.support.test.uiautomator.By.clazz(by.getElementLocator()), by);
+            return element.getChildren(clazz(by.getElementLocator()), by);
         } else if (by instanceof By.ByXPath) {
             return getXPathUiObjects(by.getElementLocator(), element);
         } else if (by instanceof By.ByAndroidUiAutomator) {
@@ -190,14 +197,15 @@ public class FindElements extends SafeRequestHandler {
     /**
      * returns  List<UiObject> using '-android automator' expression
      **/
-    private List<Object> getUiObjectsUsingAutomator(List<UiSelector> selectors, String contextId) throws InvalidSelectorException, ClassNotFoundException {
-        List<Object> foundElements = new ArrayList<Object>();
+    private List<AndroidElement> getUiObjectsUsingAutomator(List<UiSelector> selectors, String
+            contextId) throws InvalidSelectorException, ClassNotFoundException {
+        List<AndroidElement> foundElements = new ArrayList<>();
         for (final UiSelector sel : selectors) {
             // With multiple selectors, we expect that some elements may not
             // exist.
             try {
                 Logger.debug("Using: " + sel.toString());
-                final List<Object> elementsFromSelector = fetchElements(sel, contextId);
+                final List<AndroidElement> elementsFromSelector = fetchElements(sel, contextId);
                 foundElements.addAll(elementsFromSelector);
             } catch (final UiObjectNotFoundException ignored) {
                 //for findElements up on no elements, empty array should return.
@@ -215,14 +223,14 @@ public class FindElements extends SafeRequestHandler {
      *
      * @return
      */
-    private List<Object> fetchElements(UiSelector sel, String key) throws UiObjectNotFoundException, ClassNotFoundException, InvalidSelectorException {
+    private List<AndroidElement> fetchElements(UiSelector sel, String key) throws UiObjectNotFoundException, ClassNotFoundException, InvalidSelectorException {
         //TODO: finding elements with contextId yet to implement
         boolean keepSearching = true;
         final String selectorString = sel.toString();
         final boolean useIndex = selectorString.contains("CLASS_REGEX=");
         final boolean endsWithInstance = endsWithInstancePattern.matcher(selectorString).matches();
         Logger.debug("getElements selector:" + selectorString);
-        final ArrayList<Object> elements = new ArrayList<Object>();
+        final ArrayList<AndroidElement> elements = new ArrayList<>();
 
         // If sel is UiSelector[CLASS=android.widget.Button, INSTANCE=0]
         // then invoking instance with a non-0 argument will corrupt the selector.
@@ -234,15 +242,16 @@ public class FindElements extends SafeRequestHandler {
         if (endsWithInstance) {
             Logger.debug("Selector ends with instance.");
             // There's exactly one element when using instance.
-            UiObject instanceObj = getUiDevice().findObject(sel);
+            UiObject instanceObj = (UiObject) App.core.getUiDeviceAdapter().findObject(sel)
+                    .getUiObject();
             if (instanceObj != null && instanceObj.exists()) {
-                elements.add(instanceObj);
+                elements.add(new UiObjectElement(instanceObj));
             }
             return elements;
         }
 
         UiObject lastFoundObj;
-        final AndroidElement baseEl = KnownElements.getElementFromCache(key);
+        final ManagedAndroidElement baseEl = KnownElements.getElementFromCache(key);
 
         UiSelector tmp;
         int counter = 0;
@@ -258,15 +267,15 @@ public class FindElements extends SafeRequestHandler {
                 }
 
                 Logger.debug("getElements tmp selector:" + tmp.toString());
-                lastFoundObj = Device.getUiDevice().findObject(tmp);
+                lastFoundObj = (UiObject) App.core.getUiDeviceAdapter().findObject(tmp).getUiObject();
             } else {
                 Logger.debug("Element[" + key + "] is " + baseEl.getId() + ", counter: "
                         + counter);
-                lastFoundObj = (UiObject) baseEl.getChild(sel.instance(counter));
+                lastFoundObj = (UiObject) baseEl.getElement().getChild(sel.instance(counter));
             }
             counter++;
             if (lastFoundObj != null && lastFoundObj.exists()) {
-                elements.add(lastFoundObj);
+                elements.add(new UiObjectElement(lastFoundObj));
             } else {
                 keepSearching = false;
             }

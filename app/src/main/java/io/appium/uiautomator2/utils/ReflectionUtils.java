@@ -16,9 +16,13 @@
 
 package io.appium.uiautomator2.utils;
 
+import android.support.annotation.NonNull;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 
@@ -27,49 +31,22 @@ public class ReflectionUtils {
     private Object targetObject;
     private Class targetClass;
 
-    public void setTarget(Object targetObject) {
+    public void setTargetObject(@NonNull final Object targetObject) {
         this.targetObject = targetObject;
         this.targetClass = targetObject.getClass();
     }
 
-    /**
-     * Clears the in-process Accessibility cache, removing any stale references. Because the
-     * AccessibilityInteractionClient singleton stores copies of AccessibilityNodeInfo instances,
-     * calls to public APIs such as `recycle` do not guarantee cached references get updated. See
-     * the android.view.accessibility AIC and ANI source code for more information.
-     */
-    public boolean clearAccessibilityCache() throws UiAutomator2Exception {
-        boolean success = false;
-
-//        try {
-//            final Class c = Class
-//                    .forName("android.view.accessibility.AccessibilityInteractionClient");
-//            final Method getInstance = method(c, "getInstance");
-//            final Object instance = getInstance.invoke(null);
-//            final Method clearCache = method(instance.getClass(),
-//                    "clearCache");
-//            clearCache.invoke(instance);
-//
-//            success = true;
-//        } catch (IllegalAccessException e) {
-//            Logger.error("Failed to clear Accessibility Node cache. ", e);
-//        } catch (InvocationTargetException e) {
-//            Logger.error("Failed to clear Accessibility Node cache. ", e);
-//        } catch (ClassNotFoundException e) {
-//            Logger.error("Failed to clear Accessibility Node cache. ", e);
-//        }
-        return success;
-    }
-
-    public Class getTargetClass() {
+    public @NonNull
+    Class getTargetClass() {
         return targetClass;
     }
 
-    public void setTargetClass(String targetClassName) {
+    public void setTargetClass(@NonNull final String targetClassName) {
         this.targetClass = getClass(targetClassName);
     }
 
-    public Class getClass(final String name) throws UiAutomator2Exception {
+    private @NonNull
+    Class getClass(final String name) throws UiAutomator2Exception {
         try {
             return Class.forName(name);
         } catch (final ClassNotFoundException e) {
@@ -78,24 +55,40 @@ public class ReflectionUtils {
         }
     }
 
-    public <T> T getField(final String fieldName) throws UiAutomator2Exception {
-        try {
-            final Field field = targetClass.getDeclaredField(fieldName);
-            field.setAccessible(true);
+    public <T> T getField(@NonNull final String fieldName) throws UiAutomator2Exception {
+        assert targetObject != null;
 
-            return (T) field.get(targetObject);
-        } catch (final Exception e) {
-            final String msg = String.format("error while getting field %s from object %s",
-                    fieldName, targetObject);
-            Logger.error(msg + " " + e.getMessage());
-            throw new UiAutomator2Exception(msg, e);
+        for (Field field : getAllFields()) {
+            if (field.getName().equals(fieldName)) {
+                field.setAccessible(true);
+                try {
+                    return (T) field.get(targetObject);
+                } catch (IllegalAccessException e) {
+                    final String msg = String.format("error while getting field %s from object %s",
+                            fieldName, targetObject);
+                    Logger.error(msg + " " + e.getMessage());
+                    throw new UiAutomator2Exception(msg, e);
+                }
+            }
         }
+        throw new UiAutomator2Exception(String.format("Field %s does not exists in object %",
+                fieldName, targetObject));
     }
 
-    public Object invoke(final Method method, final Object... parameters) throws
+    private List<Field> getAllFields() {
+        List<Field> allFields = new ArrayList<>();
+        for (Class<?> c = targetClass; c != null; c = c.getSuperclass()) {
+            allFields.addAll(Arrays.asList(c.getDeclaredFields()));
+        }
+        return allFields;
+    }
+
+    public <T> T
+    invoke(@NonNull final Method method, final Object... parameters) throws
             UiAutomator2Exception {
+        assert targetObject != null;
         try {
-            return method.invoke(targetObject, parameters);
+            return (T) method.invoke(targetObject, parameters);
         } catch (final Exception e) {
             final String msg = String.format("error while invoking method %s on object %s with " +
                             "parameters %s",
@@ -105,7 +98,7 @@ public class ReflectionUtils {
         }
     }
 
-    public Method method(final String methodName, final Class... parameterTypes) throws
+    public Method method(@NonNull final String methodName, final Class... parameterTypes) throws
             UiAutomator2Exception {
         try {
             final Method method = targetClass.getDeclaredMethod(methodName, parameterTypes);

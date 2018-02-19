@@ -25,24 +25,20 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.model.AndroidElement;
-
-import static io.appium.uiautomator2.utils.ReflectionUtils.method;
+import io.appium.uiautomator2.model.ManagedAndroidElement;
 
 public abstract class ElementHelpers {
 
-    private static Method findAccessibilityNodeInfo;
-
-    private static AccessibilityNodeInfo elementToNode(Object element) {
+    private static AccessibilityNodeInfo elementToNode(AndroidElement element) {
         AccessibilityNodeInfo result = null;
         try {
-            result = (AccessibilityNodeInfo) findAccessibilityNodeInfo.invoke((UiObject) element, 5000L);
+            result = element.getAccessibilityNodeInfo();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,17 +52,12 @@ public abstract class ElementHelpers {
      *
      * @return a new list with duplicates removed
      */
-    public static List<Object> dedupe(List<Object> elements) {
-        try {
-            findAccessibilityNodeInfo = method(UiObject.class, "findAccessibilityNodeInfo", long.class);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public static List<AndroidElement> dedupe(List<AndroidElement> elements) {
 
-        List<Object> result = new ArrayList<Object>();
-        List<AccessibilityNodeInfo> nodes = new ArrayList<AccessibilityNodeInfo>();
+        List<AndroidElement> result = new ArrayList<>();
+        List<AccessibilityNodeInfo> nodes = new ArrayList<>();
 
-        for (Object element : elements) {
+        for (AndroidElement element : elements) {
             AccessibilityNodeInfo node = elementToNode(element);
             if (!nodes.contains(node)) {
                 nodes.add(node);
@@ -82,7 +73,7 @@ public abstract class ElementHelpers {
      *
      * For example, appium returns elements like [{"ELEMENT":1}, {"ELEMENT":2}]
      */
-    public static JSONObject toJSON(AndroidElement el) throws JSONException {
+    public static JSONObject toJSON(ManagedAndroidElement el) throws JSONException {
         return new JSONObject().put("ELEMENT", el.getId());
     }
 
@@ -93,7 +84,8 @@ public abstract class ElementHelpers {
      * @param text - desired text
      * @param unicodeKeyboard - true, if text should be encoded to unicode
      */
-    public static void setText(final Object element, final String text, final boolean unicodeKeyboard) throws UiObjectNotFoundException {
+    public static void setText(final AndroidElement element, final String text, final boolean
+            unicodeKeyboard) throws UiObjectNotFoundException {
         String textToSend = text;
         AccessibilityNodeInfo nodeInfo = element.getAccessibilityNodeInfo();
 
@@ -105,7 +97,8 @@ public abstract class ElementHelpers {
         if (nodeInfo.getRangeInfo() != null && Build.VERSION.SDK_INT >= 24) {
             Logger.debug("Element has range info.");
             try {
-                if (AccessibilityNodeInfoHelper.setProgressValue(nodeInfo, Float.parseFloat(text))) {
+                if (App.core.getAccessibilityNodeInfoHelper().setProgressValue(nodeInfo, Float
+                        .parseFloat(text))) {
                     return;
                 }
             } catch (NumberFormatException e) {
@@ -120,7 +113,7 @@ public abstract class ElementHelpers {
          * if text length is greater than getMaxTextLength()
          */
         if (Build.VERSION.SDK_INT < 24) {
-            textToSend = AccessibilityNodeInfoHelper.truncateTextToMaxLength(nodeInfo, textToSend);
+            textToSend = App.core.getAccessibilityNodeInfoHelper().truncateTextToMaxLength(nodeInfo, textToSend);
         }
 
         if (unicodeKeyboard && UnicodeEncoder.needsEncoding(textToSend)) {
@@ -129,10 +122,10 @@ public abstract class ElementHelpers {
             Logger.debug("Encoded text: " + textToSend);
         }
         Logger.debug("Sending text to element: " + textToSend);
-        if (element instanceof UiObject2) {
-            UiObject2.class.cast(element).setText(textToSend);
+        if (element.getUiObject() instanceof UiObject2) {
+            UiObject2.class.cast(element.getUiObject()).setText(textToSend);
         } else if (element instanceof UiObject) {
-            UiObject.class.cast(element).setText(textToSend);
+            UiObject.class.cast(element.getUiObject()).setText(textToSend);
         } else {
             throw new UiAutomator2Exception("Unknown object type: " + element.getClass().getName());
         }

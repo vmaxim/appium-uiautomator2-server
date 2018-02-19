@@ -25,8 +25,6 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 
 public class UiAutomatorBridgeAdapter {
 
-    private static final Class CLASS_UI_AUTOMATOR_BRIDGE = UiAutomatorBridge.class;
-
     private static final String FIELD_QUERY_CONTROLLER = "mQueryController";
     private static final String FIELD_INTERACTION_CONTROLLER = "mInteractionController";
     private static final String FIELD_UI_AUTOMATOR = "mUiAutomation";
@@ -35,30 +33,37 @@ public class UiAutomatorBridgeAdapter {
     private static final String METHOD_INJECT_INPUT_EVENT = "injectInputEvent";
 
     private final UiAutomatorBridge uiAutomatorBridge;
+    private final Object queryController;
+    private final Object interactionController;
+    private final UiAutomation uiAutomation;
     private final ReflectionUtils reflectionUtils;
+    private final Display defaultDisplay;
 
     public UiAutomatorBridgeAdapter(UiAutomatorBridge uiAutomatorBridge, ReflectionUtils
             reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
         this.uiAutomatorBridge = uiAutomatorBridge;
-        reflectionUtils.setTarget(uiAutomatorBridge);
+        reflectionUtils.setTargetObject(uiAutomatorBridge);
+        queryController = reflectionUtils.getField(FIELD_QUERY_CONTROLLER);
+        interactionController = reflectionUtils.getField(FIELD_INTERACTION_CONTROLLER);
+        uiAutomation = reflectionUtils.getField(FIELD_UI_AUTOMATOR);
+        defaultDisplay = reflectionUtils.invoke(reflectionUtils.method(METHOD_GET_DEFAULT_DISPLAY));
     }
 
     public Object getInteractionController() throws UiAutomator2Exception {
-        return reflectionUtils.getField(FIELD_INTERACTION_CONTROLLER);
+        return interactionController;
     }
 
     public Object getQueryController() throws UiAutomator2Exception {
-        return reflectionUtils.getField(FIELD_QUERY_CONTROLLER);
+        return queryController;
     }
 
     public UiAutomation getUiAutomation() {
-        return (UiAutomation) reflectionUtils.getField(FIELD_UI_AUTOMATOR);
+        return uiAutomation;
     }
 
     public Display getDefaultDisplay() throws UiAutomator2Exception {
-        return (Display) reflectionUtils.invoke(reflectionUtils.method(METHOD_GET_DEFAULT_DISPLAY)
-        );
+        return defaultDisplay;
     }
 
     public boolean injectInputEvent(InputEvent event, boolean sync) throws UiAutomator2Exception {
@@ -66,4 +71,7 @@ public class UiAutomatorBridgeAdapter {
                 InputEvent.class, boolean.class), event, sync);
     }
 
+    public UiAutomatorBridge getUiAutomatorBridge() {
+        return uiAutomatorBridge;
+    }
 }

@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
@@ -18,8 +19,6 @@ import io.appium.uiautomator2.model.KnownElements;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
-
 /**
  * Send keys to a given element.
  */
@@ -27,6 +26,11 @@ public class SendKeysToElement extends SafeRequestHandler {
 
     public SendKeysToElement(String mappedUri) {
         super(mappedUri);
+    }
+
+    private static boolean isTextFieldClear(AndroidElement element) throws
+            UiObjectNotFoundException {
+        return element.getText() == null || element.getText().isEmpty();
     }
 
     @Override
@@ -87,7 +91,7 @@ public class SendKeysToElement extends SafeRequestHandler {
 
             String actionMsg = "";
             if (pressEnter) {
-                actionMsg = getUiDevice().pressEnter() ?
+                actionMsg = App.core.getUiDeviceAdapter().pressEnter() ?
                         "Sent keys to the device" :
                         "Unable to send keys to the device";
             }
@@ -99,10 +103,6 @@ public class SendKeysToElement extends SafeRequestHandler {
             Logger.error("Exception while reading JSON: ", e);
             return new AppiumResponse(getSessionId(request), WDStatus.JSON_DECODER_ERROR, e);
         }
-    }
-
-    private static boolean isTextFieldClear(AndroidElement element) throws UiObjectNotFoundException {
-        return element.getText() == null || element.getText().isEmpty();
     }
 }
 

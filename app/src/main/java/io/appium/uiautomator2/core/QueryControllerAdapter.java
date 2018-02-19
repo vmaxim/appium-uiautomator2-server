@@ -26,24 +26,18 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 
 public class QueryControllerAdapter {
 
-    private static final String CLASS_QUERY_CONTROLLER = "android.support.test.uiautomator" +
-            ".QueryController";
-    private static final String METHOD_GET_ACCESSIBILITY_ROOT_NODE = "getRootNode";
-
-    private final Object queryController;
+    private static final String METHOD_GET_ROOT_NODE = "getRootNode";
     private final ReflectionUtils reflectionUtils;
 
     @Inject
     public QueryControllerAdapter(@Named("QueryController") @NonNull Object queryController,
                                   ReflectionUtils reflectionUtils) {
-        this.queryController = queryController;
         this.reflectionUtils = reflectionUtils;
-        reflectionUtils.setTarget(queryController);
+        reflectionUtils.setTargetObject(queryController);
     }
 
-    public AccessibilityNodeInfo getAccessibilityRootNode() throws UiAutomator2Exception {
+    public AccessibilityNodeInfo getRootNode() throws UiAutomator2Exception {
         return (AccessibilityNodeInfo) reflectionUtils.invoke(reflectionUtils.method(
-                METHOD_GET_ACCESSIBILITY_ROOT_NODE));
+                METHOD_GET_ROOT_NODE));
     }
-
 }

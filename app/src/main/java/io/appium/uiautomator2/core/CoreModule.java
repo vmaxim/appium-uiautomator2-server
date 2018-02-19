@@ -1,19 +1,47 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.appium.uiautomator2.core;
 
 import android.support.annotation.NonNull;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.uiautomator.UiDevice;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.appium.uiautomator2.model.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
-
-/**
- * Created by max on 15.02.2018.
- */
 
 @Module
 public class CoreModule {
+
+    @Provides
+    @NonNull
+    @Singleton
+    public AccessibilityNodeInfoHelper provideAccessibilityNodeInfoHelper() {
+        return new AccessibilityNodeInfoHelper();
+    }
+
+    @Provides
+    @NonNull
+    @Singleton
+    public UiDevice provideUiDevice() {
+        return UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
+    }
 
     @Provides
     @NonNull
@@ -24,16 +52,18 @@ public class CoreModule {
     @Provides
     @NonNull
     @Singleton
-    public ByMatcherAdapter provideByMatcherAdapter(ReflectionUtils reflectionUtils) {
-        return new ByMatcherAdapter(reflectionUtils);
+    public ByMatcherAdapter provideByMatcherAdapter(UiDevice uiDevice, ReflectionUtils
+            reflectionUtils) {
+        return new ByMatcherAdapter(uiDevice, reflectionUtils);
     }
 
     @Provides
     @NonNull
     @Singleton
-    public UiDeviceAdapter provideUiDeviceAdapter(ByMatcherAdapter byMatcherAdapter,
+    public UiDeviceAdapter provideUiDeviceAdapter(UiDevice uiDevice, ByMatcherAdapter
+            byMatcherAdapter,
                                                   ReflectionUtils reflectionUtils) {
-        return new UiDeviceAdapter(byMatcherAdapter, reflectionUtils);
+        return new UiDeviceAdapter(uiDevice, byMatcherAdapter, reflectionUtils);
     }
 
     @Provides
@@ -61,7 +91,7 @@ public class CoreModule {
     public QueryControllerAdapter provideQueryControllerAdapter(UiAutomatorBridgeAdapter
                                                                         uiAutomatorBridgeAdapter,
                                                                 ReflectionUtils reflectionUtils) {
-        return new QueryControllerAdapter(uiAutomatorBridgeAdapter.getInteractionController(),
+        return new QueryControllerAdapter(uiAutomatorBridgeAdapter.getQueryController(),
                 reflectionUtils);
     }
 
@@ -70,5 +100,13 @@ public class CoreModule {
     @Singleton
     public EventRegister provideEventRegister(UiAutomatorBridgeAdapter uiAutomatorBridgeAdapter) {
         return new EventRegister(uiAutomatorBridgeAdapter.getUiAutomation());
+    }
+
+    @Provides
+    @NonNull
+    @Singleton
+    public AccessibilityInteractionClientAdapter getAccessibilityInteractionClientAdapter
+            (ReflectionUtils reflectionUtils) {
+        return new AccessibilityInteractionClientAdapter(reflectionUtils);
     }
 }

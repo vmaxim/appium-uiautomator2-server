@@ -39,7 +39,7 @@ public enum Attribute {
 
   private final String name;
 
-  private Attribute(String name) {
+    Attribute(String name) {
     this.name = name;
   }
 

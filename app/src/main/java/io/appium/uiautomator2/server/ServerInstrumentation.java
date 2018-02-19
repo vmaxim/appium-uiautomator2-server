@@ -8,8 +8,6 @@ import android.os.RemoteException;
 import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.utils.Logger;
 
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
-
 public class ServerInstrumentation {
     private static ServerInstrumentation instance;
     private static Context context;
@@ -26,9 +24,6 @@ public class ServerInstrumentation {
         }
     }
 
-    public boolean isStopServer(){
-        return isStopServer;
-    }
     private static boolean isValidPort(int port) {
         return port >= 1024 && port <= 65535;
     }
@@ -39,6 +34,10 @@ public class ServerInstrumentation {
             instance = new ServerInstrumentation(serverPort);
         }
         return instance;
+    }
+
+    public boolean isStopServer() {
+        return isStopServer;
     }
 
     public void stopServer() {

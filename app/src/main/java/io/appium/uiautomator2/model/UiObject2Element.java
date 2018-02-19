@@ -12,31 +12,26 @@ import android.widget.Toast;
 import java.util.List;
 import java.util.UUID;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
-
-import static io.appium.uiautomator2.utils.Device.getAndroidElement;
-import static io.appium.uiautomator2.utils.ReflectionUtils.getField;
-import static io.appium.uiautomator2.utils.ReflectionUtils.invoke;
-import static io.appium.uiautomator2.utils.ReflectionUtils.method;
+import io.appium.uiautomator2.utils.ReflectionUtils;
 
 public class UiObject2Element implements AndroidElement {
 
     private final UiObject2 element;
-    private final String id;
-    private final By by;
+    private final ReflectionUtils reflectionUtils;
 
-    public UiObject2Element(String id, UiObject2 element, By by) {
-        this.id = id;
+    public UiObject2Element(UiObject2 element) {
         this.element = element;
-        this.by = by;
+        this.reflectionUtils = new ReflectionUtils();
+        reflectionUtils.setTargetObject(element);
     }
 
     static boolean isToastElement(AccessibilityNodeInfo nodeInfo) {
@@ -53,7 +48,7 @@ public class UiObject2Element implements AndroidElement {
     }
 
     public String getText() throws UiObjectNotFoundException {
-        AccessibilityNodeInfo nodeInfo = (AccessibilityNodeInfo) getField(UiObject2.class, "mCachedNode", element);
+        AccessibilityNodeInfo nodeInfo = reflectionUtils.getField("mCachedNode");
         /**
          * If the given element is TOAST element, we can't perform any operation on {@link UiObject2} as it
          * not formed with valid AccessibilityNodeInfo, Instead we are using custom created AccessibilityNodeInfo of
@@ -116,7 +111,7 @@ public class UiObject2Element implements AndroidElement {
         } else if ("selected".equals(attr)) {
             res = element.isSelected();
         } else if ("displayed".equals(attr)) {
-            res = invoke(method(UiObject2.class, "getAccessibilityNodeInfo"), element) != null ? true : false;
+            res = getAccessibilityNodeInfo() != null ? true : false;
         }  else if ("password".equals(attr)) {
             res = getAccessibilityNodeInfo().isPassword();
         }  else {
@@ -126,19 +121,11 @@ public class UiObject2Element implements AndroidElement {
     }
 
     public void setText(final String text, boolean unicodeKeyboard) throws UiObjectNotFoundException {
-        ElementHelpers.setText(element, text, unicodeKeyboard);
-    }
-
-    public By getBy() {
-        return by;
+        ElementHelpers.setText(this, text, unicodeKeyboard);
     }
 
     public void clear() throws UiObjectNotFoundException {
         element.clear();
-    }
-
-    public String getId() {
-        return this.id;
     }
 
     public Rect getBounds() throws UiObjectNotFoundException {
@@ -146,7 +133,8 @@ public class UiObject2Element implements AndroidElement {
         return rectangle;
     }
 
-    public Object getChild(final Object selector) throws UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException {
+    public AndroidElement getChild(final Object selector) throws UiObjectNotFoundException,
+            InvalidSelectorException, ClassNotFoundException {
         if (selector instanceof UiSelector) {
             /**
              * We can't find the child element with UiSelector on UiObject2,
@@ -158,14 +146,15 @@ public class UiObject2Element implements AndroidElement {
             UiSelector uiSelector = new UiSelector();
             CustomUiSelector customUiSelector = new CustomUiSelector(uiSelector);
             uiSelector = customUiSelector.getUiSelector(nodeInfo);
-            UiObject uiObject = (UiObject) UiDeviceAdapter.getInstance().findObject(uiSelector);
+            AndroidElement element = App.core.getUiDeviceAdapter().findObject(uiSelector);
             AccessibilityNodeInfo uiObject_nodeInfo = getAccessibilityNodeInfo();
-            return uiObject.getChild((UiSelector) selector);
+            return element.getChild((UiSelector) selector);
         }
-        return element.findObject((BySelector) selector);
+        return new UiObject2Element(element.findObject((BySelector) selector));
     }
 
-    public List<Object> getChildren(final Object selector, final By by) throws UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException {
+    public List<AndroidElement> getChildren(final Object selector, final By by) throws
+            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException {
         if (selector instanceof UiSelector) {
             /**
              * We can't find the child elements with UiSelector on UiObject2,
@@ -177,9 +166,9 @@ public class UiObject2Element implements AndroidElement {
             UiSelector uiSelector = new UiSelector();
             CustomUiSelector customUiSelector = new CustomUiSelector(uiSelector);
             uiSelector = customUiSelector.getUiSelector(nodeInfo);
-            UiObject uiObject = (UiObject) UiDeviceAdapter.getInstance().findObject(uiSelector);
+            AndroidElement element = App.core.getUiDeviceAdapter().findObject(uiSelector);
             String id = UUID.randomUUID().toString();
-            AndroidElement androidElement = getAndroidElement(id, uiObject, by);
+            AndroidElement androidElement = App.core.getUiDeviceAdapter().getManagedAndroidElement(id, element, by);
             return androidElement.getChildren(selector, by);
         }
         return (List)element.findObjects((BySelector) selector);
@@ -227,8 +216,14 @@ public class UiObject2Element implements AndroidElement {
         return true;
     }
 
+    @Override
     public AccessibilityNodeInfo getAccessibilityNodeInfo() {
-        return (AccessibilityNodeInfo) invoke(method(UiObject2.class,
-                "getAccessibilityNodeInfo"), this.getUiObject());
+        return (AccessibilityNodeInfo) reflectionUtils.invoke(reflectionUtils.method(
+                "getAccessibilityNodeInfo"));
+    }
+
+    @Override
+    public String getClassName() {
+        return element.getClassName();
     }
 }

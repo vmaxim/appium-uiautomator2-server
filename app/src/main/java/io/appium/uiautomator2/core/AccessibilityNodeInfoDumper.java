@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -126,7 +127,8 @@ public class AccessibilityNodeInfoDumper {
         serializer.attribute("", "long-clickable", Boolean.toString(node.isLongClickable()));
         serializer.attribute("", "password", Boolean.toString(node.isPassword()));
         serializer.attribute("", "selected", Boolean.toString(node.isSelected()));
-        serializer.attribute("", "bounds", AccessibilityNodeInfoHelper.getVisibleBoundsInScreen
+        serializer.attribute("", "bounds", App.core.getAccessibilityNodeInfoHelper()
+                .getVisibleBoundsInScreen
                 (node, width, height).toShortString());
         serializer.attribute("", "resource-id", safeCharSeqToString(node.getViewIdResourceName()));
 

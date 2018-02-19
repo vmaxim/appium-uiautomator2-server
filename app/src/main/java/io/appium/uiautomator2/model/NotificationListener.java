@@ -40,7 +40,7 @@ public final class NotificationListener {
             return;
         }
         listener = new Listener();
-        listener.start();
+        // listener.start();
     }
 
     public void stop(){

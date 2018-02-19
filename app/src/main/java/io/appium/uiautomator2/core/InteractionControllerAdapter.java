@@ -15,7 +15,6 @@
  */
 package io.appium.uiautomator2.core;
 
-import android.support.annotation.NonNull;
 import android.view.InputEvent;
 import android.view.MotionEvent.PointerCoords;
 
@@ -28,30 +27,26 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 public class InteractionControllerAdapter {
 
     public static final String METHOD_PERFORM_MULTI_POINTER_GESTURE = "performMultiPointerGesture";
-    private static final String CLASS_INTERACTION_CONTROLLER = "android.support.test.uiautomator" +
-            ".InteractionController";
     private static final String METHOD_SEND_KEY = "sendKey";
     private static final String METHOD_INJECT_EVENT_SYNC = "injectEventSync";
     private static final String METHOD_TOUCH_DOWN = "touchDown";
     private static final String METHOD_TOUCH_UP = "touchUp";
     private static final String METHOD_TOUCH_MOVE = "touchMove";
 
-    private final Object interactionController;
     private final EventRegister eventRegister;
     private final ReflectionUtils reflectionUtils;
 
     @Inject
-    public InteractionControllerAdapter(@Named("InteractionController") @NonNull Object
-                                                interactionController, EventRegister
-                                                eventRegister, ReflectionUtils reflectionUtils) {
-        this.interactionController = interactionController;
+    public InteractionControllerAdapter(@Named("InteractionController") final Object
+                                                interactionController, final EventRegister
+                                                eventRegister, final ReflectionUtils reflectionUtils) {
         this.eventRegister = eventRegister;
         this.reflectionUtils = reflectionUtils;
-        reflectionUtils.setTarget(interactionController);
+        reflectionUtils.setTargetObject(interactionController);
     }
 
-    public boolean sendKey(int keyCode, int metaState) throws UiAutomator2Exception {
-        return (Boolean) reflectionUtils.invoke(reflectionUtils.method(METHOD_SEND_KEY, int.class,
+    public boolean sendKey(final int keyCode, final int metaState) throws UiAutomator2Exception {
+        return reflectionUtils.invoke(reflectionUtils.method(METHOD_SEND_KEY, int.class,
                 int.class), keyCode, metaState);
     }
 
@@ -59,7 +54,7 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = (Boolean) reflectionUtils.invoke(reflectionUtils.method(
+                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_INJECT_EVENT_SYNC, InputEvent.class), event);
                 setResult(result);
             }
@@ -70,7 +65,7 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = (Boolean) reflectionUtils.invoke(reflectionUtils.method(
+                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_TOUCH_DOWN, int.class, int.class), x, y);
                 setResult(result);
             }
@@ -81,7 +76,7 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = (Boolean) reflectionUtils.invoke(reflectionUtils.method(
+                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_TOUCH_UP,
                         int.class, int.class), x, y);
                 setResult(result);
@@ -93,7 +88,7 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = (Boolean) reflectionUtils.invoke(reflectionUtils.method(
+                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_TOUCH_MOVE, int.class, int.class), x, y);
                 setResult(result);
             }
@@ -105,7 +100,7 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = (Boolean) reflectionUtils.invoke(reflectionUtils.method(
+                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_PERFORM_MULTI_POINTER_GESTURE, PointerCoords[][].class),
                         (Object) pcs);
                 setResult(result);

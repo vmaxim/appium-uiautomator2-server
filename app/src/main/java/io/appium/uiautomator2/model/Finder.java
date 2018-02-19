@@ -16,7 +16,9 @@
 
 package io.appium.uiautomator2.model;
 
-import io.appium.uiautomator2.utils.NodeInfoList;
+import android.view.accessibility.AccessibilityNodeInfo;
+
+import java.util.List;
 
 /**
  * Interface for finding UiElement.
@@ -28,7 +30,7 @@ public interface Finder {
      *
      * @return The matching elements on the current context
      */
-    NodeInfoList find(UiElement context);
+    List<AccessibilityNodeInfo> find(UiElement context);
 
     /**
      * {@inheritDoc}

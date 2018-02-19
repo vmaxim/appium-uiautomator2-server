@@ -2,12 +2,17 @@ package io.appium.uiautomator2.core;
 
 import android.app.Instrumentation;
 import android.os.Build;
+import android.os.RemoteException;
 import android.os.SystemClock;
+import android.support.annotation.Nullable;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.UiAutomatorBridge;
+import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObject2;
+import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.support.test.uiautomator.UiScrollable;
 import android.support.test.uiautomator.UiSelector;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
@@ -17,28 +22,32 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
-import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.utils.Device;
+import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.ManagedAndroidElement;
+import io.appium.uiautomator2.model.UiObject2Element;
+import io.appium.uiautomator2.model.UiObjectElement;
+import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Logger;
-import io.appium.uiautomator2.utils.NodeInfoList;
 import io.appium.uiautomator2.utils.ReflectionUtils;
-
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
 
 public class UiDeviceAdapter {
 
-    private static final String FIELD_M_INSTRUMENTATION = "mInstrumentation";
+    private static final String ERR_MSG_UNSUPPOTED_SELECTOR = "Selector of type '%s' not supported";
+    private static final String ERR_MSG_CREATE_UIOBJECT2 = "error while creating  UiObject2 object";
+    private static final String ERR_MSG_NULL_ROOT_NODE = "Unable to get Root in Active window, " +
+            "ERROR: null root node returned by UiTestAutomationBridge.";
+    private static final String MSG_SKIP_NULL_ROOT_NODE = "Skipping null root node for window: %s";
+    private static final String FIELD_INSTRUMENTATION = "mInstrumentation";
     private static final String FIELD_API_LEVEL_ACTUAL = "API_LEVEL_ACTUAL";
     private static final String FIELD_UI_AUTOMATOR_BRIDGE = "mUiAutomationBridge";
     private static final boolean MULTI_WINDOW = false;
 
     private final Instrumentation mInstrumentation;
     private final Object API_LEVEL_ACTUAL;
-    private final ReflectionUtils reflectionUtils;
     private final ByMatcherAdapter byMatcherAdapter;
     private final UiAutomatorBridge uiAutomatorBridge;
+    private final UiDevice uiDevice;
 
     /**
      * UiDevice in android open source project will Support multi-window searches for API level 21,
@@ -46,142 +55,74 @@ public class UiDeviceAdapter {
      * with UiAutomatorViewer customizing getWindowRoots() method to skip the multi-window search
      * based user passed property
      */
-    public UiDeviceAdapter(ByMatcherAdapter byMatcherAdapter, ReflectionUtils reflectionUtils) {
-        this.reflectionUtils = reflectionUtils;
+    public UiDeviceAdapter(UiDevice uiDevice, ByMatcherAdapter byMatcherAdapter, ReflectionUtils
+            reflectionUtils) {
+        this.uiDevice = uiDevice;
         this.byMatcherAdapter = byMatcherAdapter;
-        reflectionUtils.setTarget(Device.getUiDevice());
-        try {
-            this.mInstrumentation = reflectionUtils.getField(FIELD_M_INSTRUMENTATION);
-            this.API_LEVEL_ACTUAL = reflectionUtils.getField(FIELD_API_LEVEL_ACTUAL);
-            this.uiAutomatorBridge = reflectionUtils.getField(FIELD_UI_AUTOMATOR_BRIDGE);
-        } catch (Error error) {
-            Logger.error("ERROR", "error", error);
-            throw error;
-        } catch (UiAutomator2Exception error) {
-            Logger.error("ERROR", "error", error);
-            throw new Error(error);
-        }
+        reflectionUtils.setTargetObject(uiDevice);
+        this.mInstrumentation = reflectionUtils.getField(FIELD_INSTRUMENTATION);
+        this.API_LEVEL_ACTUAL = reflectionUtils.getField(FIELD_API_LEVEL_ACTUAL);
+        this.uiAutomatorBridge = reflectionUtils.getField(FIELD_UI_AUTOMATOR_BRIDGE);
     }
 
     public UiAutomatorBridge getUiAutomatorBridge() {
         return uiAutomatorBridge;
     }
 
-    public Instrumentation getInstrumentation(){
+    public Instrumentation getInstrumentation() {
         return mInstrumentation;
     }
 
-    /**
-     * Returns the first object to match the {@code selector} criteria.
-     */
-    public Object findObject(Object selector) throws ClassNotFoundException, ElementNotFoundException, InvalidSelectorException, UiAutomator2Exception {
-        AccessibilityNodeInfo node ;
-        Device.waitForIdle();
-        if (selector instanceof BySelector) {
-            node = byMatcherAdapter.findMatch(Device.getUiDevice(), (BySelector) selector,
-                    getWindowRoots());
-        } else if (selector instanceof NodeInfoList) {
-            node = ((NodeInfoList) selector).getNodeList().size()>0 ? ((NodeInfoList) selector).getNodeList().get(0) : null;
-            selector = By.clazz(node.getClassName().toString());
-        }  else if (selector instanceof AccessibilityNodeInfo) {
-            node = (AccessibilityNodeInfo) selector;
-            selector = By.clazz(node.getClassName().toString());
-        }else if (selector instanceof UiSelector) {
-            UiObject uiObject = getUiDevice().findObject((UiSelector) selector);
-            if (uiObject.exists()) {
-                return uiObject;
-            }
-            return null;
-        } else {
-            throw new InvalidSelectorException("Selector of type " + selector.getClass().getName() + " not supported");
+    public @Nullable
+    AndroidElement findObject(final UiSelector selector) {
+        waitForIdle();
+        UiObject uiObject = uiDevice.findObject(selector);
+        if (uiObject.exists()) {
+            return new UiObjectElement(uiObject);
         }
-        try {
-            if(node == null){
-                return null;
-            }
-            Class uiObject2 = Class.forName("android.support.test.uiautomator.UiObject2");
-            Constructor cons = uiObject2.getDeclaredConstructors()[0];
-            cons.setAccessible(true);
-            Object[] constructorParams = {getUiDevice(), selector, node};
-
-            final long timeoutMillis = 1000;
-            long end = SystemClock.uptimeMillis() + timeoutMillis;
-            while (true) {
-                UiObject2 object2 = (UiObject2) cons.newInstance(constructorParams);
-
-                if (object2 != null) {
-                    return object2;
-                }
-                long remainingMillis = end - SystemClock.uptimeMillis();
-                if (remainingMillis < 0) {
-                    return null;
-                }
-                SystemClock.sleep(Math.min(200, remainingMillis));
-            }
-
-        } catch (InvocationTargetException e) {
-            final String msg = String.format("error while creating  UiObject2 object");
-            Logger.error(msg + " " + e);
-            throw new UiAutomator2Exception(msg, e);
-        } catch (InstantiationException e) {
-            final String msg = String.format("error while creating  UiObject2 object");
-            Logger.error(msg + " " + e);
-            throw new UiAutomator2Exception(msg, e);
-        } catch (IllegalAccessException e) {
-            final String msg = String.format("error while creating  UiObject2 object");
-            Logger.error(msg + " " + e);
-            throw new UiAutomator2Exception(msg, e);
-        }
+        return null;
     }
 
-    /**
-     * Returns List<object> to match the {@code selector} criteria.
-     */
-    public List<Object> findObjects(Object selector) throws ClassNotFoundException, InvalidSelectorException, UiAutomator2Exception {
-
-        List<Object> ret = new ArrayList<>();
-
-        ArrayList<AccessibilityNodeInfo> list = new ArrayList<AccessibilityNodeInfo>();
-        if (selector instanceof BySelector) {
-            Object nodes = byMatcherAdapter.findMatches(getUiDevice(), (BySelector) selector, getWindowRoots());
-            list = (ArrayList) nodes;
-        } else if (selector instanceof NodeInfoList) {
-            list = ((NodeInfoList) selector).getNodeList();
-
-        } else {
-            throw new InvalidSelectorException("Selector of type " + selector.getClass().getName() + " not supported");
+    public @Nullable
+    AndroidElement findObject(final BySelector selector) {
+        AccessibilityNodeInfo node = byMatcherAdapter.findMatch(selector,
+                getWindowRoots());
+        if (node == null) {
+            return null;
         }
-        for (AccessibilityNodeInfo node : list) {
-            try {
-                Class uiObject2 = Class.forName("android.support.test.uiautomator" + ".UiObject2");
-                Constructor cons = uiObject2.getDeclaredConstructors()[0];
-                cons.setAccessible(true);
-                selector = By.clazz(node.getClassName().toString());
-                Object[] constructorParams = {getUiDevice(), selector, node};
-                ret.add((UiObject2) cons.newInstance(constructorParams));
-            } catch (InvocationTargetException e) {
-                final String msg = String.format("error while creating  UiObject2 object:");
-                Logger.error(msg + " " + e);
-                throw new UiAutomator2Exception(msg, e);
-            } catch (InstantiationException e) {
-                final String msg = String.format("error while creating  UiObject2 object");
-                Logger.error(msg + " " + e);
-                throw new UiAutomator2Exception(msg, e);
-            } catch (IllegalAccessException e) {
-                final String msg = String.format("error while creating  UiObject2 object");
-                Logger.error(msg + " " + e);
-                throw new UiAutomator2Exception(msg, e);
-            }
-        }
+        return createUiObject2Element(selector, node);
 
-        return ret;
+    }
+
+    public @Nullable
+    AndroidElement findObject(final AccessibilityNodeInfo node) {
+        BySelector selector = By.clazz(node.getClassName().toString());
+        return createUiObject2Element(selector, node);
+    }
+
+    public @Nullable
+    AndroidElement findObject(final AccessibilityNodeInfoList nodeList) {
+        if (nodeList.isEmpty()) {
+            return null;
+        }
+        return findObject(nodeList.get(0));
+    }
+
+    public List<AndroidElement> findObjects(BySelector selector) {
+        List<AccessibilityNodeInfo> nodeList = byMatcherAdapter.findMatches((BySelector)
+                selector, getWindowRoots());
+        return createUiObject2Elements(nodeList);
+    }
+
+    public List<AndroidElement> findObjects(AccessibilityNodeInfoList nodeList) {
+        return createUiObject2Elements(nodeList);
     }
 
     /**
      * Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window
      */
     AccessibilityNodeInfo[] getWindowRoots() throws UiAutomator2Exception {
-        Device.waitForIdle();
+        waitForIdle();
         ArrayList<AccessibilityNodeInfo> ret = new ArrayList<>();
         /**
          * TODO: MULTI_WINDOW is disabled, UIAutomatorViewer captures active window properties and
@@ -193,9 +134,8 @@ public class UiDeviceAdapter {
             // Support multi-window searches for API level 21 and up
             for (AccessibilityWindowInfo window : mInstrumentation.getUiAutomation().getWindows()) {
                 AccessibilityNodeInfo root = window.getRoot();
-
                 if (root == null) {
-                    Logger.debug(String.format("Skipping null root node for " + "window: %s", window.toString()));
+                    Logger.debug(String.format(MSG_SKIP_NULL_ROOT_NODE, window.toString()));
                     continue;
                 }
                 ret.add(root);
@@ -206,30 +146,144 @@ public class UiDeviceAdapter {
             if (node != null) {
                 ret.add(node);
             } else {
-                /*TODO: As we can't proceed to find element with out root node,
-                 TODO: retrying for 5 times to get the root node if UiTestAutomationBridge reruns null
-                 TODO: need to handle gracefully*/
+                /*
+                 TODO: As we can't proceed to find element with out root node,
+                 TODO: retrying for 5 times to get the root node if UiTestAutomationBridge reruns
+                  null
+                 TODO: need to handle gracefully
+                 */
                 //AccessibilityNodeInfo should not be null.
                 int retryCount = 0;
-                while (node == null) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException ignored) {
-                    }
-                    Device.waitForIdle();
-                    Logger.debug(" ERROR: null root node returned by UiTestAutomationBridge, retrying: " + retryCount);
+                while (node == null && retryCount < 5) {
+                    SystemClock.sleep(1000);
+                    waitForIdle();
+                    Logger.debug(ERR_MSG_NULL_ROOT_NODE + ". Retrying: " + retryCount);
                     node = mInstrumentation.getUiAutomation().getRootInActiveWindow();
-                    retryCount++;
                     if (node != null) {
                         ret.add(node);
-                        break;
-                    } else if (retryCount > 5) {
-                        throw new UiAutomator2Exception("Unable to get Root in Active window," +
-                                " ERROR: null root node returned by UiTestAutomationBridge.");
                     }
+                    retryCount++;
+                }
+                if (node == null) {
+                    throw new UiAutomator2Exception(ERR_MSG_NULL_ROOT_NODE);
                 }
             }
         }
         return ret.toArray(new AccessibilityNodeInfo[ret.size()]);
+    }
+
+    public void wake() throws RemoteException {
+        uiDevice.wakeUp();
+    }
+
+    public void scrollTo(String scrollToString) throws UiObjectNotFoundException {
+        // TODO This logic needs to be changed according to the request body from the Driver
+        UiScrollable uiScrollable = new UiScrollable(new UiSelector().scrollable(true).instance(0));
+        uiScrollable.scrollIntoView(new UiSelector().descriptionContains(scrollToString).instance
+                (0));
+        uiScrollable.scrollIntoView(new UiSelector().textContains(scrollToString).instance(0));
+    }
+
+    public boolean back() {
+        return uiDevice.pressBack();
+    }
+
+    public ManagedAndroidElement getManagedAndroidElement(String id, AndroidElement element, io
+            .appium.uiautomator2.model.By by) throws UiAutomator2Exception {
+        return new ManagedAndroidElement(id, element, by);
+    }
+
+    /**
+     * reason for explicit method, in some cases google UiAutomator2 throwing exception
+     * while calling waitForIdle() which is causing appium UiAutomator2 server to fall in
+     * unexpected behaviour.
+     * for more info please refer
+     * https://code.google.com/p/android/issues/detail?id=73297
+     */
+    public void waitForIdle() {
+        try {
+            uiDevice.waitForIdle();
+        } catch (Exception e) {
+            Logger.error("Unable wait for AUT to idle");
+        }
+    }
+
+    public void waitForIdle(final long timeInMS) {
+        try {
+            uiDevice.waitForIdle(timeInMS);
+        } catch (Exception e) {
+            Logger.error(String.format("Unable wait %d for AUT to idle", timeInMS));
+        }
+    }
+
+    public void pressKeyCode(final int keyCode, final int metaState) {
+        uiDevice.pressKeyCode(keyCode, metaState);
+    }
+
+    public void pressKeyCode(final int keyCode) {
+        uiDevice.pressKeyCode(keyCode);
+    }
+
+    private UiObject2Element createUiObject2Element(final BySelector selector, final
+    AccessibilityNodeInfo node) {
+        Constructor cons = UiObject2.class.getDeclaredConstructors()[0];
+        cons.setAccessible(true);
+        Object[] constructorParams = {uiDevice, selector, node};
+        try {
+            UiObject2 uiObject2 = (UiObject2) cons.newInstance(constructorParams);
+            return new UiObject2Element(uiObject2);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            final String msg = ERR_MSG_CREATE_UIOBJECT2;
+            Logger.error(msg + " " + e);
+            throw new UiAutomator2Exception(msg, e);
+        }
+    }
+
+    private List<AndroidElement> createUiObject2Elements(List<AccessibilityNodeInfo> nodeList) {
+        List<AndroidElement> result = new ArrayList<>();
+        for (AccessibilityNodeInfo node : nodeList) {
+            result.add(createUiObject2Element(By.clazz(node.getClassName().toString()), node));
+        }
+        return result;
+    }
+
+    public int getDisplayRotation() {
+        return uiDevice.getDisplayRotation();
+    }
+
+    public void setOrientationRight() throws RemoteException {
+        uiDevice.setOrientationRight();
+    }
+
+    public void setOrientationLeft() throws RemoteException {
+        uiDevice.setOrientationLeft();
+    }
+
+    public void setOrientationNatural() throws RemoteException {
+        uiDevice.setOrientationNatural();
+    }
+
+    public int getDisplayHeight() {
+        return uiDevice.getDisplayHeight();
+    }
+
+    public int getDisplayWidth() {
+        return uiDevice.getDisplayWidth();
+    }
+
+    public Boolean swipe(int startX, int startY, int endX, int endY, Integer steps) {
+        return uiDevice.swipe(startX, startY, endX, endY, steps);
+    }
+
+    public boolean pressEnter() {
+        return uiDevice.pressEnter();
+    }
+
+    public boolean click(int x, int y) {
+        return uiDevice.click(x, y);
+    }
+
+    public boolean drag(int startX, int startY, int endX, int endY, Integer steps) {
+        return uiDevice.drag(startX, startY, endX, endY, steps);
     }
 }

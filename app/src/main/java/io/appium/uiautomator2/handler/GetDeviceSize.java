@@ -19,13 +19,12 @@ package io.appium.uiautomator2.handler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
-
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
 
 /**
  * This handler is used to get the size of elements that support it.
@@ -42,8 +41,8 @@ public class GetDeviceSize extends SafeRequestHandler {
         // only makes sense on a device
         final JSONObject res = new JSONObject();
         try {
-            res.put("height", getUiDevice().getDisplayHeight());
-            res.put("width", getUiDevice().getDisplayWidth());
+            res.put("height", App.core.getUiDeviceAdapter().getDisplayHeight());
+            res.put("width", App.core.getUiDeviceAdapter().getDisplayWidth());
         } catch (JSONException e) {
             Logger.error("Exception while reading JSON: ", e);
             return new AppiumResponse(getSessionId(request), WDStatus.JSON_DECODER_ERROR, e);

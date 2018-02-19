@@ -40,10 +40,9 @@ import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
+import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Attribute;
-import io.appium.uiautomator2.utils.Device;
 import io.appium.uiautomator2.utils.Logger;
-import io.appium.uiautomator2.utils.NodeInfoList;
 import io.appium.uiautomator2.utils.Preconditions;
 
 /**
@@ -77,7 +76,9 @@ public class XPathFinder implements Finder {
         document = null;
   }
 
-  public static NodeInfoList getNodesList(String xpathExpression,  AccessibilityNodeInfo nodeInfo) throws InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception {
+    public static AccessibilityNodeInfoList getNodesList(String xpathExpression,
+                                                         AccessibilityNodeInfo nodeInfo) throws
+            InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception {
     if(nodeInfo == null) {
       XPathFinder.refreshUiElementTree();
     } else {
@@ -195,14 +196,14 @@ public class XPathFinder implements Finder {
     while (end > SystemClock.uptimeMillis()) {
       AccessibilityNodeInfo root = null;
       try {
-          root = App.core.getQueryControllerAdapter().getAccessibilityRootNode();
+          root = App.core.getQueryControllerAdapter().getRootNode();
       } catch (IllegalStateException ignore) {
-          /**
-           * Sometimes getAccessibilityRootNode() throws
-           * "java.lang.IllegalStateException: Cannot perform this action on a sealed instance."
-           * Ignore it and try to re-get root node.
+          /*
+            Sometimes getRootNode() throws
+            "java.lang.IllegalStateException: Cannot perform this action on a sealed instance."
+            Ignore it and try to re-get root node.
            */
-           Logger.debug("IllegalStateException was catched while invoking getAccessibilityRootNode() - ignore it");
+          Logger.debug("IllegalStateException was catched while invoking getRootNode() - ignore it");
       }
       if (root != null) {
         return root;
@@ -246,18 +247,18 @@ public class XPathFinder implements Finder {
     }
 
     @Override
-    public NodeInfoList find(UiElement context) {
+    public AccessibilityNodeInfoList find(UiElement context) {
         Element domNode = getDomNode((UiElement<?, ?>) context);
         try {
             getDocument().appendChild(domNode);
             NodeList nodes = (NodeList) xPathExpression.evaluate(domNode, XPathConstants.NODESET);
-            NodeInfoList list = new NodeInfoList();
+            AccessibilityNodeInfoList list = new AccessibilityNodeInfoList();
 
             int nodesLength = nodes.getLength();
             for (int i = 0; i < nodesLength; i++) {
                 if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && !FROM_DOM_MAP.get(nodes
                         .item(i)).getClassName().equals("hierarchy")) {
-                    list.addToList(FROM_DOM_MAP.get(nodes.item(i)).node);
+                    list.add(FROM_DOM_MAP.get(nodes.item(i)).node);
                 }
             }
             return list;

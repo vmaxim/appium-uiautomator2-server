@@ -10,14 +10,12 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.model.By;
 import io.appium.uiautomator2.server.WDStatus;
-import io.appium.uiautomator2.utils.Device;
 import io.appium.uiautomator2.utils.Logger;
 
 import static android.os.SystemClock.elapsedRealtime;
 import static io.appium.uiautomator2.unittest.test.TestHelper.delete;
 import static io.appium.uiautomator2.unittest.test.TestHelper.get;
 import static io.appium.uiautomator2.unittest.test.TestHelper.post;
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
 
 public class TestUtil {
     private static final String baseUrl = "/wd/hub/session/:sessionId";

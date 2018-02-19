@@ -11,14 +11,12 @@ import io.appium.uiautomator2.core.ReturningRunnable;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.KnownElements;
+import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
-
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
 
 public class Swipe extends SafeRequestHandler {
 
@@ -52,7 +50,7 @@ public class Swipe extends SafeRequestHandler {
             isSwipePerformed = App.core.getEventRegister().runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
                 @Override
                 public void run() {
-                    setResult(getUiDevice().swipe(absStartPos.x.intValue(),
+                    setResult(App.core.getUiDeviceAdapter().swipe(absStartPos.x.intValue(),
                             absStartPos.y.intValue(), absEndPos.x.intValue(),
                             absEndPos.y.intValue(), swipeArgs.steps));
 
@@ -80,7 +78,7 @@ public class Swipe extends SafeRequestHandler {
         public final Point start;
         public final Point end;
         public final Integer steps;
-        public AndroidElement element;
+        public ManagedAndroidElement element;
 
         public SwipeArguments(final IHttpRequest request) throws JSONException {
             JSONObject payload = getPayload(request);

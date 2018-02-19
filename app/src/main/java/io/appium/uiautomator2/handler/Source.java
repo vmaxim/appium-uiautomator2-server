@@ -18,7 +18,6 @@ import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
-import io.appium.uiautomator2.utils.ReflectionUtils;
 import io.appium.uiautomator2.utils.XMLHierarchy;
 
 /**
@@ -33,7 +32,7 @@ public class Source extends SafeRequestHandler {
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) {
         try {
-            ReflectionUtils.clearAccessibilityCache();
+            App.core.getAccessibilityInteractionClientAdapter().clearAccessibilityCache();
 
             final Document doc = (Document) new XMLHierarchy(App.core
                     .getAccessibilityNodeInfoDumper()).getFormattedXMLDoc();

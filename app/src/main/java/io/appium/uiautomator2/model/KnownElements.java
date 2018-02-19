@@ -11,13 +11,11 @@ import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 
-import static io.appium.uiautomator2.utils.Device.getAndroidElement;
-
 public class KnownElements {
-    private static Map<String, AndroidElement> cache = new HashMap<String, AndroidElement>();
+    private static Map<String, ManagedAndroidElement> cache = new HashMap<>();
 
-    private static String getCacheKey(AndroidElement element) {
-        for (Map.Entry<String, AndroidElement> entry : cache.entrySet()) {
+    private static String getCacheKey(ManagedAndroidElement element) {
+        for (Map.Entry<String, ManagedAndroidElement> entry : cache.entrySet()) {
             if (entry.getValue().equals(element)) {
                 return entry.getKey();
             }
@@ -25,14 +23,14 @@ public class KnownElements {
         return null;
     }
 
-    public static String getIdOfElement(AndroidElement element) {
+    public static String getIdOfElement(ManagedAndroidElement element) {
         if (cache.containsValue(element)) {
             return getCacheKey(element);
         }
         return null;
     }
 
-    public static AndroidElement getElementFromCache(String id) {
+    public static ManagedAndroidElement getElementFromCache(String id) {
         return cache.get(id);
     }
 
@@ -42,18 +40,20 @@ public class KnownElements {
      * @param by, user provided selector criteria from appium client.
      * @return
      */
-    public static AndroidElement geElement(final BySelector ui2BySelector, By by) throws ElementNotFoundException, InvalidSelectorException, UiAutomator2Exception, ClassNotFoundException {
-        Object ui2Object = App.core.getUiDeviceAdapter().findObject(ui2BySelector);
-        if (ui2Object == null) {
+    public static ManagedAndroidElement geElement(final BySelector ui2BySelector, By by) throws
+            ElementNotFoundException, InvalidSelectorException, UiAutomator2Exception,
+            ClassNotFoundException {
+        AndroidElement element = App.core.getUiDeviceAdapter().findObject(ui2BySelector);
+        if (element == null) {
             throw new ElementNotFoundException();
         }
         String id = UUID.randomUUID().toString();
-        AndroidElement androidElement = getAndroidElement(id, ui2Object, by);
+        ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter().getManagedAndroidElement(id, element, by);
         cache.put(androidElement.getId(), androidElement);
         return androidElement;
     }
 
-    public String add(AndroidElement element) {
+    public String add(ManagedAndroidElement element) {
         if (cache.containsValue(element)) {
             return getCacheKey(element);
         }

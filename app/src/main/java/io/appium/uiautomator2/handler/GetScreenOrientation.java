@@ -5,7 +5,6 @@ import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.ScreenOrientation;
 import io.appium.uiautomator2.server.WDStatus;
-import io.appium.uiautomator2.utils.Device;
 
 public class GetScreenOrientation extends SafeRequestHandler {
 

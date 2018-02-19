@@ -13,31 +13,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
-import io.appium.uiautomator2.core.UiDeviceAdapter;
-import io.appium.uiautomator2.utils.Device;
 import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
-
-import static io.appium.uiautomator2.utils.ReflectionUtils.invoke;
-import static io.appium.uiautomator2.utils.ReflectionUtils.method;
+import io.appium.uiautomator2.utils.ReflectionUtils;
 
 public class UiObjectElement implements AndroidElement {
 
     private static final Pattern endsWithInstancePattern = Pattern.compile(".*INSTANCE=\\d+]$");
     private static long TIME_IN_MS = 10000;
     private final UiObject element;
-    private final String id;
-    private final By by;
+    private final ReflectionUtils reflectionUtils;
 
-    public UiObjectElement(String id, UiObject element, By by) {
-        this.id = id;
+    public UiObjectElement(UiObject element) {
         this.element = element;
-        this.by = by;
+        this.reflectionUtils = new ReflectionUtils();
+        reflectionUtils.setTargetObject(element);
     }
 
     public void click() throws UiObjectNotFoundException {
@@ -111,19 +107,11 @@ public class UiObjectElement implements AndroidElement {
     }
 
     public void setText(final String text, boolean unicodeKeyboard) throws UiObjectNotFoundException {
-        ElementHelpers.setText(element, text, unicodeKeyboard);
-    }
-
-    public By getBy() {
-        return by;
+        ElementHelpers.setText(this, text, unicodeKeyboard);
     }
 
     public void clear() throws UiObjectNotFoundException {
         element.setText("");
-    }
-
-    public String getId() {
-        return this.id;
     }
 
     public Rect getBounds() throws UiObjectNotFoundException {
@@ -131,7 +119,8 @@ public class UiObjectElement implements AndroidElement {
         return rectangle;
     }
 
-    public Object getChild(final Object selector) throws UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException {
+    public AndroidElement getChild(final Object selector) throws UiObjectNotFoundException,
+            InvalidSelectorException, ClassNotFoundException {
         if (selector instanceof BySelector) {
             /**
              * We can't find the child element with BySelector on UiObject,
@@ -139,13 +128,14 @@ public class UiObjectElement implements AndroidElement {
              * and finding the child element on UiObject2.
              */
             AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
-            UiObject2 uiObject2 = (UiObject2) UiDeviceAdapter.getInstance().findObject(nodeInfo);
-            return uiObject2.findObject((BySelector) selector);
+            AndroidElement element = App.core.getUiDeviceAdapter().findObject(nodeInfo);
+            return element.getChild((BySelector) selector);
         }
-        return element.getChild((UiSelector) selector);
+        return new UiObjectElement(element.getChild((UiSelector) selector));
     }
 
-    public List<Object> getChildren(final Object selector, final By by) throws UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException {
+    public List<AndroidElement> getChildren(final Object selector, final By by) throws
+            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException {
         if (selector instanceof BySelector) {
             /**
              * We can't find the child elements with BySelector on UiObject,
@@ -153,7 +143,7 @@ public class UiObjectElement implements AndroidElement {
              * and finding the child elements on UiObject2.
              */
             AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
-            UiObject2 uiObject2 = (UiObject2) UiDeviceAdapter.getInstance().findObject(nodeInfo);
+            UiObject2 uiObject2 = (UiObject2) App.core.getUiDeviceAdapter().findObject(nodeInfo);
             return (List)uiObject2.findObjects((BySelector) selector);
         }
         return (List)this.getChildElements((UiSelector) selector);
@@ -203,7 +193,7 @@ public class UiObjectElement implements AndroidElement {
                 Logger.debug("getElements tmp selector:" + tmp.toString());
                 lastFoundObj = Device.getUiDevice().findObject(tmp);
             } else {
-                Logger.debug("Element is " + getId() + ", counter: " + counter);
+                Logger.debug("Element is " + element + ", counter: " + counter);
                 lastFoundObj = element.getChild(sel.instance(counter));
             }
             counter++;
@@ -246,8 +236,7 @@ public class UiObjectElement implements AndroidElement {
        * The returned string matches exactly what is displayed in the
        * UiAutomater inspector.
        */
-            AccessibilityNodeInfo node = (AccessibilityNodeInfo) invoke(method(element.getClass(), "findAccessibilityNodeInfo", long.class),
-                    element, Configurator.getInstance().getWaitForSelectorTimeout());
+            AccessibilityNodeInfo node = getAccessibilityNodeInfo(Configurator.getInstance().getWaitForSelectorTimeout());
 
             if (node == null) {
                 throw new UiObjectNotFoundException(element.getSelector().toString());
@@ -278,14 +267,16 @@ public class UiObjectElement implements AndroidElement {
             android.graphics.Point coords = ((UiObject2) destObj).getVisibleCenter();
             return dragTo(coords.x, coords.y, steps);
         }
-
         Logger.error("Destination should be either UiObject or UiObject2");
         return false;
     }
 
-    @Override
+    public AccessibilityNodeInfo getAccessibilityNodeInfo(long timeout) {
+        return (AccessibilityNodeInfo) reflectionUtils.invoke(reflectionUtils.method(
+                "findAccessibilityNodeInfo", long.class), timeout);
+    }
+
     public AccessibilityNodeInfo getAccessibilityNodeInfo() {
-        return (AccessibilityNodeInfo) invoke(method(UiObject.class,
-                "findAccessibilityNodeInfo", long.class), getUiObject(), TIME_IN_MS);
+        return getAccessibilityNodeInfo(TIME_IN_MS);
     }
 }

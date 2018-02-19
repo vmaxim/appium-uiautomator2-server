@@ -14,8 +14,6 @@ import io.appium.uiautomator2.utils.Point;
 
 public interface AndroidElement {
 
-    public By getBy();
-
     public void clear() throws UiObjectNotFoundException;
 
     public void click() throws UiObjectNotFoundException;
@@ -33,13 +31,13 @@ public interface AndroidElement {
 
     public void setText(final String text, boolean unicodeKeyboard) throws UiObjectNotFoundException;
 
-    public String getId();
-
     public Rect getBounds() throws UiObjectNotFoundException;
 
-    public Object getChild(final Object sel) throws UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException;
+    public AndroidElement getChild(final Object sel) throws UiObjectNotFoundException,
+            InvalidSelectorException, ClassNotFoundException;
 
-    public List<Object> getChildren(final Object selector, final By by) throws UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException;
+    public List<AndroidElement> getChildren(final Object selector, final By by) throws
+            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException;
 
     public String getContentDesc() throws UiObjectNotFoundException;
 
@@ -55,4 +53,6 @@ public interface AndroidElement {
             throws UiObjectNotFoundException, InvalidCoordinatesException;
 
     public AccessibilityNodeInfo getAccessibilityNodeInfo();
+
+    public String getClassName() throws UiObjectNotFoundException;
 }
