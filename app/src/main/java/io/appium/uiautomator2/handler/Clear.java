@@ -1,16 +1,20 @@
 package io.appium.uiautomator2.handler;
 
+import android.support.test.uiautomator.By;
+import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
+import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.KnownElements;
 import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.server.WDStatus;
@@ -36,14 +40,14 @@ public class Clear extends SafeRequestHandler {
             } else {
                 //perform action on focused element
                 try {
-                    element = KnownElements.geElement(android.support.test.uiautomator.By.focused(true), null /* by */);
+                    BySelector bySelector = By.focused(true);
+                    AndroidElement androidElement = App.core.getUiDeviceAdapter().findObject(bySelector);
+                    element = App.core.getUiDeviceAdapter().createManagedAndroidElement(androidElement, null);
+                    KnownElements.add(element);
                 } catch (ElementNotFoundException e) {
                     Logger.debug("Error retrieving focused element: " + e);
                     return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-                } catch (InvalidSelectorException e) {
-                    Logger.error("Invalid selector: ", e);
-                    return new AppiumResponse(getSessionId(request), WDStatus.INVALID_SELECTOR, e);
-                }  catch ( UiAutomator2Exception | ClassNotFoundException e) {
+                }  catch ( UiAutomator2Exception  e) {
                     Logger.debug("Error in finding focused element: " + e);
                     return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, "Unable to find a focused element." + e.getStackTrace());
                 }

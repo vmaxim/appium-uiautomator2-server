@@ -79,12 +79,11 @@ public class FirstVisibleView extends SafeRequestHandler {
                 return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
             }
 
-            String id = UUID.randomUUID().toString();
             ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter()
-                    .getManagedAndroidElement(id, firstObject, null);
+                    .createManagedAndroidElement(firstObject, null);
             ke.add(androidElement);
             JSONObject result = new JSONObject();
-            result.put("ELEMENT", id);
+            result.put("ELEMENT", androidElement.getId());
             return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, result);
         } catch (UiObjectNotFoundException e) {
             Logger.error("Element not found: ", e);

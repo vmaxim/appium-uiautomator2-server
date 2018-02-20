@@ -122,11 +122,10 @@ public class FindElement extends SafeRequestHandler {
             if (element == null) {
                 return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
             } else {
-                String id = UUID.randomUUID().toString();
-                ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter().getManagedAndroidElement(id, element, by);
+                ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter().createManagedAndroidElement(element, by);
                 ke.add(androidElement);
                 JSONObject result = new JSONObject();
-                result.put("ELEMENT", id);
+                result.put("ELEMENT", androidElement.getId());
                 return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, result);
             }
         } catch (UnsupportedOperationException e) {

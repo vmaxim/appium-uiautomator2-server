@@ -150,13 +150,13 @@ public class UiObjectElement implements AndroidElement {
     }
 
 
-    public ArrayList<UiObject> getChildElements(final UiSelector sel) throws UiObjectNotFoundException {
+    public ArrayList<AndroidElement> getChildElements(final UiSelector sel) throws UiObjectNotFoundException {
         boolean keepSearching = true;
         final String selectorString = sel.toString();
         final boolean useIndex = selectorString.contains("CLASS_REGEX=");
         final boolean endsWithInstance = endsWithInstancePattern.matcher(selectorString).matches();
         Logger.debug("getElements selector:" + selectorString);
-        final ArrayList<UiObject> elements = new ArrayList<UiObject>();
+        final ArrayList<AndroidElement> elements = new ArrayList<>();
 
         // If sel is UiSelector[CLASS=android.widget.Button, INSTANCE=0]
         // then invoking instance with a non-0 argument will corrupt the selector.
@@ -168,14 +168,14 @@ public class UiObjectElement implements AndroidElement {
         if (endsWithInstance) {
             Logger.debug("Selector ends with instance.");
             // There's exactly one element when using instance.
-            UiObject instanceObj = Device.getUiDevice().findObject(sel);
-            if (instanceObj != null && instanceObj.exists()) {
+            AndroidElement instanceObj = App.core.getUiDeviceAdapter().findObject(sel);
+            if (instanceObj != null && ((UiObject) instanceObj.getUiObject()).exists()) {
                 elements.add(instanceObj);
             }
             return elements;
         }
 
-        UiObject lastFoundObj;
+        AndroidElement lastFoundObj;
 
         UiSelector tmp;
         int counter = 0;
@@ -191,13 +191,13 @@ public class UiObjectElement implements AndroidElement {
                 }
 
                 Logger.debug("getElements tmp selector:" + tmp.toString());
-                lastFoundObj = Device.getUiDevice().findObject(tmp);
+                lastFoundObj = App.core.getUiDeviceAdapter().findObject(tmp);
             } else {
                 Logger.debug("Element is " + element + ", counter: " + counter);
-                lastFoundObj = element.getChild(sel.instance(counter));
+                lastFoundObj = new UiObjectElement(element.getChild(sel.instance(counter)));
             }
             counter++;
-            if (lastFoundObj != null && lastFoundObj.exists()) {
+            if (lastFoundObj != null && ((UiObject) lastFoundObj.getUiObject()).exists()) {
                 elements.add(lastFoundObj);
             } else {
                 keepSearching = false;

@@ -39,4 +39,6 @@ public interface CoreComponent {
     AccessibilityInteractionClientAdapter getAccessibilityInteractionClientAdapter();
 
     AccessibilityNodeInfoHelper getAccessibilityNodeInfoHelper();
+
+    GesturesAdapter getGesturesAdapter();
 }

@@ -127,4 +127,9 @@ element.click();
     public AccessibilityNodeInfo getAccessibilityNodeInfo() {
         return element.getAccessibilityNodeInfo();
     }
+
+    @Override
+    public String getClassName() throws UiObjectNotFoundException {
+        return element.getClassName();
+    }
 }

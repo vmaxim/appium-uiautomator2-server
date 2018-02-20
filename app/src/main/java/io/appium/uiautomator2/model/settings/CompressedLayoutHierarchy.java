@@ -16,6 +16,8 @@
 
 package io.appium.uiautomator2.model.settings;
 
+import io.appium.uiautomator2.App;
+
 public class CompressedLayoutHierarchy extends AbstractSetting<Boolean> {
 
     public static final String SETTING_NAME = "ignoreUnimportantViews";
@@ -26,7 +28,7 @@ public class CompressedLayoutHierarchy extends AbstractSetting<Boolean> {
 
     @Override
     protected void apply(Boolean compressLayout) {
-        Device.getUiDevice().setCompressedLayoutHeirarchy(compressLayout);
+        App.core.getUiDeviceAdapter().setCompressedLayoutHeirarchy(compressLayout);
     }
 
     @Override

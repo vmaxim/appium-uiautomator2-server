@@ -190,7 +190,7 @@ public class XPathFinder implements Finder {
 
   public static AccessibilityNodeInfo getRootAccessibilityNode() throws UiAutomator2Exception {
     final long timeoutMillis = 10000;
-    Device.waitForIdle();
+    App.core.getUiDeviceAdapter().waitForIdle();
 
     long end = SystemClock.uptimeMillis() + timeoutMillis;
     while (end > SystemClock.uptimeMillis()) {

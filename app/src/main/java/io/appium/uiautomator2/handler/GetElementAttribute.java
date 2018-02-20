@@ -65,23 +65,7 @@ public class GetElementAttribute extends SafeRequestHandler {
 
     private static int getTouchPadding(AndroidElement element) throws UiObjectNotFoundException,
             ReflectiveOperationException {
-        UiObject2 uiObject2;
-        if (element instanceof UiObjectElement) {
-            uiObject2 = App.core.getUiDeviceAdapter().findObject(By.clazz(element.getClassName()));
-        }
-        Field gestureField = uiObject2.getClass().getDeclaredField("mGestures");
-        gestureField.setAccessible(true);
-        Object gestureObject = gestureField.get(uiObject2);
-
-        Field viewConfigField = gestureObject.getClass().getDeclaredField("mViewConfig");
-        viewConfigField.setAccessible(true);
-        Object viewConfigObject = viewConfigField.get(gestureObject);
-
-        Method getScaledPagingTouchSlopMethod = viewConfigObject.getClass().getDeclaredMethod
-                ("getScaledPagingTouchSlop");
-        getScaledPagingTouchSlopMethod.setAccessible(true);
-        int touchPadding = (int) getScaledPagingTouchSlopMethod.invoke(viewConfigObject);
-
+        int touchPadding = App.core.getGesturesAdapter().getViewConfig().getScaledTouchSlop();
         return touchPadding / 2;
     }
 

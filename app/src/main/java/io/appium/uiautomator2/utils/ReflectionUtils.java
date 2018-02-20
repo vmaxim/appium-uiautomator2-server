@@ -45,6 +45,10 @@ public class ReflectionUtils {
         this.targetClass = getClass(targetClassName);
     }
 
+    public void setTargetClass(@NonNull final Class targetClass) {
+        this.targetClass = targetClass;
+    }
+
     private @NonNull
     Class getClass(final String name) throws UiAutomator2Exception {
         try {

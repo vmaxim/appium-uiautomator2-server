@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.model.AndroidElement;
@@ -188,8 +189,9 @@ public class UiDeviceAdapter {
         return uiDevice.pressBack();
     }
 
-    public ManagedAndroidElement getManagedAndroidElement(String id, AndroidElement element, io
+    public ManagedAndroidElement createManagedAndroidElement(AndroidElement element, io
             .appium.uiautomator2.model.By by) throws UiAutomator2Exception {
+        String id = UUID.randomUUID().toString();
         return new ManagedAndroidElement(id, element, by);
     }
 
@@ -285,5 +287,21 @@ public class UiDeviceAdapter {
 
     public boolean drag(int startX, int startY, int endX, int endY, Integer steps) {
         return uiDevice.drag(startX, startY, endX, endY, steps);
+    }
+
+    public boolean openNotification() {
+        return uiDevice.openNotification();
+    }
+
+    public void setCompressedLayoutHeirarchy(Boolean compressLayout) {
+        uiDevice.setCompressedLayoutHeirarchy(compressLayout);
+    }
+
+    public void wakeUp() {
+        try {
+            uiDevice.wakeUp();
+        } catch (RemoteException e) {
+            Logger.error("Unable to wake up device", e);
+        }
     }
 }

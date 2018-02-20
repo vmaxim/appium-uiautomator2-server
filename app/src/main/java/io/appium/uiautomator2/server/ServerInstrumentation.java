@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.os.PowerManager;
 import android.os.RemoteException;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -132,11 +133,9 @@ public class ServerInstrumentation {
             wakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "UiAutomator2");
             try {
                 wakeLock.acquire();
-                getUiDevice().wakeUp();
+                App.core.getUiDeviceAdapter().wakeUp();
             } catch (SecurityException e) {
                 Logger.error("Security Exception", e);
-            } catch (RemoteException e) {
-                Logger.error("Remote Exception while waking up", e);
             }
 
             server.start();

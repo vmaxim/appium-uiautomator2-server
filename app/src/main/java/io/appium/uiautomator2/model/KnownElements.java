@@ -34,26 +34,26 @@ public class KnownElements {
         return cache.get(id);
     }
 
-    /**
-     *
-     * @param ui2BySelector, for finding {@link android.support.test.uiautomator.UiObject2} element derived using {@link By}
-     * @param by, user provided selector criteria from appium client.
-     * @return
-     */
-    public static ManagedAndroidElement geElement(final BySelector ui2BySelector, By by) throws
-            ElementNotFoundException, InvalidSelectorException, UiAutomator2Exception,
-            ClassNotFoundException {
-        AndroidElement element = App.core.getUiDeviceAdapter().findObject(ui2BySelector);
-        if (element == null) {
-            throw new ElementNotFoundException();
-        }
-        String id = UUID.randomUUID().toString();
-        ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter().getManagedAndroidElement(id, element, by);
-        cache.put(androidElement.getId(), androidElement);
-        return androidElement;
-    }
+//    /**
+//     *
+//     * @param ui2BySelector, for finding {@link android.support.test.uiautomator.UiObject2} element derived using {@link By}
+//     * @param by, user provided selector criteria from appium client.
+//     * @return
+//     */
+//    public static ManagedAndroidElement geElement(final BySelector ui2BySelector, By by) throws
+//            ElementNotFoundException, InvalidSelectorException, UiAutomator2Exception,
+//            ClassNotFoundException {
+//        AndroidElement element = App.core.getUiDeviceAdapter().findObject(ui2BySelector);
+//        if (element == null) {
+//            throw new ElementNotFoundException();
+//        }
+//        String id = UUID.randomUUID().toString();
+//        ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter().createManagedAndroidElement(id, element, by);
+//        cache.put(androidElement.getId(), androidElement);
+//        return androidElement;
+//    }
 
-    public String add(ManagedAndroidElement element) {
+    public static String add(ManagedAndroidElement element) {
         if (cache.containsValue(element)) {
             return getCacheKey(element);
         }

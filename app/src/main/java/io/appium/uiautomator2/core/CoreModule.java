@@ -32,6 +32,13 @@ public class CoreModule {
     @Provides
     @NonNull
     @Singleton
+    public GesturesAdapter provideGesturesAdapter(UiDevice uiDevice, ReflectionUtils reflectionUtils) {
+        return new GesturesAdapter(uiDevice, reflectionUtils);
+    }
+
+    @Provides
+    @NonNull
+    @Singleton
     public AccessibilityNodeInfoHelper provideAccessibilityNodeInfoHelper() {
         return new AccessibilityNodeInfoHelper();
     }

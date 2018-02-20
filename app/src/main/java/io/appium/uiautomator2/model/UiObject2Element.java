@@ -167,8 +167,7 @@ public class UiObject2Element implements AndroidElement {
             CustomUiSelector customUiSelector = new CustomUiSelector(uiSelector);
             uiSelector = customUiSelector.getUiSelector(nodeInfo);
             AndroidElement element = App.core.getUiDeviceAdapter().findObject(uiSelector);
-            String id = UUID.randomUUID().toString();
-            AndroidElement androidElement = App.core.getUiDeviceAdapter().getManagedAndroidElement(id, element, by);
+            AndroidElement androidElement = App.core.getUiDeviceAdapter().createManagedAndroidElement(element, by);
             return androidElement.getChildren(selector, by);
         }
         return (List)element.findObjects((BySelector) selector);

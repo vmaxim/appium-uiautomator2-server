@@ -1,5 +1,6 @@
 package io.appium.uiautomator2.handler;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -15,7 +16,7 @@ public class GetScreenOrientation extends SafeRequestHandler {
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) {
         ScreenOrientation orientation;
-        int rotation = Device.getUiDevice().getDisplayRotation();
+        int rotation = App.core.getUiDeviceAdapter().getDisplayRotation();
         if (rotation == 1 || rotation == 3) {
             orientation = ScreenOrientation.LANDSCAPE;
         } else {
