@@ -28,7 +28,6 @@ import io.appium.uiautomator2.model.By;
 import io.appium.uiautomator2.model.By.ByClass;
 import io.appium.uiautomator2.model.By.ById;
 import io.appium.uiautomator2.model.KnownElements;
-import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.model.Session;
 import io.appium.uiautomator2.model.XPathFinder;
 import io.appium.uiautomator2.model.internal.NativeAndroidBySelector;
@@ -122,10 +121,8 @@ public class FindElement extends SafeRequestHandler {
             if (element == null) {
                 return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
             } else {
-                ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter().createManagedAndroidElement(element, by);
-                ke.add(androidElement);
                 JSONObject result = new JSONObject();
-                result.put("ELEMENT", androidElement.getId());
+                result.put("ELEMENT", ke.add(element));
                 return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, result);
             }
         } catch (UnsupportedOperationException e) {

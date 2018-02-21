@@ -4,6 +4,7 @@ import android.app.Instrumentation;
 import android.os.Build;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.BySelector;
@@ -22,10 +23,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.model.UiObject2Element;
 import io.appium.uiautomator2.model.UiObjectElement;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
@@ -34,7 +36,6 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 
 public class UiDeviceAdapter {
 
-    private static final String ERR_MSG_UNSUPPOTED_SELECTOR = "Selector of type '%s' not supported";
     private static final String ERR_MSG_CREATE_UIOBJECT2 = "error while creating  UiObject2 object";
     private static final String ERR_MSG_NULL_ROOT_NODE = "Unable to get Root in Active window, " +
             "ERROR: null root node returned by UiTestAutomationBridge.";
@@ -43,7 +44,7 @@ public class UiDeviceAdapter {
     private static final String FIELD_API_LEVEL_ACTUAL = "API_LEVEL_ACTUAL";
     private static final String FIELD_UI_AUTOMATOR_BRIDGE = "mUiAutomationBridge";
     private static final boolean MULTI_WINDOW = false;
-
+    private static final Pattern UI_SELECTOR_ENDS_WITH_INSTANCE = Pattern.compile(".*INSTANCE=\\d+]$");
     private final Instrumentation mInstrumentation;
     private final Object API_LEVEL_ACTUAL;
     private final ByMatcherAdapter byMatcherAdapter;
@@ -74,7 +75,8 @@ public class UiDeviceAdapter {
         return mInstrumentation;
     }
 
-    public @Nullable
+    @Nullable
+    public
     AndroidElement findObject(final UiSelector selector) {
         waitForIdle();
         UiObject uiObject = uiDevice.findObject(selector);
@@ -84,8 +86,10 @@ public class UiDeviceAdapter {
         return null;
     }
 
-    public @Nullable
+    @Nullable
+    public
     AndroidElement findObject(final BySelector selector) {
+        waitForIdle();
         AccessibilityNodeInfo node = byMatcherAdapter.findMatch(selector,
                 getWindowRoots());
         if (node == null) {
@@ -95,13 +99,16 @@ public class UiDeviceAdapter {
 
     }
 
-    public @Nullable
+    @Nullable
+    public
     AndroidElement findObject(final AccessibilityNodeInfo node) {
+        waitForIdle();
         BySelector selector = By.clazz(node.getClassName().toString());
         return createUiObject2Element(selector, node);
     }
 
-    public @Nullable
+    @Nullable
+    public
     AndroidElement findObject(final AccessibilityNodeInfoList nodeList) {
         if (nodeList.isEmpty()) {
             return null;
@@ -115,13 +122,83 @@ public class UiDeviceAdapter {
         return createUiObject2Elements(nodeList);
     }
 
+    public List<AndroidElement> findObjects(UiSelector selector) {
+        final List<AndroidElement> elements = new ArrayList<>();
+        final String selectorString = selector.toString();
+        final boolean useIndex = selectorString.contains("CLASS_REGEX=");
+        final boolean endsWithInstance = UI_SELECTOR_ENDS_WITH_INSTANCE.matcher(selectorString).matches();
+        Logger.debug("findObjects selector:" + selectorString);
+
+        // If sel is UiSelector[CLASS=android.widget.Button, INSTANCE=0]
+        // then invoking instance with a non-0 argument will corrupt the selector.
+        //
+        // sel.instance(1) will transform the selector into:
+        // UiSelector[CLASS=android.widget.Button, INSTANCE=1]
+        //
+        // The selector now points to an entirely different element.
+        if (endsWithInstance) {
+            Logger.debug("Selector ends with instance.");
+            // There's exactly one element when using instance.
+            AndroidElement instanceObj = findObject(selector);
+            if (instanceObj != null && ((UiObject) instanceObj).exists()) {
+                elements.add(instanceObj);
+            }
+            return elements;
+        }
+        UiObjectElement lastFoundObj;
+        UiSelector tmp;
+        int counter = 0;
+        do {
+            if (useIndex) {
+                Logger.debug("Using index...");
+                tmp = selector.index(counter);
+            } else {
+                Logger.debug("Using instance...");
+                tmp = selector.instance(counter);
+            }
+            Logger.debug("findObjects tmp selector:" + tmp.toString());
+            lastFoundObj = (UiObjectElement) App.core.getUiDeviceAdapter().findObject(tmp);
+            counter++;
+            if (lastFoundObj != null && lastFoundObj.exists()) {
+                elements.add(lastFoundObj);
+            }
+        } while (lastFoundObj != null);
+        return elements;
+    }
+
     public List<AndroidElement> findObjects(AccessibilityNodeInfoList nodeList) {
         return createUiObject2Elements(nodeList);
+    }
+
+    @NonNull
+    private UiObject2Element createUiObject2Element(final BySelector selector, final
+    AccessibilityNodeInfo node) {
+        Constructor cons = UiObject2.class.getDeclaredConstructors()[0];
+        cons.setAccessible(true);
+        Object[] constructorParams = {uiDevice, selector, node};
+        try {
+            UiObject2 uiObject2 = (UiObject2) cons.newInstance(constructorParams);
+            return new UiObject2Element(uiObject2);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            final String msg = ERR_MSG_CREATE_UIOBJECT2;
+            Logger.error(msg + " " + e);
+            throw new UiAutomator2Exception(msg, e);
+        }
+    }
+
+    @NonNull
+    private List<AndroidElement> createUiObject2Elements(List<AccessibilityNodeInfo> nodeList) {
+        List<AndroidElement> result = new ArrayList<>();
+        for (AccessibilityNodeInfo node : nodeList) {
+            result.add(createUiObject2Element(By.clazz(node.getClassName().toString()), node));
+        }
+        return result;
     }
 
     /**
      * Returns a list containing the root {@link AccessibilityNodeInfo}s for each active window
      */
+    @NonNull
     AccessibilityNodeInfo[] getWindowRoots() throws UiAutomator2Exception {
         waitForIdle();
         ArrayList<AccessibilityNodeInfo> ret = new ArrayList<>();
@@ -189,11 +266,11 @@ public class UiDeviceAdapter {
         return uiDevice.pressBack();
     }
 
-    public ManagedAndroidElement createManagedAndroidElement(AndroidElement element, io
-            .appium.uiautomator2.model.By by) throws UiAutomator2Exception {
-        String id = UUID.randomUUID().toString();
-        return new ManagedAndroidElement(id, element, by);
-    }
+//    public ManagedAndroidElement createManagedAndroidElement(AndroidElement element, io
+//            .appium.uiautomator2.model.By by) throws UiAutomator2Exception {
+//        String id = UUID.randomUUID().toString();
+//        return new ManagedAndroidElement(id, element, by);
+//    }
 
     /**
      * reason for explicit method, in some cases google UiAutomator2 throwing exception
@@ -224,29 +301,6 @@ public class UiDeviceAdapter {
 
     public void pressKeyCode(final int keyCode) {
         uiDevice.pressKeyCode(keyCode);
-    }
-
-    private UiObject2Element createUiObject2Element(final BySelector selector, final
-    AccessibilityNodeInfo node) {
-        Constructor cons = UiObject2.class.getDeclaredConstructors()[0];
-        cons.setAccessible(true);
-        Object[] constructorParams = {uiDevice, selector, node};
-        try {
-            UiObject2 uiObject2 = (UiObject2) cons.newInstance(constructorParams);
-            return new UiObject2Element(uiObject2);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            final String msg = ERR_MSG_CREATE_UIOBJECT2;
-            Logger.error(msg + " " + e);
-            throw new UiAutomator2Exception(msg, e);
-        }
-    }
-
-    private List<AndroidElement> createUiObject2Elements(List<AccessibilityNodeInfo> nodeList) {
-        List<AndroidElement> result = new ArrayList<>();
-        for (AccessibilityNodeInfo node : nodeList) {
-            result.add(createUiObject2Element(By.clazz(node.getClassName().toString()), node));
-        }
-        return result;
     }
 
     public int getDisplayRotation() {
@@ -301,7 +355,11 @@ public class UiDeviceAdapter {
         try {
             uiDevice.wakeUp();
         } catch (RemoteException e) {
-            Logger.error("Unable to wake up device", e);
+            Logger.error("RemoeException while wake up device", e);
         }
+    }
+
+    public UiDevice getUiDevice() {
+        return uiDevice;
     }
 }

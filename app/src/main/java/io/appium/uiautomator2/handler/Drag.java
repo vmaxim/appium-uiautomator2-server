@@ -10,8 +10,8 @@ import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
+import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.KnownElements;
-import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
@@ -78,7 +78,7 @@ public class Drag extends SafeRequestHandler {
                 return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, e);
             }
 
-            Logger.debug("Dragging the element with id " + dragArgs.el.getId()
+            Logger.debug("Dragging the element with id " + dragArgs.elId
                     + " to " + absEndPos.toString() + " with steps: "
                     + dragArgs.steps.toString());
             try {
@@ -98,12 +98,11 @@ public class Drag extends SafeRequestHandler {
             }
         } else {
 
-            Logger.debug("Dragging the element with id " + dragArgs.el.getId()
-                    + " to destination element with id " + dragArgs.destEl.getId()
+            Logger.debug("Dragging the element with id " + dragArgs.elId
+                    + " to destination element with id " + dragArgs.destElId
                     + " with steps: " + dragArgs.steps);
             try {
-                final boolean res = dragArgs.el.dragTo(dragArgs.destEl.getUiObject(),
-                        dragArgs.steps);
+                final boolean res = dragArgs.el.dragTo(dragArgs.destEl, dragArgs.steps);
                 if (!res) {
                     return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, "Drag did not complete successfully");
                 } else {
@@ -125,20 +124,22 @@ public class Drag extends SafeRequestHandler {
         public final Point start;
         public final Point end;
         public final Integer steps;
-        public ManagedAndroidElement el;
-        public ManagedAndroidElement destEl;
+        public AndroidElement el;
+        public AndroidElement destEl;
+        public String elId;
+        public String destElId;
 
         public DragArguments(final IHttpRequest request) throws JSONException {
 
             JSONObject payload = getPayload(request);
 
             if (payload.has("elementId")) {
-                String id = payload.getString("elementId");
-                el = KnownElements.getElementFromCache(id);
+                elId = payload.getString("elementId");
+                el = KnownElements.getElementFromCache(elId);
             }
             if (payload.has("destElId")) {
-                String id = payload.getString("destElId");
-                destEl = KnownElements.getElementFromCache(id);
+                destElId = payload.getString("destElId");
+                destEl = KnownElements.getElementFromCache(destElId);
             }
 
             start = new Point(payload.get("startX"), payload.get("startY"));

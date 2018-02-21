@@ -18,11 +18,11 @@ import org.json.JSONException;
 
 import java.io.IOException;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.server.ServerConfig;
 import io.appium.uiautomator2.utils.Logger;
 
 import static android.os.SystemClock.elapsedRealtime;
-import static io.appium.uiautomator2.utils.Device.getUiDevice;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 public abstract class TestHelper {
@@ -126,8 +126,8 @@ public abstract class TestHelper {
         long start = elapsedRealtime();
         boolean waitStatus;
         do {
-            Device.waitForIdle();
-            waitStatus = getUiDevice().wait(Until.hasObject(By.pkg(testAppPkg).depth(0)), LAUNCH_TIMEOUT);
+            App.core.getUiDeviceAdapter().waitForIdle();
+            waitStatus = App.core.getUiDeviceAdapter().getUiDevice().wait(Until.hasObject(By.pkg(testAppPkg).depth(0)), LAUNCH_TIMEOUT);
             if (waitStatus) break;
         } while ((elapsedRealtime() - start < LAUNCH_TIMEOUT));
     }

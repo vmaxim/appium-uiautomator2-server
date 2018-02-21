@@ -69,6 +69,51 @@ public class GetElementAttribute extends SafeRequestHandler {
         return touchPadding / 2;
     }
 
+    private Object getAttribute(AndroidElement element, String attributeName) throws
+            UiObjectNotFoundException, NoAttributeFoundException, ReflectiveOperationException, InvalidSelectorException {
+        switch (attributeName) {
+            case "name":
+            case "text":
+                return element.getText();
+            case "className":
+                return element.getClassName();
+            case "contentDescription":
+                return element.getContentDescription();
+            case "resourceId":
+            case "resource-id":
+                return element.getResourceId();
+            case "enabled":
+                return String.valueOf(element.isEnabled());
+            case "checkable":
+                return String.valueOf(element.isCheckable());
+            case "checked":
+                return String.valueOf(element.isChecked());
+            case "clickable":
+                return element.isClickable();
+            case "focusable":
+                return element.isFocusable();
+            case "focused":
+                return element.isFocused();
+            case "longClickable":
+                return element.isLongClickable();
+            case "scrollable":
+                return element.isScrollable();
+            case "selected":
+                return element.isSelected();
+            case "displayed":
+                return element.getAccessibilityNodeInfo() != null;
+            case "password":
+                return element.getAccessibilityNodeInfo().isPassword();
+            case "contentSize":
+                Rect boundsRect = element.getBounds();
+                ContentSize contentSize = new ContentSize(boundsRect);
+                contentSize.touchPadding = getTouchPadding(element);
+                contentSize.scrollableOffset = getScrollableOffset(element);
+                return contentSize.toString();
+            default:
+                throw new NoAttributeFoundException(attributeName);
+        }
+    }
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) {
         Logger.info("get attribute of element command");
@@ -79,26 +124,8 @@ public class GetElementAttribute extends SafeRequestHandler {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         }
         try {
-            if ("name".equals(attributeName) || "contentDescription".equals(attributeName)
-                    || "text".equals(attributeName) || "className".equals(attributeName)
-                    || "resourceId".equals(attributeName)) {
-                String attribute = element.getStringAttribute(attributeName);
-                return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, attribute);
-            } else if ("contentSize".equals(attributeName)) {
-                Rect boundsRect = element.getBounds();
-                ContentSize contentSize = new ContentSize(boundsRect);
-                contentSize.touchPadding = getTouchPadding(element);
-                contentSize.scrollableOffset = getScrollableOffset(element);
-
-                return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, contentSize.toString());
-            } else {
-                Boolean boolAttribute = element.getBoolAttribute(attributeName);
-                // The result should be of type string according to
-                // https://w3c.github.io/webdriver/webdriver-spec.html#get-element-attribute
-                return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS,
-                        boolAttribute.toString());
-            }
-
+            String attributeValue = String.valueOf(getAttribute(element, attributeName));
+            return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, attributeValue);
         } catch (UiObjectNotFoundException e) {
             Logger.error(MessageFormat.format("Element not found while trying to get attribute '{0}'", attributeName), e);
             return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR);

@@ -26,7 +26,7 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 
 public class InteractionControllerAdapter {
 
-    public static final String METHOD_PERFORM_MULTI_POINTER_GESTURE = "performMultiPointerGesture";
+    private static final String METHOD_PERFORM_MULTI_POINTER_GESTURE = "performMultiPointerGesture";
     private static final String METHOD_SEND_KEY = "sendKey";
     private static final String METHOD_INJECT_EVENT_SYNC = "injectEventSync";
     private static final String METHOD_TOUCH_DOWN = "touchDown";

@@ -16,7 +16,6 @@ import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.KnownElements;
-import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -30,7 +29,7 @@ public class Clear extends SafeRequestHandler {
         try {
             Logger.info("Clear element command");
             JSONObject payload = getPayload(request);
-            ManagedAndroidElement element;
+            AndroidElement element;
             if (payload.has("elementId")) {
                 String id = payload.getString("elementId");
                 element = KnownElements.getElementFromCache(id);
@@ -41,8 +40,7 @@ public class Clear extends SafeRequestHandler {
                 //perform action on focused element
                 try {
                     BySelector bySelector = By.focused(true);
-                    AndroidElement androidElement = App.core.getUiDeviceAdapter().findObject(bySelector);
-                    element = App.core.getUiDeviceAdapter().createManagedAndroidElement(androidElement, null);
+                    element = App.core.getUiDeviceAdapter().findObject(bySelector);
                     KnownElements.add(element);
                 } catch (ElementNotFoundException e) {
                     Logger.debug("Error retrieving focused element: " + e);

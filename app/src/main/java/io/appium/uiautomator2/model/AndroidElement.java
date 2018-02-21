@@ -1,7 +1,9 @@
 package io.appium.uiautomator2.model;
 
 import android.graphics.Rect;
+import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.UiObjectNotFoundException;
+import android.support.test.uiautomator.UiSelector;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
@@ -14,45 +16,67 @@ import io.appium.uiautomator2.utils.Point;
 
 public interface AndroidElement {
 
-    public void clear() throws UiObjectNotFoundException;
+    void clear() throws UiObjectNotFoundException;
 
-    public void click() throws UiObjectNotFoundException;
+    void click() throws UiObjectNotFoundException;
 
-    public boolean longClick() throws UiObjectNotFoundException;
+    boolean longClick() throws UiObjectNotFoundException;
 
-    public String getText() throws UiObjectNotFoundException;
+    String getText() throws UiObjectNotFoundException;
 
-    public String getName() throws UiObjectNotFoundException;
+    String getName() throws UiObjectNotFoundException;
 
-    public String getStringAttribute(final String attr) throws UiObjectNotFoundException, NoAttributeFoundException;
+    String getResourceId() throws UiObjectNotFoundException;
 
-    public boolean getBoolAttribute(final String attr)
-            throws UiObjectNotFoundException, NoAttributeFoundException, UiAutomator2Exception;
+    String getContentDescription() throws UiObjectNotFoundException;
 
-    public void setText(final String text, boolean unicodeKeyboard) throws UiObjectNotFoundException;
+    boolean isSelected() throws UiObjectNotFoundException;
 
-    public Rect getBounds() throws UiObjectNotFoundException;
+    boolean isScrollable() throws UiObjectNotFoundException;
 
-    public AndroidElement getChild(final Object sel) throws UiObjectNotFoundException,
+    boolean isLongClickable() throws UiObjectNotFoundException;
+
+    boolean isFocused() throws UiObjectNotFoundException;
+
+    boolean isFocusable() throws UiObjectNotFoundException;
+
+    boolean isClickable() throws UiObjectNotFoundException;
+
+    boolean isChecked() throws UiObjectNotFoundException;
+
+    boolean isCheckable() throws UiObjectNotFoundException;
+
+    boolean isEnabled() throws UiObjectNotFoundException;
+
+    void setText(final String text, boolean unicodeKeyboard) throws UiObjectNotFoundException;
+
+    Rect getBounds() throws UiObjectNotFoundException;
+
+    AndroidElement getChild(final UiSelector sel) throws UiObjectNotFoundException,
             InvalidSelectorException, ClassNotFoundException;
 
-    public List<AndroidElement> getChildren(final Object selector, final By by) throws
+    AndroidElement getChild(final BySelector sel) throws UiObjectNotFoundException,
+            InvalidSelectorException, ClassNotFoundException;
+
+    List<AndroidElement> getChildren(final UiSelector selector) throws
             UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException;
 
-    public String getContentDesc() throws UiObjectNotFoundException;
+    List<AndroidElement> getChildren(final BySelector selector) throws
+            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException;
 
-    public Object getUiObject();
+    String getContentDesc() throws UiObjectNotFoundException;
 
-    public Point getAbsolutePosition(final Point point)
+    <T> T getUiObject();
+
+    Point getAbsolutePosition(final Point point)
             throws UiObjectNotFoundException, InvalidCoordinatesException;
 
-    public boolean dragTo(final int destX, final int destY, final int steps)
-            throws UiObjectNotFoundException, InvalidCoordinatesException;
+    boolean dragTo(AndroidElement destObj, int steps) throws UiObjectNotFoundException, InvalidCoordinatesException;
 
-    public boolean dragTo(final Object destObj, final int steps)
-            throws UiObjectNotFoundException, InvalidCoordinatesException;
+    boolean dragTo(int destX, int destY, int steps) throws UiObjectNotFoundException, InvalidCoordinatesException;
 
-    public AccessibilityNodeInfo getAccessibilityNodeInfo();
+    AccessibilityNodeInfo getAccessibilityNodeInfo();
 
-    public String getClassName() throws UiObjectNotFoundException;
+    String getClassName() throws UiObjectNotFoundException;
+
 }

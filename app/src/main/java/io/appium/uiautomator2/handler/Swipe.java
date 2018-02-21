@@ -11,8 +11,8 @@ import io.appium.uiautomator2.core.ReturningRunnable;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
+import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.KnownElements;
-import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
@@ -37,7 +37,7 @@ public class Swipe extends SafeRequestHandler {
             if (payload.has("elementId")) {
                 absStartPos = swipeArgs.element.getAbsolutePosition(swipeArgs.start);
                 absEndPos = swipeArgs.element.getAbsolutePosition(swipeArgs.end);
-                Logger.debug("Swiping the element with ElementId " + swipeArgs.element.getId()
+                Logger.debug("Swiping the element with ElementId " + swipeArgs.id
                         + " to " + absEndPos.toString() + " with steps: "
                         + swipeArgs.steps.toString());
             } else {
@@ -78,13 +78,14 @@ public class Swipe extends SafeRequestHandler {
         public final Point start;
         public final Point end;
         public final Integer steps;
-        public ManagedAndroidElement element;
+        public AndroidElement element;
+        public String id;
 
         public SwipeArguments(final IHttpRequest request) throws JSONException {
             JSONObject payload = getPayload(request);
             if (payload.has("elementId")) {
                 Logger.info("Payload has elementId" + payload);
-                String id = payload.getString("elementId");
+                id = payload.getString("elementId");
                 element = KnownElements.getElementFromCache(id);
             }
             start = new Point(payload.get("startX"), payload.get("startY"));

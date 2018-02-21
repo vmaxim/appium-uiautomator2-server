@@ -19,7 +19,6 @@ import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.KnownElements;
-import io.appium.uiautomator2.model.ManagedAndroidElement;
 import io.appium.uiautomator2.model.UiObject2Element;
 import io.appium.uiautomator2.model.UiObjectElement;
 import io.appium.uiautomator2.server.WDStatus;
@@ -79,11 +78,9 @@ public class FirstVisibleView extends SafeRequestHandler {
                 return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
             }
 
-            ManagedAndroidElement androidElement = App.core.getUiDeviceAdapter()
-                    .createManagedAndroidElement(firstObject, null);
-            ke.add(androidElement);
+            String id = ke.add(firstObject);
             JSONObject result = new JSONObject();
-            result.put("ELEMENT", androidElement.getId());
+            result.put("ELEMENT", id);
             return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, result);
         } catch (UiObjectNotFoundException e) {
             Logger.error("Element not found: ", e);
