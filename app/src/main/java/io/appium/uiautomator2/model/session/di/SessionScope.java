@@ -13,21 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2;
+package io.appium.uiautomator2.model.session.di;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-import android.support.annotation.Nullable;
+import javax.inject.Scope;
 
-import io.appium.uiautomator2.core.di.CoreComponent;
-import io.appium.uiautomator2.core.di.DaggerCoreComponent;
-import io.appium.uiautomator2.model.di.DaggerModelComponent;
-import io.appium.uiautomator2.model.di.ModelComponent;
-import io.appium.uiautomator2.model.session.di.SessionComponent;
-
-public class App {
-
-    public static CoreComponent core = DaggerCoreComponent.create();
-    public static ModelComponent model = DaggerModelComponent.create();
-    @Nullable
-    public static SessionComponent session;
+@Scope
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SessionScope {
 }

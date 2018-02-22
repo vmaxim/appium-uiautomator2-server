@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2;
+package io.appium.uiautomator2.model.di;
 
+import javax.inject.Singleton;
 
-import android.support.annotation.Nullable;
-
-import io.appium.uiautomator2.core.di.CoreComponent;
-import io.appium.uiautomator2.core.di.DaggerCoreComponent;
-import io.appium.uiautomator2.model.di.DaggerModelComponent;
-import io.appium.uiautomator2.model.di.ModelComponent;
+import dagger.Component;
+import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
 import io.appium.uiautomator2.model.session.di.SessionComponent;
+import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
 
-public class App {
+@Singleton
+@Component(modules = {ModelModule.class})
+public interface ModelComponent {
 
-    public static CoreComponent core = DaggerCoreComponent.create();
-    public static ModelComponent model = DaggerModelComponent.create();
-    @Nullable
-    public static SessionComponent session;
+    UiObjectAdapterFactory getUiObjectElementFactory();
+
+    SessionComponent initSession();
+
+    AccessibilityNodeInfo2UiSelector getAccessibilityNodeInfo2UiSelector();
+
 }

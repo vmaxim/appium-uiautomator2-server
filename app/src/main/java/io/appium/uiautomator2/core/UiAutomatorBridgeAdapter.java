@@ -16,6 +16,7 @@
 package io.appium.uiautomator2.core;
 
 import android.app.UiAutomation;
+import android.support.annotation.NonNull;
 import android.support.test.uiautomator.UiAutomatorBridge;
 import android.view.Display;
 import android.view.InputEvent;
@@ -32,17 +33,16 @@ public class UiAutomatorBridgeAdapter {
     private static final String METHOD_GET_DEFAULT_DISPLAY = "getDefaultDisplay";
     private static final String METHOD_INJECT_INPUT_EVENT = "injectInputEvent";
 
-    private final UiAutomatorBridge uiAutomatorBridge;
     private final Object queryController;
     private final Object interactionController;
     private final UiAutomation uiAutomation;
+    @NonNull
     private final ReflectionUtils reflectionUtils;
     private final Display defaultDisplay;
 
-    public UiAutomatorBridgeAdapter(UiAutomatorBridge uiAutomatorBridge, ReflectionUtils
-            reflectionUtils) {
+    public UiAutomatorBridgeAdapter(@NonNull final UiAutomatorBridge uiAutomatorBridge,
+                                    @NonNull final ReflectionUtils reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
-        this.uiAutomatorBridge = uiAutomatorBridge;
         reflectionUtils.setTargetObject(uiAutomatorBridge);
         queryController = reflectionUtils.getField(FIELD_QUERY_CONTROLLER);
         interactionController = reflectionUtils.getField(FIELD_INTERACTION_CONTROLLER);
@@ -62,16 +62,14 @@ public class UiAutomatorBridgeAdapter {
         return uiAutomation;
     }
 
-    public Display getDefaultDisplay() throws UiAutomator2Exception {
+    Display getDefaultDisplay() throws UiAutomator2Exception {
         return defaultDisplay;
     }
 
-    public boolean injectInputEvent(InputEvent event, boolean sync) throws UiAutomator2Exception {
-        return (Boolean) reflectionUtils.invoke(reflectionUtils.method(METHOD_INJECT_INPUT_EVENT,
+    public boolean injectInputEvent(@NonNull final InputEvent event, boolean sync) throws
+            UiAutomator2Exception {
+        return reflectionUtils.invoke(reflectionUtils.method(METHOD_INJECT_INPUT_EVENT,
                 InputEvent.class, boolean.class), event, sync);
     }
 
-    public UiAutomatorBridge getUiAutomatorBridge() {
-        return uiAutomatorBridge;
-    }
 }

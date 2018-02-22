@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2.core;
+package io.appium.uiautomator2.core.di;
 
 import javax.inject.Singleton;
 
 import dagger.Component;
-import io.appium.uiautomator2.model.AccessibilityNodeInfoHelper;
+import io.appium.uiautomator2.core.AccessibilityInteractionClientAdapter;
+import io.appium.uiautomator2.core.AccessibilityNodeInfoDumper;
+import io.appium.uiautomator2.core.EventRegister;
+import io.appium.uiautomator2.core.GesturesAdapter;
+import io.appium.uiautomator2.core.InteractionControllerAdapter;
+import io.appium.uiautomator2.core.QueryControllerAdapter;
+import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
+import io.appium.uiautomator2.core.UiDeviceAdapter;
+import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
+import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
+import io.appium.uiautomator2.utils.ReflectionUtils;
 
 @Singleton
 @Component(modules = {CoreModule.class})
@@ -41,4 +51,7 @@ public interface CoreComponent {
     AccessibilityNodeInfoHelper getAccessibilityNodeInfoHelper();
 
     GesturesAdapter getGesturesAdapter();
+
+    ReflectionUtils getReflectionUtils();
+
 }

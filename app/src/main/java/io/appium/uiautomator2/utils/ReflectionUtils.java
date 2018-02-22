@@ -26,7 +26,18 @@ import java.util.List;
 
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 
+@SuppressWarnings("unchecked")
 public class ReflectionUtils {
+
+    private static final String ERR_MSG_UNABLE_TO_FIND_CLASS = "unable to find class %s";
+    private static final String ERR_MSG_UNABLE_GET_FIELD = "error while getting field %s from " +
+            "object %s";
+    private static final String ERR_MSG_FIELD_DOES_NOT_EXIST = "Field %s does not exist in object" +
+            " %s";
+    private static final String ERR_MSG_INVOCATION_ERROR = "error while invoking method %s on " +
+            "object %s with parameters %s";
+    private static final String ERR_MSG_UNABLE_TO_GET_METHOD = "error while getting method %s " +
+            "from class %s with parameter types %s";
 
     private Object targetObject;
     private Class targetClass;
@@ -36,49 +47,40 @@ public class ReflectionUtils {
         this.targetClass = targetObject.getClass();
     }
 
-    public @NonNull
-    Class getTargetClass() {
-        return targetClass;
-    }
-
     public void setTargetClass(@NonNull final String targetClassName) {
         this.targetClass = getClass(targetClassName);
     }
 
-    public void setTargetClass(@NonNull final Class targetClass) {
-        this.targetClass = targetClass;
-    }
-
-    private @NonNull
-    Class getClass(final String name) throws UiAutomator2Exception {
+    private Class getClass(@NonNull final String name) throws UiAutomator2Exception {
         try {
             return Class.forName(name);
-        } catch (final ClassNotFoundException e) {
-            final String msg = String.format("unable to find class %s", name);
+        } catch (@NonNull final ClassNotFoundException e) {
+            final String msg = String.format(ERR_MSG_UNABLE_TO_FIND_CLASS, name);
             throw new UiAutomator2Exception(msg, e);
         }
     }
 
+    @NonNull
     public <T> T getField(@NonNull final String fieldName) throws UiAutomator2Exception {
         assert targetObject != null;
-
         for (Field field : getAllFields()) {
             if (field.getName().equals(fieldName)) {
                 field.setAccessible(true);
                 try {
                     return (T) field.get(targetObject);
                 } catch (IllegalAccessException e) {
-                    final String msg = String.format("error while getting field %s from object %s",
+                    final String msg = String.format(ERR_MSG_UNABLE_GET_FIELD,
                             fieldName, targetObject);
                     Logger.error(msg + " " + e.getMessage());
                     throw new UiAutomator2Exception(msg, e);
                 }
             }
         }
-        throw new UiAutomator2Exception(String.format("Field %s does not exists in object %",
+        throw new UiAutomator2Exception(String.format(ERR_MSG_FIELD_DOES_NOT_EXIST,
                 fieldName, targetObject));
     }
 
+    @NonNull
     private List<Field> getAllFields() {
         List<Field> allFields = new ArrayList<>();
         for (Class<?> c = targetClass; c != null; c = c.getSuperclass()) {
@@ -87,6 +89,7 @@ public class ReflectionUtils {
         return allFields;
     }
 
+    @NonNull
     public <T> T
     invoke(@NonNull final Method method, final Object... parameters) throws
             UiAutomator2Exception {
@@ -94,8 +97,7 @@ public class ReflectionUtils {
         try {
             return (T) method.invoke(targetObject, parameters);
         } catch (final Exception e) {
-            final String msg = String.format("error while invoking method %s on object %s with " +
-                            "parameters %s",
+            final String msg = String.format(ERR_MSG_INVOCATION_ERROR,
                     method, targetObject, Arrays.toString(parameters));
             Logger.error(msg + " " + e.getMessage());
             throw new UiAutomator2Exception(msg, e);
@@ -109,8 +111,7 @@ public class ReflectionUtils {
             method.setAccessible(true);
             return method;
         } catch (final Exception e) {
-            final String msg = String.format("error while getting method %s from class %s with " +
-                            "parameter types %s",
+            final String msg = String.format(ERR_MSG_UNABLE_TO_GET_METHOD,
                     methodName, targetClass, Arrays.toString(parameterTypes));
             Logger.error(msg + " " + e.getMessage());
             throw new UiAutomator2Exception(msg, e);

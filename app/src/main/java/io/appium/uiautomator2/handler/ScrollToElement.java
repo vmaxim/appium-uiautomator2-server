@@ -9,10 +9,11 @@ import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.KnownElements;
 import io.appium.uiautomator2.server.AppiumServlet;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
+
+import static io.appium.uiautomator2.App.session;
 
 public class ScrollToElement extends SafeRequestHandler {
 
@@ -29,11 +30,11 @@ public class ScrollToElement extends SafeRequestHandler {
         UiObject elementUiObject = null;
         UiObject scrollElementUiObject = null;
 
-        AndroidElement element = KnownElements.getElementFromCache(id);
+        AndroidElement element = session.getCachedElements().getElementFromCache(id);
         if (element == null) {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         }
-        AndroidElement scrollToElement = KnownElements.getElementFromCache(scrollToId);
+        AndroidElement scrollToElement = session.getCachedElements().getElementFromCache(scrollToId);
         if (scrollToElement == null) {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         }

@@ -61,7 +61,6 @@ public abstract class BaseRequestHandler {
     }
 
     public String getSessionId(IHttpRequest request) {
-
         return (String) request.data().get(AppiumServlet.SESSION_ID_KEY);
     }
 

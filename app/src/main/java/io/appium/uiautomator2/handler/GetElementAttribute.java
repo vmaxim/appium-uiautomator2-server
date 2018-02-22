@@ -1,9 +1,7 @@
 package io.appium.uiautomator2.handler;
 
 import android.graphics.Rect;
-import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.StaleObjectException;
-import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
@@ -12,8 +10,6 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.MessageFormat;
 
 import io.appium.uiautomator2.App;
@@ -24,11 +20,12 @@ import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.KnownElements;
-import io.appium.uiautomator2.model.UiObject2Element;
-import io.appium.uiautomator2.model.UiObjectElement;
+import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
+
+import static io.appium.uiautomator2.App.model;
+import static io.appium.uiautomator2.App.session;
 
 public class GetElementAttribute extends SafeRequestHandler {
 
@@ -39,19 +36,18 @@ public class GetElementAttribute extends SafeRequestHandler {
     private static int getScrollableOffset(AndroidElement uiScrollable) throws
             UiObjectNotFoundException, ClassNotFoundException, InvalidSelectorException {
         AccessibilityNodeInfo nodeInfo = null;
+        AndroidElement firstChild;
         int offset = 0;
-        Object actualObject = uiScrollable.getUiObject();
-        if (actualObject instanceof UiObject) {
-            UiObjectElement element = new UiObjectElement((UiObject) uiScrollable.getChild(new
-                    UiSelector().index(0)));
-            nodeInfo = element.getAccessibilityNodeInfo();
+        if (uiScrollable instanceof UiObjectAdapter) {
+            firstChild = uiScrollable.getChild(new UiSelector().index(0));
         } else {
-            UiObject2Element childObject = new UiObject2Element(((UiObject2) actualObject)
-                    .getChildren().get(0));
-            try {
-                nodeInfo = childObject.getAccessibilityNodeInfo();
-            } catch (UiAutomator2Exception ignored) {
-            }
+            UiObject2 uiObject2 = uiScrollable.getUiObject();
+            firstChild = model.getUiObjectElementFactory().create(uiObject2);
+        }
+
+        try {
+            nodeInfo = firstChild.getAccessibilityNodeInfo();
+        } catch (UiAutomator2Exception ignored) {
         }
 
         if (nodeInfo != null) {
@@ -119,7 +115,7 @@ public class GetElementAttribute extends SafeRequestHandler {
         Logger.info("get attribute of element command");
         String id = getElementId(request);
         String attributeName = getNameAttribute(request);
-        AndroidElement element = KnownElements.getElementFromCache(id);
+        AndroidElement element = session.getCachedElements().getElementFromCache(id);
         if (element == null) {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         }

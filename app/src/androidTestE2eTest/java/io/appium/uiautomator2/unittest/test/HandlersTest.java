@@ -15,6 +15,7 @@ import com.squareup.okhttp.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -97,8 +98,8 @@ public class HandlersTest {
      *
      * @throws InterruptedException
      */
-    @BeforeClass
-    public static void beforeStartServer() throws InterruptedException, IOException, SessionRemovedException, JSONException {
+   // @BeforeClass
+    public void beforeStartServer() throws InterruptedException, IOException, SessionRemovedException, JSONException {
         if (serverInstrumentation == null) {
             assertNotNull(App.core.getUiDeviceAdapter().getUiDevice());
             ctx = InstrumentationRegistry.getInstrumentation().getContext();
@@ -113,16 +114,18 @@ public class HandlersTest {
 
     }
 
-    @AfterClass
-    public static void stopSever() throws InterruptedException {
+  //  @AfterClass
+    public void stopSever() throws InterruptedException {
         deleteSession();
         if (serverInstrumentation != null) {
             serverInstrumentation.stopServer();
+            serverInstrumentation = null;
         }
     }
 
     @Before
-    public void launchAUT() throws InterruptedException, JSONException {
+    public void launchAUT() throws InterruptedException, JSONException, IOException {
+        beforeStartServer();
         Intent intent = new Intent().setClassName(testAppPkg, testAppPkg + ".ApiDemos").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         ctx.stopService(intent);
         ctx.startActivity(intent);
@@ -134,6 +137,11 @@ public class HandlersTest {
         Logger.info("Configurator.getInstance().getWaitForSelectorTimeout:" + Configurator.getInstance().getWaitForSelectorTimeout());
         element = findElement(By.accessibilityId("Accessibility"));
         assertTrue(By.accessibilityId("Accessibility") + " not found", isElementPresent(element));
+    }
+
+    @After
+    public void tearDown() throws InterruptedException {
+        stopSever();
     }
 
     /**

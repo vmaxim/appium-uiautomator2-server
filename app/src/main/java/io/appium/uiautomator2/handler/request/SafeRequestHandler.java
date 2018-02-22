@@ -10,9 +10,10 @@ import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.KnownElements;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
+
+import static io.appium.uiautomator2.App.session;
 
 public abstract class SafeRequestHandler extends BaseRequestHandler {
 
@@ -24,12 +25,12 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
 
 
     protected String getIdOfKnownElement(IHttpRequest request, AndroidElement element) {
-        return KnownElements.getIdOfElement(element);
+        return session.getCachedElements().getIdOfElement(element);
     }
 
     protected AndroidElement getElementFromCache(IHttpRequest request, String id) {
 
-        return KnownElements.getElementFromCache(id);
+        return session.getCachedElements().getElementFromCache(id);
     }
 
 

@@ -12,11 +12,12 @@ import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.KnownElements;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
+
+import static io.appium.uiautomator2.App.session;
 
 public class Swipe extends SafeRequestHandler {
 
@@ -86,7 +87,7 @@ public class Swipe extends SafeRequestHandler {
             if (payload.has("elementId")) {
                 Logger.info("Payload has elementId" + payload);
                 id = payload.getString("elementId");
-                element = KnownElements.getElementFromCache(id);
+                element = session.getCachedElements().getElementFromCache(id);
             }
             start = new Point(payload.get("startX"), payload.get("startY"));
             end = new Point(payload.get("endX"), payload.get("endY"));

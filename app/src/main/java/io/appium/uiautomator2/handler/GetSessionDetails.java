@@ -3,32 +3,30 @@ package io.appium.uiautomator2.handler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.model.AccessibilityScrollData;
-import io.appium.uiautomator2.model.AppiumUiAutomatorDriver;
-import io.appium.uiautomator2.model.Session;
+import io.appium.uiautomator2.model.dto.AccessibilityScrollData;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
+import static io.appium.uiautomator2.App.session;
+
 public class GetSessionDetails extends SafeRequestHandler {
 
-    private Session session;
 
     public GetSessionDetails(String mappedUri) {
         super(mappedUri);
-        session = AppiumUiAutomatorDriver.getInstance().getSession();
     }
 
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) {
         try {
             JSONObject result = new JSONObject();
-            AccessibilityScrollData scrollData = session.getLastScrollData();
-            HashMap<String, Integer> scrollDataMap;
+            AccessibilityScrollData scrollData = session.getSession().getLastScrollData();
+            Map<String, Integer> scrollDataMap;
             if (scrollData == null) {
                 scrollDataMap = null;
             } else {

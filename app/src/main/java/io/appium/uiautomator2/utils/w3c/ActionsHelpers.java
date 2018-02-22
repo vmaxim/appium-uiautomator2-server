@@ -37,8 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.KnownElements;
 
+import static io.appium.uiautomator2.App.session;
 import static io.appium.uiautomator2.utils.w3c.ActionsConstants.ACTION_ITEM_BUTTON_KEY;
 import static io.appium.uiautomator2.utils.w3c.ActionsConstants.ACTION_ITEM_DURATION_KEY;
 import static io.appium.uiautomator2.utils.w3c.ActionsConstants.ACTION_ITEM_ORIGIN_KEY;
@@ -162,7 +162,7 @@ public class ActionsHelpers {
         final PointerCoords result = new PointerCoords();
         Rect bounds;
         try {
-            final AndroidElement element = KnownElements.getElementFromCache(elementId);
+            final AndroidElement element = session.getCachedElements().getElementFromCache(elementId);
             bounds = element.getBounds();
             if (bounds.width() == 0 || bounds.height() == 0) {
                 throw new ActionsParseException(String.format(

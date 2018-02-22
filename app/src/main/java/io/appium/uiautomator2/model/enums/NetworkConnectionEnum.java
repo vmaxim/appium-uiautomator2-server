@@ -1,10 +1,10 @@
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.enums;
 
 public enum NetworkConnectionEnum {
     AIRPLANE(1), WIFI(2), DATA(4), ALL(6), NONE(0), IN_VALID(null);
     private final Integer value;
 
-    private NetworkConnectionEnum(final Integer value) {
+    NetworkConnectionEnum(final Integer value) {
         this.value = value;
     }
 

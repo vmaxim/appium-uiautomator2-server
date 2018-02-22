@@ -4,7 +4,7 @@ import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.model.ScreenOrientation;
+import io.appium.uiautomator2.model.enums.OrientationEnum;
 import io.appium.uiautomator2.server.WDStatus;
 
 public class GetScreenOrientation extends SafeRequestHandler {
@@ -15,12 +15,12 @@ public class GetScreenOrientation extends SafeRequestHandler {
 
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) {
-        ScreenOrientation orientation;
+        OrientationEnum orientation;
         int rotation = App.core.getUiDeviceAdapter().getDisplayRotation();
         if (rotation == 1 || rotation == 3) {
-            orientation = ScreenOrientation.LANDSCAPE;
+            orientation = OrientationEnum.LANDSCAPE;
         } else {
-            orientation = ScreenOrientation.PORTRAIT;
+            orientation = OrientationEnum.PORTRAIT;
         }
         return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, orientation);
     }

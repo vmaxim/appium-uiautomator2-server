@@ -33,6 +33,8 @@ import io.appium.uiautomator2.utils.Attribute;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Preconditions;
 
+import static io.appium.uiautomator2.App.session;
+
 
 /**
  * A UiElement that gets attributes via the Accessibility API.
@@ -139,7 +141,7 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
       children = null;
     } else {
       children = new ArrayList<UiAutomationElement>(childCount);
-      Object allowInvisibleElements = Session.capabilities.get(AllowInvisibleElements.SETTING_NAME);
+      Object allowInvisibleElements = session.getSession().capabilities.get(AllowInvisibleElements.SETTING_NAME);
       boolean isAllowInvisibleElements = allowInvisibleElements != null && (boolean) allowInvisibleElements;
 
       for (int i = 0; i < childCount; i++) {

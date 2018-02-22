@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2;
+package io.appium.uiautomator2.model.uiobject;
 
+import android.support.test.uiautomator.UiObject;
+import android.support.test.uiautomator.UiObject2;
 
-import android.support.annotation.Nullable;
+import static io.appium.uiautomator2.App.core;
 
-import io.appium.uiautomator2.core.di.CoreComponent;
-import io.appium.uiautomator2.core.di.DaggerCoreComponent;
-import io.appium.uiautomator2.model.di.DaggerModelComponent;
-import io.appium.uiautomator2.model.di.ModelComponent;
-import io.appium.uiautomator2.model.session.di.SessionComponent;
+public class UiObjectAdapterFactory {
 
-public class App {
+    public UiObjectAdapter create(UiObject object) {
+        return new UiObjectAdapter(object, core.getReflectionUtils());
+    }
 
-    public static CoreComponent core = DaggerCoreComponent.create();
-    public static ModelComponent model = DaggerModelComponent.create();
-    @Nullable
-    public static SessionComponent session;
+    public UiObject2Adapter create(UiObject2 object) {
+        return new UiObject2Adapter(object, core.getReflectionUtils());
+    }
 }

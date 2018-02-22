@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.utils;
 
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 
@@ -34,7 +37,7 @@ public class AccessibilityNodeInfoHelper {
      * @param height pixel height of the display
      * @return null if node is null, else a Rect containing visible bounds
      */
-    public Rect getVisibleBoundsInScreen(AccessibilityNodeInfo node, int width, int height) {
+    public Rect getVisibleBoundsInScreen(@Nullable final AccessibilityNodeInfo node, final int width, final int height) {
         if (node == null) {
             return null;
         }
@@ -56,7 +59,8 @@ public class AccessibilityNodeInfoHelper {
      * @param value desired progress value
      * @return true if action performed successfully
      */
-    public boolean setProgressValue(final AccessibilityNodeInfo node, final float value) {
+    @RequiresApi(24)
+    public boolean setProgressValue(@NonNull final AccessibilityNodeInfo node, final float value) {
         if (!node.getActionList().contains(AccessibilityAction.ACTION_SET_PROGRESS)) {
             Logger.debug("The element does not support ACTION_SET_PROGRESS action.");
             return false;
@@ -74,7 +78,8 @@ public class AccessibilityNodeInfoHelper {
      * @param text text to truncate
      * @return truncated text
      */
-    public String truncateTextToMaxLength(final AccessibilityNodeInfo node, final String
+    @RequiresApi(21)
+    public String truncateTextToMaxLength(@NonNull final AccessibilityNodeInfo node, @NonNull final String
             text) {
         final int maxTextLength = node.getMaxTextLength();
         if (maxTextLength > 0 && text.length() > maxTextLength) {

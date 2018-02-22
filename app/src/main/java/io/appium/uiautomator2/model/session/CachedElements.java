@@ -1,4 +1,4 @@
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.session;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,10 +6,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class KnownElements {
-    private static Map<String, AndroidElement> cache = new HashMap<>();
+import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.utils.Logger;
 
-    private static String getCacheKey(AndroidElement element) {
+public class CachedElements {
+    private Map<String, AndroidElement> cache = new HashMap<>();
+
+    public CachedElements() {
+    }
+
+    private String getCacheKey(AndroidElement element) {
         for (Map.Entry<String, AndroidElement> entry : cache.entrySet()) {
             if (entry.getValue().equals(element)) {
                 return entry.getKey();
@@ -18,18 +24,20 @@ public class KnownElements {
         return null;
     }
 
-    public static String getIdOfElement(AndroidElement element) {
+    public String getIdOfElement(AndroidElement element) {
         if (cache.containsValue(element)) {
             return getCacheKey(element);
         }
         return null;
     }
 
-    public static AndroidElement getElementFromCache(String id) {
+    public AndroidElement getElementFromCache(String id) {
+        Logger.debug("Seaching for element in cache:" + id);
+        Logger.debug("Cache size:" + cache.size());
         return cache.get(id);
     }
 
-    public static String add(AndroidElement element) {
+    public String add(AndroidElement element) {
         if (cache.containsValue(element)) {
             return getCacheKey(element);
         }
@@ -38,7 +46,7 @@ public class KnownElements {
         return id;
     }
 
-    public static List<String> add(List<AndroidElement> elementList) {
+    public List<String> add(List<AndroidElement> elementList) {
         List<String> ids = new ArrayList<>(elementList.size());
         for (AndroidElement element : elementList) {
             String id = add(element);

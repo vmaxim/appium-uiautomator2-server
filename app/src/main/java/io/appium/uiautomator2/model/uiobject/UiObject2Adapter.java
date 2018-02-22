@@ -1,10 +1,9 @@
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.uiobject;
 
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.StaleObjectException;
-import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
@@ -17,24 +16,29 @@ import java.util.List;
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
+import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
 import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
-public class UiObject2Element implements AndroidElement {
+import static io.appium.uiautomator2.App.core;
+import static io.appium.uiautomator2.App.model;
+
+public class UiObject2Adapter implements AndroidElement {
 
     private final UiObject2 element;
     private final ReflectionUtils reflectionUtils;
 
-    public UiObject2Element(UiObject2 element) {
+    UiObject2Adapter(UiObject2 element, ReflectionUtils reflectionUtils) {
         this.element = element;
-        this.reflectionUtils = new ReflectionUtils();
+        this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetObject(element);
     }
 
-    static boolean isToastElement(AccessibilityNodeInfo nodeInfo) {
+    private boolean isToastElement(AccessibilityNodeInfo nodeInfo) {
         return nodeInfo.getClassName().toString().equals(Toast.class.getName());
     }
 
@@ -157,14 +161,14 @@ public class UiObject2Element implements AndroidElement {
           and finding the child element on UiObject.
          */
         AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
-        UiSelector uiSelector = new CustomUiSelector().createFromAccessibilityNodeInfo(nodeInfo);
-        AndroidElement elementFromANI = App.core.getUiDeviceAdapter().findObject(uiSelector);
+        UiSelector uiSelector = model.getAccessibilityNodeInfo2UiSelector().generate(nodeInfo);
+        AndroidElement elementFromANI = core.getUiDeviceAdapter().findObject(uiSelector);
         /*
             If we can not found current element with ANI,
             then suppose that the current element is stale.
          */
         if (elementFromANI == null) {
-            Logger.debug("UiObject2Element::getChild(UiSelector): Unable to create UiObject from AccessibilityNodeInfo.");
+            Logger.debug("UiObject2Adapter::getChild(UiSelector): Unable to create UiObject from AccessibilityNodeInfo.");
             throw new StaleObjectException();
         }
         return elementFromANI.getChild(selector);
@@ -173,7 +177,7 @@ public class UiObject2Element implements AndroidElement {
     @Override
     public AndroidElement getChild(final BySelector selector) throws UiObjectNotFoundException,
             InvalidSelectorException, ClassNotFoundException {
-        return new UiObject2Element(element.findObject(selector));
+        return model.getUiObjectElementFactory().create(element.findObject(selector));
     }
 
     @Override
@@ -185,14 +189,14 @@ public class UiObject2Element implements AndroidElement {
           and finding the child elements on UiObject.
          */
         AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
-        UiSelector uiSelector = new CustomUiSelector().createFromAccessibilityNodeInfo(nodeInfo);
-        AndroidElement elementFromANI = App.core.getUiDeviceAdapter().findObject(uiSelector);
+        UiSelector uiSelector = new AccessibilityNodeInfo2UiSelector().generate(nodeInfo);
+        AndroidElement elementFromANI = core.getUiDeviceAdapter().findObject(uiSelector);
         /*
             If we can not found current element with ANI,
             then suppose that the current element is stale.
          */
         if (elementFromANI == null) {
-            Logger.debug("UiObject2Element::getChildren(UiSelector): Unable to create UiObject from AccessibilityNodeInfo.");
+            Logger.debug("UiObject2Adapter::getChildren(UiSelector): Unable to create UiObject from AccessibilityNodeInfo.");
             throw new StaleObjectException();
         }
         return elementFromANI.getChildren(selector);
@@ -204,7 +208,8 @@ public class UiObject2Element implements AndroidElement {
         List<UiObject2> uiObject2s = element.findObjects(selector);
         List<AndroidElement> result = new ArrayList<>(uiObject2s.size());
         for(UiObject2 uiObject2 : uiObject2s) {
-            result.add(new UiObject2Element(uiObject2));
+            AndroidElement androidElement = model.getUiObjectElementFactory().create(uiObject2) ;
+            result.add(androidElement);
         }
         return result;
     }
@@ -232,14 +237,14 @@ public class UiObject2Element implements AndroidElement {
 
     @Override
     public boolean dragTo(final AndroidElement destObj, final int steps) throws UiObjectNotFoundException {
-        if (destObj instanceof UiObjectElement) {
+        if (destObj instanceof UiObjectAdapter) {
             int destX = destObj.getBounds().centerX();
             int destY = destObj.getBounds().centerY();
             element.drag(new android.graphics.Point(destX, destY), steps);
             return true;
         }
 
-        if (destObj instanceof UiObject2Element) {
+        if (destObj instanceof UiObject2Adapter) {
             UiObject2 uiObject2 = destObj.getUiObject();
             android.graphics.Point coord = uiObject2.getVisibleCenter();
             element.drag(coord, steps);

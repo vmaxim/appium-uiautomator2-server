@@ -16,6 +16,7 @@
 package io.appium.uiautomator2.core;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import javax.inject.Inject;
@@ -27,17 +28,19 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 public class QueryControllerAdapter {
 
     private static final String METHOD_GET_ROOT_NODE = "getRootNode";
+    @NonNull
     private final ReflectionUtils reflectionUtils;
 
     @Inject
-    public QueryControllerAdapter(@Named("QueryController") @NonNull Object queryController,
-                                  ReflectionUtils reflectionUtils) {
+    public QueryControllerAdapter(@NonNull @Named("QueryController") final Object queryController,
+                                  @NonNull final ReflectionUtils reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetObject(queryController);
     }
 
+    @Nullable
     public AccessibilityNodeInfo getRootNode() throws UiAutomator2Exception {
-        return (AccessibilityNodeInfo) reflectionUtils.invoke(reflectionUtils.method(
+        return reflectionUtils.invoke(reflectionUtils.method(
                 METHOD_GET_ROOT_NODE));
     }
 }

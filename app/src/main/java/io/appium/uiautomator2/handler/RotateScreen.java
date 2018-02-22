@@ -10,7 +10,7 @@ import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.model.OrientationEnum;
+import io.appium.uiautomator2.model.enums.RotationEnum;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -56,9 +56,9 @@ public class RotateScreen extends SafeRequestHandler {
         if ( x!=0 || y!=0 || !( z==0 || z==90 || z==180 || z==270 )) {
             throw new InvalidCoordinatesException("Unable to Rotate Device. Invalid rotation, valid params x=0, y=0, z=(0 or 90 or 180 or 270)");
         }
-        OrientationEnum current = OrientationEnum.fromInteger(
+        RotationEnum current = RotationEnum.fromInteger(
                 App.core.getUiDeviceAdapter().getDisplayRotation());
-        OrientationEnum desired = OrientationEnum.fromInteger(z/90);
+        RotationEnum desired = RotationEnum.fromInteger(z/90);
         if(current == desired) {
             return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, String.format("Already in %s mode", current.getOrientation()));
         }
@@ -86,8 +86,8 @@ public class RotateScreen extends SafeRequestHandler {
      */
     private AppiumResponse handleRotation(IHttpRequest request, final String orientation)
             throws RemoteException, InterruptedException {
-        OrientationEnum desired;
-        OrientationEnum current = OrientationEnum.fromInteger(App.core.getUiDeviceAdapter()
+        RotationEnum desired;
+        RotationEnum current = RotationEnum.fromInteger(App.core.getUiDeviceAdapter()
                 .getDisplayRotation());
 
         Logger.debug("Desired orientation: " + orientation);
@@ -97,11 +97,11 @@ public class RotateScreen extends SafeRequestHandler {
             switch (current) {
                 case ROTATION_0:
                     App.core.getUiDeviceAdapter().setOrientationRight();
-                    desired = OrientationEnum.ROTATION_270;
+                    desired = RotationEnum.ROTATION_270;
                     break;
                 case ROTATION_180:
                     App.core.getUiDeviceAdapter().setOrientationLeft();
-                    desired = OrientationEnum.ROTATION_270;
+                    desired = RotationEnum.ROTATION_270;
                     break;
                 default:
                     return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, "Already in landscape mode.");
@@ -111,7 +111,7 @@ public class RotateScreen extends SafeRequestHandler {
                 case ROTATION_90:
                 case ROTATION_270:
                     App.core.getUiDeviceAdapter().setOrientationNatural();
-                    desired = OrientationEnum.ROTATION_0;
+                    desired = RotationEnum.ROTATION_0;
                     break;
                 default:
                     return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, "Already in portrait mode.");
@@ -121,8 +121,8 @@ public class RotateScreen extends SafeRequestHandler {
         return verifyRotation(request, desired);
     }
 
-    private AppiumResponse verifyRotation(IHttpRequest request, OrientationEnum desired) throws InterruptedException {
-        OrientationEnum current = OrientationEnum.fromInteger(App.core.getUiDeviceAdapter().getDisplayRotation());
+    private AppiumResponse verifyRotation(IHttpRequest request, RotationEnum desired) throws InterruptedException {
+        RotationEnum current = RotationEnum.fromInteger(App.core.getUiDeviceAdapter().getDisplayRotation());
         // If the orientation has not changed,
         // busy wait until the TIMEOUT has expired
         final int TIMEOUT = 2000;
@@ -131,7 +131,7 @@ public class RotateScreen extends SafeRequestHandler {
         while (current != desired && now - then < TIMEOUT) {
             Thread.sleep(100);
             now = System.currentTimeMillis();
-            current = OrientationEnum.fromInteger(App.core.getUiDeviceAdapter().getDisplayRotation());
+            current = RotationEnum.fromInteger(App.core.getUiDeviceAdapter().getDisplayRotation());
         }
         if (current != desired) {
             return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, "Set the orientation, but app refused to rotate.");

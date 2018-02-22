@@ -7,7 +7,7 @@ import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.model.OrientationEnum;
+import io.appium.uiautomator2.model.enums.RotationEnum;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -30,8 +30,8 @@ public class GetRotation extends SafeRequestHandler {
 
     private JSONObject getOrientationMap(int orientation) throws JSONException {
         JSONObject orientationMap = new JSONObject().put("x", 0).put("y", 0);
-        OrientationEnum orientationEnum = OrientationEnum.fromInteger(orientation);
-        switch (orientationEnum){
+        RotationEnum rotationEnum = RotationEnum.fromInteger(orientation);
+        switch (rotationEnum){
             case ROTATION_0:
                 orientationMap.put("z", 0);
                 break;

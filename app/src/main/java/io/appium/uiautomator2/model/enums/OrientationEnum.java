@@ -1,14 +1,14 @@
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.enums;
 
 /**
  * Represents possible screen orientations.
  */
-public enum ScreenOrientation {
+public enum OrientationEnum {
     LANDSCAPE("landscape"), PORTRAIT("portrait");
 
     private final String value;
 
-    private ScreenOrientation(String value) {
+    OrientationEnum(String value) {
         this.value = value;
     }
 

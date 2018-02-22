@@ -1,11 +1,11 @@
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.uiobject;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.Configurator;
 import android.support.test.uiautomator.StaleObjectException;
 import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -14,25 +14,32 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
+import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
-public class UiObjectElement implements AndroidElement {
+import static io.appium.uiautomator2.App.model;
 
-    private static final Pattern endsWithInstancePattern = Pattern.compile(".*INSTANCE=\\d+]$");
+public class UiObjectAdapter implements AndroidElement {
+
+    private static final Pattern ENDS_WITH_INSTANCE_PATTERN = Pattern.compile(".*INSTANCE=\\d+]$");
     private static long TIME_IN_MS = 10000;
     private final UiObject element;
-    private final ReflectionUtils reflectionUtils;
+    @NonNull
+    ReflectionUtils reflectionUtils;
 
-    public UiObjectElement(UiObject element) {
+    @Inject
+    UiObjectAdapter(@NonNull final UiObject element, @NonNull final ReflectionUtils reflectionUtils) {
         this.element = element;
-        this.reflectionUtils = new ReflectionUtils();
+        this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetObject(element);
     }
 
@@ -138,7 +145,7 @@ public class UiObjectElement implements AndroidElement {
             then suppose that the current element is stale.
          */
         if (elementFromANI == null) {
-            Logger.debug("UiObjectElement::getChild(BySelector): Unable to create UiObject from " +
+            Logger.debug("UiObjectAdapter::getChild(BySelector): Unable to create UiObject from " +
                     "AccessibilityNodeInfo.");
             throw new StaleObjectException();
         }
@@ -147,7 +154,7 @@ public class UiObjectElement implements AndroidElement {
 
     @Override
     public AndroidElement getChild(final UiSelector selector) throws UiObjectNotFoundException {
-        return new UiObjectElement(element.getChild(selector));
+        return model.getUiObjectElementFactory().create(element.getChild(selector));
     }
 
     @Override
@@ -165,7 +172,7 @@ public class UiObjectElement implements AndroidElement {
             then suppose that the current element is stale.
          */
         if (elementFromANI == null) {
-            Logger.debug("UiObjectElement::getChildren(BySelector): Unable to create UiObject " +
+            Logger.debug("UiObjectAdapter::getChildren(BySelector): Unable to create UiObject " +
                     "from AccessibilityNodeInfo.");
             throw new StaleObjectException();
         }
@@ -176,7 +183,7 @@ public class UiObjectElement implements AndroidElement {
     public List<AndroidElement> getChildren(final UiSelector selector) throws
             UiObjectNotFoundException {
         final String selectorString = selector.toString();
-        final boolean endsWithInstance = endsWithInstancePattern.matcher(selectorString).matches();
+        final boolean endsWithInstance = ENDS_WITH_INSTANCE_PATTERN.matcher(selectorString).matches();
         Logger.debug("getElements selector:" + selectorString);
         final ArrayList<AndroidElement> elements = new ArrayList<>();
 
@@ -191,11 +198,11 @@ public class UiObjectElement implements AndroidElement {
             return App.core.getUiDeviceAdapter().findObjects(selector);
         }
 
-        UiObjectElement lastFoundObj;
+        UiObjectAdapter lastFoundObj;
         int counter = 0;
         do {
             Logger.debug("Element is " + element + ", counter: " + counter);
-            lastFoundObj = (UiObjectElement) getChild(selector.instance(counter));
+            lastFoundObj = (UiObjectAdapter) getChild(selector.instance(counter));
             counter++;
             if (lastFoundObj.getUiObject() != null && lastFoundObj.exists()) {
                 elements.add(lastFoundObj);
@@ -265,14 +272,14 @@ public class UiObjectElement implements AndroidElement {
     @Override
     public boolean dragTo(final AndroidElement destObj, final int steps) throws
             UiObjectNotFoundException, InvalidCoordinatesException {
-        if (destObj instanceof UiObjectElement) {
-            UiObjectElement uiObjectElement = (UiObjectElement) destObj;
-            return element.dragTo(uiObjectElement.getUiObject(), steps);
+        if (destObj instanceof UiObjectAdapter) {
+            UiObjectAdapter uiObjectAdapter = (UiObjectAdapter) destObj;
+            return element.dragTo(uiObjectAdapter.getUiObject(), steps);
         }
 
-        if (destObj instanceof UiObject2Element) {
-            UiObject2Element uiObject2Element = (UiObject2Element) destObj;
-            android.graphics.Point coords = uiObject2Element.getUiObject().getVisibleCenter();
+        if (destObj instanceof UiObject2Adapter) {
+            UiObject2Adapter uiObject2Adapter = (UiObject2Adapter) destObj;
+            android.graphics.Point coords = uiObject2Adapter.getUiObject().getVisibleCenter();
             return dragTo(coords.x, coords.y, steps);
         }
         Logger.error("Destination should be either UiObject or UiObject2");

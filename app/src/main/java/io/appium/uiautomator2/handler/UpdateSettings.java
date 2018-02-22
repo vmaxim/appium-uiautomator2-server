@@ -1,8 +1,5 @@
 package io.appium.uiautomator2.handler;
 
-import android.support.annotation.Nullable;
-
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -11,7 +8,6 @@ import io.appium.uiautomator2.common.exceptions.UnsupportedSettingException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
-import io.appium.uiautomator2.model.Session;
 import io.appium.uiautomator2.model.settings.AllowInvisibleElements;
 import io.appium.uiautomator2.model.settings.EnableNotificationListener;
 import io.appium.uiautomator2.model.settings.CompressedLayoutHierarchy;
@@ -19,6 +15,8 @@ import io.appium.uiautomator2.model.settings.ISetting;
 import io.appium.uiautomator2.model.settings.WaitForIdleTimeout;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
+
+import static io.appium.uiautomator2.App.session;
 
 public class UpdateSettings extends SafeRequestHandler {
 
@@ -45,7 +43,7 @@ public class UpdateSettings extends SafeRequestHandler {
                 Object settingValue = entry.getValue();
                 ISetting setting = getSetting(settingName);
                 setting.updateSetting(settingValue);
-                Session.capabilities.put(settingName, settingValue);
+                session.getSession().capabilities.put(settingName, settingValue);
             }
         } catch (Exception e) {
             Logger.error("error settings " + e.getMessage());

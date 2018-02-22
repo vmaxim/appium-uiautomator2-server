@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2;
+package io.appium.uiautomator2.model.session.di;
 
+import dagger.Subcomponent;
+import io.appium.uiautomator2.model.session.CachedElements;
+import io.appium.uiautomator2.model.session.Session;
 
-import android.support.annotation.Nullable;
+@SessionScope
+@Subcomponent(modules = {SessionModule.class})
+public interface SessionComponent {
 
-import io.appium.uiautomator2.core.di.CoreComponent;
-import io.appium.uiautomator2.core.di.DaggerCoreComponent;
-import io.appium.uiautomator2.model.di.DaggerModelComponent;
-import io.appium.uiautomator2.model.di.ModelComponent;
-import io.appium.uiautomator2.model.session.di.SessionComponent;
+    @SessionScope
+    Session getSession();
 
-public class App {
-
-    public static CoreComponent core = DaggerCoreComponent.create();
-    public static ModelComponent model = DaggerModelComponent.create();
-    @Nullable
-    public static SessionComponent session;
+    @SessionScope
+    CachedElements getCachedElements();
 }

@@ -19,7 +19,7 @@ import static io.appium.uiautomator2.unittest.test.TestHelper.get;
 import static io.appium.uiautomator2.unittest.test.TestHelper.post;
 
 public class TestUtil {
-    private static final String baseUrl = "/wd/hub/session/:sessionId";
+    private static String baseUrl = "/wd/hub/session/:sessionId";
     private static final int SECOND = 1000;
 
     /**
@@ -571,7 +571,10 @@ public class TestUtil {
     }
 
     public static String createSession() throws JSONException {
-        return post("/wd/hub/session", new JSONObject().put("desiredCapabilities", new JSONObject()).toString());
+        String result = post("/wd/hub/session", new JSONObject().put("desiredCapabilities", new JSONObject()).toString());
+        String sessionId = new JSONObject(result).getString("sessionId");
+        baseUrl = baseUrl.replace(":sessionId", sessionId);
+        return result;
     }
 
     public static String deleteSession(){

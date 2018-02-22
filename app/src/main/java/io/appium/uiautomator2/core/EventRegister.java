@@ -1,7 +1,24 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * See the NOTICE file distributed with this work for additional
+ * information regarding copyright ownership.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.appium.uiautomator2.core;
 
 
 import android.app.UiAutomation;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.test.uiautomator.Configurator;
 import android.view.accessibility.AccessibilityEvent;
 
@@ -9,25 +26,28 @@ import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 
-import io.appium.uiautomator2.model.AccessibilityScrollData;
-import io.appium.uiautomator2.model.AppiumUiAutomatorDriver;
-import io.appium.uiautomator2.model.Session;
+import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.model.dto.AccessibilityScrollData;
+import io.appium.uiautomator2.model.session.Session;
 import io.appium.uiautomator2.utils.Logger;
 
 public class EventRegister {
 
-    private UiAutomation uiAutomation;
+    @NonNull
+    private final UiAutomation uiAutomation;
 
     @Inject
-    public EventRegister(UiAutomation uiAutomation) {
+    public EventRegister(@NonNull final UiAutomation uiAutomation) {
         this.uiAutomation = uiAutomation;
     }
 
-    public Boolean runAndRegisterScrollEvents(ReturningRunnable<Boolean> runnable, long timeout) {
-        UiAutomation.AccessibilityEventFilter eventFilter = new UiAutomation
+    @Nullable
+    private Boolean runAndRegisterScrollEvents(@NonNull ReturningRunnable<Boolean> runnable, long
+            timeout) {
+        final UiAutomation.AccessibilityEventFilter eventFilter = new UiAutomation
                 .AccessibilityEventFilter() {
             @Override
-            public boolean accept(AccessibilityEvent event) {
+            public boolean accept(@NonNull AccessibilityEvent event) {
                 return event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED;
             }
         };
@@ -42,7 +62,7 @@ public class EventRegister {
                     "instead");
         }
 
-        Session session = AppiumUiAutomatorDriver.getInstance().getSession();
+        final Session session = App.session.getSession();
 
         if (event == null) {
             session.setLastScrollData(null);
@@ -52,7 +72,8 @@ public class EventRegister {
         return runnable.getResult();
     }
 
-    public Boolean runAndRegisterScrollEvents(ReturningRunnable<Boolean> runnable) {
+    @Nullable
+    public Boolean runAndRegisterScrollEvents(@NonNull ReturningRunnable<Boolean> runnable) {
         return runAndRegisterScrollEvents(runnable, Configurator.getInstance()
                 .getScrollAcknowledgmentTimeout());
     }

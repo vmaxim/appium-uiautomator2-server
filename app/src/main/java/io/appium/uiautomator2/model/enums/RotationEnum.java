@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.enums;
 
 /**
  * An enumeration that mirrors {@link android.view.Surface}.
  *
  */
-public enum OrientationEnum {
+public enum RotationEnum {
   ROTATION_0(0), ROTATION_90(1), ROTATION_180(2), ROTATION_270(3);
 
-  public static OrientationEnum fromInteger(final int x) {
+  public static RotationEnum fromInteger(final int x) {
     switch (x) {
       case 0:
         return ROTATION_0;
@@ -39,7 +39,7 @@ public enum OrientationEnum {
 
   private final int value;
 
-  private OrientationEnum(final int value) {
+  RotationEnum(final int value) {
     this.value = value;
   }
 

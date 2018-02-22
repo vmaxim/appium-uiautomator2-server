@@ -15,6 +15,8 @@
  */
 package io.appium.uiautomator2.core;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.InputEvent;
 import android.view.MotionEvent.PointerCoords;
 
@@ -33,13 +35,16 @@ public class InteractionControllerAdapter {
     private static final String METHOD_TOUCH_UP = "touchUp";
     private static final String METHOD_TOUCH_MOVE = "touchMove";
 
+    @NonNull
     private final EventRegister eventRegister;
+    @NonNull
     private final ReflectionUtils reflectionUtils;
 
     @Inject
-    public InteractionControllerAdapter(@Named("InteractionController") final Object
-                                                interactionController, final EventRegister
-                                                eventRegister, final ReflectionUtils reflectionUtils) {
+    public InteractionControllerAdapter(@NonNull @Named("InteractionController") final Object
+                                                interactionController, @NonNull final EventRegister
+                                                eventRegister, @NonNull final ReflectionUtils
+                                                reflectionUtils) {
         this.eventRegister = eventRegister;
         this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetObject(interactionController);
@@ -50,11 +55,11 @@ public class InteractionControllerAdapter {
                 int.class), keyCode, metaState);
     }
 
-    public boolean injectEventSync(final InputEvent event) throws UiAutomator2Exception {
+    public boolean injectEventSync(@NonNull final InputEvent event) throws UiAutomator2Exception {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
+                final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_INJECT_EVENT_SYNC, InputEvent.class), event);
                 setResult(result);
             }
@@ -65,7 +70,7 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
+                final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_TOUCH_DOWN, int.class, int.class), x, y);
                 setResult(result);
             }
@@ -76,7 +81,7 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
+                final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_TOUCH_UP,
                         int.class, int.class), x, y);
                 setResult(result);
@@ -88,19 +93,20 @@ public class InteractionControllerAdapter {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
+                final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_TOUCH_MOVE, int.class, int.class), x, y);
                 setResult(result);
             }
         });
     }
 
+    @Nullable
     public Boolean performMultiPointerGesture(final PointerCoords[][] pcs) throws
             UiAutomator2Exception {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
-                Boolean result = reflectionUtils.invoke(reflectionUtils.method(
+                final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
                         METHOD_PERFORM_MULTI_POINTER_GESTURE, PointerCoords[][].class),
                         (Object) pcs);
                 setResult(result);

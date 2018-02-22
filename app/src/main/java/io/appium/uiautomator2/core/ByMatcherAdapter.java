@@ -15,6 +15,7 @@
  */
 package io.appium.uiautomator2.core;
 
+import android.support.annotation.NonNull;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.UiDevice;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -31,10 +32,13 @@ public class ByMatcherAdapter {
     private final static String BYMATCHER_CLASS = "android.support.test.uiautomator.ByMatcher";
     private final Method findMatch;
     private final Method findMatches;
+    @NonNull
     private final ReflectionUtils reflectionUtils;
+    @NonNull
     private final UiDevice uiDevice;
 
-    public ByMatcherAdapter(UiDevice uiDevice, ReflectionUtils reflectionUtils) {
+    public ByMatcherAdapter(@NonNull final UiDevice uiDevice, @NonNull final ReflectionUtils
+            reflectionUtils) {
         this.uiDevice = uiDevice;
         this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetClass(BYMATCHER_CLASS);
@@ -44,18 +48,14 @@ public class ByMatcherAdapter {
                 AccessibilityNodeInfo[].class);
     }
 
-    public AccessibilityNodeInfo findMatch(BySelector selector,
-                                           AccessibilityNodeInfo... roots) {
+    AccessibilityNodeInfo findMatch(BySelector selector,
+                                    AccessibilityNodeInfo... roots) {
         return reflectionUtils.invoke(findMatch, uiDevice, selector, roots);
     }
 
-    public List<AccessibilityNodeInfo> findMatches(BySelector selector,
-                                                   AccessibilityNodeInfo... roots) {
+    List<AccessibilityNodeInfo> findMatches(BySelector selector,
+                                            AccessibilityNodeInfo... roots) {
         return reflectionUtils.invoke(findMatches, uiDevice, selector, roots);
-    }
-
-    public Class getByMatcher() {
-        return reflectionUtils.getTargetClass();
     }
 
 }

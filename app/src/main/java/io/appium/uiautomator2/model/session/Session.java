@@ -1,23 +1,25 @@
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.session;
 
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import io.appium.uiautomator2.model.dto.AccessibilityScrollData;
+import io.appium.uiautomator2.model.NotificationListener;
+
 public class Session {
-    public static final String SEND_KEYS_TO_ELEMENT = "sendKeysToElement";
+    private final String SEND_KEYS_TO_ELEMENT = "sendKeysToElement";
     private String sessionId;
     private ConcurrentMap<String, JSONObject> commandConfiguration;
-    private KnownElements knownElements;
     private AccessibilityScrollData lastScrollData;
-    public static Map<String, Object> capabilities = new HashMap<>();
+    public  Map<String, Object> capabilities = new HashMap<>();
 
-    public Session(String sessionId) {
-        this.sessionId = sessionId;
-        this.knownElements = new KnownElements();
+    public Session() {
+        this.sessionId = UUID.randomUUID().toString();
         this.commandConfiguration = new ConcurrentHashMap<>();
         JSONObject configJsonObject = new JSONObject();
         this.commandConfiguration.put(SEND_KEYS_TO_ELEMENT, configJsonObject);
@@ -34,9 +36,9 @@ public class Session {
         }
     }
 
-    public KnownElements getKnownElements() {
-        return knownElements;
-    }
+//    public CachedElements getCachedElements() {
+//        return cachedElements;
+//    }
 
     public JSONObject getCommandConfiguration(String command) {
         return commandConfiguration.get(command);

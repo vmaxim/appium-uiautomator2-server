@@ -1,8 +1,11 @@
-package io.appium.uiautomator2.model;
+package io.appium.uiautomator2.model.dto;
 
+import android.support.annotation.NonNull;
 import android.view.accessibility.AccessibilityEvent;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 public class AccessibilityScrollData {
 
@@ -14,7 +17,7 @@ public class AccessibilityScrollData {
     private int toIndex;
     private int itemCount;
 
-    public AccessibilityScrollData(AccessibilityEvent event) {
+    public AccessibilityScrollData(@NonNull final AccessibilityEvent event) {
         this.scrollX = event.getScrollX();
         this.scrollY = event.getScrollY();
         this.maxScrollX = event.getMaxScrollX();
@@ -25,7 +28,7 @@ public class AccessibilityScrollData {
     }
 
 
-    public HashMap<String, Integer> getAsMap () {
+    public Map<String, Integer> getAsMap () {
         HashMap<String, Integer> map = new HashMap<>();
 
         map.put("scrollX", scrollX);
@@ -36,6 +39,6 @@ public class AccessibilityScrollData {
         map.put("toIndex", toIndex);
         map.put("itemCount", itemCount);
 
-        return map;
+        return Collections.unmodifiableMap(map);
     }
 }

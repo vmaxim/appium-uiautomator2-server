@@ -31,7 +31,8 @@ import java.util.List;
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.KnownElements;
+
+import static io.appium.uiautomator2.App.session;
 
 public abstract class ElementHelpers {
 
@@ -74,7 +75,7 @@ public abstract class ElementHelpers {
      * For example, appium returns elements like [{"ELEMENT":1}, {"ELEMENT":2}]
      */
     public static JSONObject toJSON(AndroidElement el) throws JSONException {
-        return new JSONObject().put("ELEMENT", KnownElements.getIdOfElement(el));
+        return new JSONObject().put("ELEMENT", session.getCachedElements().getIdOfElement(el));
     }
 
     /**

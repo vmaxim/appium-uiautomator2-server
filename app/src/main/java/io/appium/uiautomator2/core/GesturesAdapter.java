@@ -15,6 +15,7 @@
  */
 package io.appium.uiautomator2.core;
 
+import android.support.annotation.NonNull;
 import android.support.test.uiautomator.UiDevice;
 import android.view.ViewConfiguration;
 
@@ -22,15 +23,18 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 
 public class GesturesAdapter {
 
-    public static final String METHOD_GET_INSTANCE = "getInstance";
-    public static final String FIELD_VIEW_CONFIG = "mViewConfig";
-    public static final String CLASS_GESTURES = "android.support.test.uiautomator.Gestures";
+    private static final String METHOD_GET_INSTANCE = "getInstance";
+    private static final String FIELD_VIEW_CONFIG = "mViewConfig";
+    private static final String CLASS_GESTURES = "android.support.test.uiautomator.Gestures";
+    @NonNull
     private final ReflectionUtils reflectionUtils;
 
-    public GesturesAdapter(UiDevice uiDevice, ReflectionUtils reflectionUtils) {
+    public GesturesAdapter(@NonNull final UiDevice uiDevice, @NonNull final ReflectionUtils
+            reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetClass(CLASS_GESTURES);
-        Object instance = reflectionUtils.invoke(reflectionUtils.method(METHOD_GET_INSTANCE, UiDevice.class), uiDevice);
+        Object instance = reflectionUtils.invoke(reflectionUtils.method(METHOD_GET_INSTANCE,
+                UiDevice.class), uiDevice);
         reflectionUtils.setTargetObject(instance);
     }
 

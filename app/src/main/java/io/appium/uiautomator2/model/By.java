@@ -13,194 +13,80 @@
  */
 package io.appium.uiautomator2.model;
 
-import static io.appium.uiautomator2.model.internal.NativeAndroidBySelector.SELECTOR_ACCESSIBILITY_ID;
-import static io.appium.uiautomator2.model.internal.NativeAndroidBySelector.SELECTOR_ANDROID_UIAUTOMATOR;
-import static io.appium.uiautomator2.model.internal.NativeAndroidBySelector.SELECTOR_CLASS;
-import static io.appium.uiautomator2.model.internal.NativeAndroidBySelector.SELECTOR_NATIVE_ID;
-import static io.appium.uiautomator2.model.internal.NativeAndroidBySelector.SELECTOR_XPATH;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
+import java.util.regex.Pattern;
+
+import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.utils.Logger;
+
+import static io.appium.uiautomator2.model.ByStrategy.SELECTOR_NATIVE_ID;
 
 /**
  * Mechanism used to locate elements within a document. In order to create your own locating
  * mechanisms, it is possible to subclass this class and override the protected methods as
  * required.
  */
-public abstract class By {
+public class By {
 
-    /**
-     * @param id The value of the "id" attribute to search for
-     *
-     * @return a By which locates elements by the value of the "id" attribute.
-     */
-    public static By id(final String id) {
-        if (id == null)
-            throw new IllegalArgumentException("Cannot find elements with a null id attribute.");
+    private static final String ERR_MSG_UNSUPPORTED_LOCATOR = "By locator %s is currently not supported!";
+    static final Pattern RESOURCE_ID_REGEX = Pattern
+            .compile("^[a-zA-Z_][a-zA-Z0-9\\._]*:[^\\/]+\\/[\\S]+$");
 
-        return new ById(id);
+    private String locator;
+    private final ByStrategy strategy;
+
+    public By(@NonNull final ByStrategy strategy, @NonNull final String locator) {
+        this.strategy = strategy;
+        this.locator = locator;
     }
 
-    public static By accessibilityId(final String text) {
-        if (text == null)
-            throw new IllegalArgumentException("Cannot find elements when text is null.");
-
-        return new ByAccessibilityId(text);
-    }
-
-    public static By xpath(String xpathExpression) {
-        if (xpathExpression == null)
-            throw new IllegalArgumentException("Cannot find elements when xpath is null.");
-        return new ByXPath(xpathExpression);
-    }
-
-    public static By className(String className) {
-        if (className == null)
-            throw new IllegalArgumentException("Cannot find elements when className is null.");
-        return new ByClass(className);
-    }
-
-    public static By androidUiAutomator(String expression) {
-        if (expression == null)
-            throw new IllegalArgumentException("Cannot find elements when '-android uiautomator'" +
-                    " is null.");
-        return new ByAndroidUiAutomator(expression);
+    public By(@NonNull final String strategyName, @NonNull final String locator) {
+        strategy = ByStrategy.get(strategyName);
+        if (strategy == null) {
+            String msg = String.format(ERR_MSG_UNSUPPORTED_LOCATOR, strategyName);
+            throw new UnsupportedOperationException(msg);
+        }
+        if (strategy == SELECTOR_NATIVE_ID) {
+            addAppPackage();
+        }
+        this.locator = locator;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         By by = (By) o;
-
-        return toString().equals(by.toString());
+        return locator.equals(by.locator) && strategy.equals(by.strategy);
     }
 
-    public abstract String getElementLocator();
+    public String getElementLocator() {
+        return locator;
+    }
 
-    public abstract String getElementStrategy();
-
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
+    public ByStrategy getElementStrategy() {
+        return strategy;
     }
 
     @Override
     public String toString() {
-        // A stub to prevent endless recursion in hashCode()
-        return "[unknown locator]";
+        return strategy.getDescription() + ":" + locator;
     }
 
-    public static class ById extends By {
-        private final String id;
-
-        public ById(String id) {
-            this.id = id;
+    private void addAppPackage() {
+        String locatorWithAppPackage = getElementLocator();
+        if (!RESOURCE_ID_REGEX.matcher(getElementLocator()).matches()) {
+            // not a fully qualified resource id
+            // transform "textToBeChanged" into:
+            // com.example.android.testing.espresso.BasicSample:id/textToBeChanged
+            // it's prefixed with the app package.
+            String appPackage = (String) App.session.getSession().capabilities.get("appPackage");
+            locatorWithAppPackage =  appPackage + ":id/" + getElementLocator();
+            Logger.debug("Updated findElement locator strategy: " + locatorWithAppPackage);
         }
-
-        @Override
-        public String getElementLocator() {
-            return id;
-        }
-
-        @Override
-        public String getElementStrategy() {
-            return SELECTOR_NATIVE_ID;
-        }
-
-        @Override
-        public String toString() {
-            return "By.id: " + id;
-        }
+        locator = locatorWithAppPackage;
     }
 
-    public static class ByClass extends By {
-        private final String clazz;
-
-        public ByClass(String clazz) {
-            this.clazz = clazz;
-        }
-
-        @Override
-        public String getElementLocator() {
-            return clazz;
-        }
-
-        @Override
-        public String getElementStrategy() {
-            return SELECTOR_CLASS;
-        }
-
-        @Override
-        public String toString() {
-            return "By.clazz: " + clazz;
-        }
-    }
-
-    public static class ByAccessibilityId extends By {
-        private final String accessibilityId;
-
-        public ByAccessibilityId(String accessibilityId) {
-            this.accessibilityId = accessibilityId;
-        }
-
-        @Override
-        public String getElementLocator() {
-            return accessibilityId;
-        }
-
-        @Override
-        public String getElementStrategy() {
-            return SELECTOR_ACCESSIBILITY_ID;
-        }
-
-        @Override
-        public String toString() {
-            return "By.accessibilityId: " + accessibilityId;
-        }
-    }
-
-    public static class ByXPath extends By {
-        private final String xpathExpression;
-
-        public ByXPath(String xpathExpression) {
-            this.xpathExpression = xpathExpression;
-        }
-
-        @Override
-        public String getElementLocator() {
-            return xpathExpression;
-        }
-
-        @Override
-        public String getElementStrategy() {
-            return SELECTOR_XPATH;
-        }
-
-        @Override
-        public String toString() {
-            return "By.xpath: " + xpathExpression;
-        }
-    }
-
-    public static class ByAndroidUiAutomator extends By {
-        private final String expresion;
-
-        public ByAndroidUiAutomator(String expresion) {
-            this.expresion = expresion;
-        }
-
-        @Override
-        public String getElementLocator() {
-            return expresion;
-        }
-
-        @Override
-        public String getElementStrategy() {
-            return SELECTOR_ANDROID_UIAUTOMATOR;
-        }
-
-        @Override
-        public String toString() {
-            return "By.AndroidUiAutomator: " + expresion;
-        }
-    }
 }
