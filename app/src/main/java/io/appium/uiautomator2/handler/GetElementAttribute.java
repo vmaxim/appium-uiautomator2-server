@@ -15,6 +15,8 @@ import java.text.MessageFormat;
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -25,7 +27,6 @@ import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
 import static io.appium.uiautomator2.App.model;
-import static io.appium.uiautomator2.App.session;
 
 public class GetElementAttribute extends SafeRequestHandler {
 
@@ -34,7 +35,7 @@ public class GetElementAttribute extends SafeRequestHandler {
     }
 
     private static int getScrollableOffset(AndroidElement uiScrollable) throws
-            UiObjectNotFoundException, ClassNotFoundException, InvalidSelectorException {
+            UiObjectNotFoundException, ClassNotFoundException, InvalidSelectorException, NoSuchDriverException {
         AccessibilityNodeInfo nodeInfo = null;
         AndroidElement firstChild;
         int offset = 0;
@@ -66,7 +67,7 @@ public class GetElementAttribute extends SafeRequestHandler {
     }
 
     private Object getAttribute(AndroidElement element, String attributeName) throws
-            UiObjectNotFoundException, NoAttributeFoundException, ReflectiveOperationException, InvalidSelectorException {
+            UiObjectNotFoundException, NoAttributeFoundException, ReflectiveOperationException, InvalidSelectorException, NoSuchDriverException {
         switch (attributeName) {
             case "name":
             case "text":
@@ -111,11 +112,11 @@ public class GetElementAttribute extends SafeRequestHandler {
         }
     }
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         Logger.info("get attribute of element command");
         String id = getElementId(request);
         String attributeName = getNameAttribute(request);
-        AndroidElement element = session.getCachedElements().getElementFromCache(id);
+        AndroidElement element = getCachedElements().getElementFromCache(id);
         if (element == null) {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         }

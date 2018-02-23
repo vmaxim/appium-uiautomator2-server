@@ -222,7 +222,7 @@ public class UiDeviceAdapter {
                     .getWindows()) {
                 root = window.getRoot();
                 if (root == null) {
-                    Logger.debug(String.format(MSG_SKIP_NULL_ROOT_NODE, window.toString()));
+                    Logger.debug(MSG_SKIP_NULL_ROOT_NODE, window.toString());
                     continue;
                 }
                 ret.add(root);
@@ -290,7 +290,7 @@ public class UiDeviceAdapter {
         try {
             uiDevice.waitForIdle(timeInMS);
         } catch (Exception e) {
-            Logger.error(String.format("Unable wait %d for AUT to idle", timeInMS));
+            Logger.debug("Unable wait %d for AUT to idle", timeInMS);
         }
     }
 

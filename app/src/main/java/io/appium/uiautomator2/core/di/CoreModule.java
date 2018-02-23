@@ -31,7 +31,6 @@ import io.appium.uiautomator2.core.InteractionControllerAdapter;
 import io.appium.uiautomator2.core.QueryControllerAdapter;
 import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
 import io.appium.uiautomator2.core.UiDeviceAdapter;
-import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 

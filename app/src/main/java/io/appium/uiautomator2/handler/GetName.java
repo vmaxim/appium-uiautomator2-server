@@ -18,14 +18,14 @@ package io.appium.uiautomator2.handler;
 
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
-
-import static io.appium.uiautomator2.App.session;
 
 /**
  * This handler is used to get the size of elements that support it.
@@ -37,17 +37,17 @@ public class GetName extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         Logger.info("Get Name of element command");
         String id = getElementId(request);
-        AndroidElement element = session.getCachedElements().getElementFromCache(id);
+        AndroidElement element = getCachedElements().getElementFromCache(id);
         String elementName;
         if (element == null) {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         }
         try {
             elementName = element.getContentDesc();
-            Logger.info("Element Name ", elementName);
+            Logger.info("Element Name %s", elementName);
         } catch (UiObjectNotFoundException e) {
             Logger.error("Element not found: ", e);
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);

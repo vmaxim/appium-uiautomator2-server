@@ -16,13 +16,14 @@ public class Session {
     private String sessionId;
     private ConcurrentMap<String, JSONObject> commandConfiguration;
     private AccessibilityScrollData lastScrollData;
-    public  Map<String, Object> capabilities = new HashMap<>();
+    private  Map<String, Object> capabilities = new HashMap<>();
+    private CachedElements cachedElements;
 
-    public Session() {
+    public Session(CachedElements cachedElements) {
         this.sessionId = UUID.randomUUID().toString();
         this.commandConfiguration = new ConcurrentHashMap<>();
-        JSONObject configJsonObject = new JSONObject();
-        this.commandConfiguration.put(SEND_KEYS_TO_ELEMENT, configJsonObject);
+        this.commandConfiguration.put(SEND_KEYS_TO_ELEMENT, new JSONObject());
+        this.cachedElements = cachedElements;
         NotificationListener.getInstance().start();
     }
 
@@ -36,9 +37,17 @@ public class Session {
         }
     }
 
-//    public CachedElements getCachedElements() {
-//        return cachedElements;
-//    }
+    public Map<String, Object> getCapabilities() {
+        return capabilities;
+    }
+
+    public void setCapabilities(Map<String, Object> caps) {
+        capabilities = caps;
+    }
+
+    public CachedElements getCachedElements() {
+        return cachedElements;
+    }
 
     public JSONObject getCommandConfiguration(String command) {
         return commandConfiguration.get(command);

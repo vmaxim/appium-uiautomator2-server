@@ -27,7 +27,7 @@ public class AppiumUiAutomator2Server {
         if (serverInstrumentation == null) {
             ctx = InstrumentationRegistry.getInstrumentation().getContext();
             serverInstrumentation = ServerInstrumentation.getInstance(ctx, ServerConfig.getServerPort());
-            Logger.info("[AppiumUiAutomator2Server]", " Starting Server");
+            Logger.info("[AppiumUiAutomator2Server] Starting Server");
             try {
                 while (!serverInstrumentation.isStopServer()) {
                     SystemClock.sleep(1000);

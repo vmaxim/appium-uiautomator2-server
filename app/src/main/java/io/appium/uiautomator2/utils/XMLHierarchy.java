@@ -157,7 +157,7 @@ public class XMLHierarchy {
                 .replaceAll("\\.+", ".")
                 .replaceAll("(^\\.|\\.$)", "");
         if (!fixedName.equals(name)) {
-            Logger.info(String.format("Rewrote XML tag name '%s' to '%s'", name, fixedName));
+            Logger.info("Rewrote XML tag name '%s' to '%s'", name, fixedName);
         }
         return StringUtils.isBlank(fixedName) ? DEFAULT_VIEW_NAME : fixedName;
     }

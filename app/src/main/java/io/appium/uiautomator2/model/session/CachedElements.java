@@ -32,8 +32,6 @@ public class CachedElements {
     }
 
     public AndroidElement getElementFromCache(String id) {
-        Logger.debug("Seaching for element in cache:" + id);
-        Logger.debug("Cache size:" + cache.size());
         return cache.get(id);
     }
 

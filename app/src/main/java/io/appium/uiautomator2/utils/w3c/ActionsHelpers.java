@@ -36,9 +36,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.model.AndroidElement;
 
-import static io.appium.uiautomator2.App.session;
 import static io.appium.uiautomator2.utils.w3c.ActionsConstants.ACTION_ITEM_BUTTON_KEY;
 import static io.appium.uiautomator2.utils.w3c.ActionsConstants.ACTION_ITEM_DURATION_KEY;
 import static io.appium.uiautomator2.utils.w3c.ActionsConstants.ACTION_ITEM_ORIGIN_KEY;
@@ -137,7 +139,7 @@ public class ActionsHelpers {
 
     private static PointerCoords extractElementCoordinates(
             final String actionId, final JSONObject actionItem, final Object originValue)
-            throws JSONException {
+            throws JSONException, NoSuchDriverException {
         String elementId = null;
         if (originValue instanceof String) {
             elementId = (String) originValue;
@@ -162,7 +164,7 @@ public class ActionsHelpers {
         final PointerCoords result = new PointerCoords();
         Rect bounds;
         try {
-            final AndroidElement element = session.getCachedElements().getElementFromCache(elementId);
+            final AndroidElement element = App.getSession().getCachedElements().getElementFromCache(elementId);
             bounds = element.getBounds();
             if (bounds.width() == 0 || bounds.height() == 0) {
                 throw new ActionsParseException(String.format(
@@ -190,7 +192,7 @@ public class ActionsHelpers {
     }
 
     private static PointerCoords extractCoordinates(final String actionId, final JSONArray allItems,
-                                                    final int itemIdx) throws JSONException {
+                                                    final int itemIdx) throws JSONException, NoSuchDriverException {
         if (itemIdx < 0) {
             throw new ActionsParseException(String.format(
                     "The first item of action '%s' cannot define HOVER move, " +
@@ -381,7 +383,7 @@ public class ActionsHelpers {
 
     private static void applyPointerActionToEventsMapping(
             final JSONObject action, final int pointerIndex,
-            final LongSparseArray<List<InputEventParams>> mapping) throws JSONException {
+            final LongSparseArray<List<InputEventParams>> mapping) throws JSONException, NoSuchDriverException {
         final String actionId = action.getString(ACTION_KEY_ID);
         final PointerProperties props = new PointerProperties();
         props.id = pointerIndex;
@@ -595,7 +597,7 @@ public class ActionsHelpers {
     }
 
     public static LongSparseArray<List<InputEventParams>> actionsToInputEventsMapping(
-            final JSONArray actions) throws JSONException {
+            final JSONArray actions) throws JSONException, NoSuchDriverException {
         final LongSparseArray<List<InputEventParams>> result = new LongSparseArray<>();
         final List<JSONObject> pointerActions = filterActionsByType(actions, ACTION_TYPE_POINTER);
         for (int pointerIdx = 0; pointerIdx < pointerActions.size(); pointerIdx++) {

@@ -27,6 +27,7 @@ import java.util.concurrent.TimeoutException;
 import javax.inject.Inject;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.model.dto.AccessibilityScrollData;
 import io.appium.uiautomator2.model.session.Session;
 import io.appium.uiautomator2.utils.Logger;
@@ -43,7 +44,7 @@ public class EventRegister {
 
     @Nullable
     private Boolean runAndRegisterScrollEvents(@NonNull ReturningRunnable<Boolean> runnable, long
-            timeout) {
+            timeout) throws NoSuchDriverException {
         final UiAutomation.AccessibilityEventFilter eventFilter = new UiAutomation
                 .AccessibilityEventFilter() {
             @Override
@@ -62,7 +63,7 @@ public class EventRegister {
                     "instead");
         }
 
-        final Session session = App.session.getSession();
+        final Session session = App.getSession();
 
         if (event == null) {
             session.setLastScrollData(null);
@@ -73,7 +74,7 @@ public class EventRegister {
     }
 
     @Nullable
-    public Boolean runAndRegisterScrollEvents(@NonNull ReturningRunnable<Boolean> runnable) {
+    public Boolean runAndRegisterScrollEvents(@NonNull ReturningRunnable<Boolean> runnable) throws NoSuchDriverException {
         return runAndRegisterScrollEvents(runnable, Configurator.getInstance()
                 .getScrollAcknowledgmentTimeout());
     }

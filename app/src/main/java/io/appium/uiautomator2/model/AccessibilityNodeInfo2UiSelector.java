@@ -4,6 +4,8 @@ package io.appium.uiautomator2.model;
 import android.support.test.uiautomator.UiSelector;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.utils.Attribute;
 
 import static io.appium.uiautomator2.model.UiAutomationElement.charSequenceToString;
@@ -31,78 +33,65 @@ public class AccessibilityNodeInfo2UiSelector {
      * @param node
      * @return
      */
-    public UiSelector generate(AccessibilityNodeInfo node) {
+    public UiSelector generate(AccessibilityNodeInfo node) throws NoSuchDriverException {
         XPathFinder.refreshUiElementTree();
         UiAutomationElement uiAutoEl = UiAutomationElement.map.get(node);
 
         UiSelector uiSelector = new UiSelector();
-        put(uiSelector, PACKAGE, charSequenceToString(uiAutoEl.getPackageName()));
-        put(uiSelector, CLASS, charSequenceToString(uiAutoEl.getClassName()));
-        put(uiSelector, TEXT, charSequenceToString(uiAutoEl.getText()));
-        put(uiSelector, CONTENT_DESC, charSequenceToString(uiAutoEl.getContentDescription()));
-        put(uiSelector, RESOURCE_ID, charSequenceToString(uiAutoEl.getResourceId()));
-        put(uiSelector, CHECKABLE, uiAutoEl.isCheckable());
-        put(uiSelector, CHECKED, uiAutoEl.isChecked());
-        put(uiSelector, CLICKABLE, uiAutoEl.isClickable());
-        put(uiSelector, ENABLED, uiAutoEl.isEnabled());
-        put(uiSelector, FOCUSABLE, uiAutoEl.isFocusable());
-        put(uiSelector, FOCUSED, uiAutoEl.isFocused());
-        put(uiSelector, LONG_CLICKABLE, uiAutoEl.isLongClickable());
-        put(uiSelector, PASSWORD, uiAutoEl.isPassword());
-        put(uiSelector, SCROLLABLE, uiAutoEl.isScrollable());
-        put(uiSelector, SELECTED, uiAutoEl.isSelected());
-        put(uiSelector, INDEX, uiAutoEl.getIndex());
+        uiSelector = put(uiSelector, PACKAGE, charSequenceToString(uiAutoEl.getPackageName()));
+        uiSelector = put(uiSelector, CLASS, charSequenceToString(uiAutoEl.getClassName()));
+        uiSelector = put(uiSelector, TEXT, charSequenceToString(uiAutoEl.getText()));
+        uiSelector = put(uiSelector, CONTENT_DESC, charSequenceToString(uiAutoEl.getContentDescription()));
+        uiSelector = put(uiSelector, RESOURCE_ID, charSequenceToString(uiAutoEl.getResourceId()));
+        uiSelector = put(uiSelector, CHECKABLE, uiAutoEl.isCheckable());
+        uiSelector = put(uiSelector, CHECKED, uiAutoEl.isChecked());
+        uiSelector = put(uiSelector, CLICKABLE, uiAutoEl.isClickable());
+        uiSelector = put(uiSelector, ENABLED, uiAutoEl.isEnabled());
+        uiSelector = put(uiSelector, FOCUSABLE, uiAutoEl.isFocusable());
+        uiSelector = put(uiSelector, FOCUSED, uiAutoEl.isFocused());
+        uiSelector = put(uiSelector, LONG_CLICKABLE, uiAutoEl.isLongClickable());
+        uiSelector = put(uiSelector, PASSWORD, uiAutoEl.isPassword());
+        uiSelector = put(uiSelector, SCROLLABLE, uiAutoEl.isScrollable());
+        uiSelector = put(uiSelector, SELECTED, uiAutoEl.isSelected());
+        uiSelector = put(uiSelector, INDEX, uiAutoEl.getIndex());
         return uiSelector;
     }
 
-    private void put(UiSelector uiSelector, Attribute key, Object value) {
+    private UiSelector put(UiSelector uiSelector, Attribute key, Object value) {
         if (value == null) {
-            return;
+            return uiSelector;
         }
         switch (key) {
             case PACKAGE:
-                uiSelector = uiSelector.packageName((String) value);
-                break;
+                return uiSelector.packageName((String) value);
             case CLASS:
-                uiSelector = uiSelector.className((String) value);
-                break;
+                return uiSelector.className((String) value);
             case TEXT:
-                uiSelector = uiSelector.text((String) value);
-                break;
+                return uiSelector.text((String) value);
             case CONTENT_DESC:
-                uiSelector = uiSelector.descriptionContains((String) value);
-                break;
+                return uiSelector.descriptionContains((String) value);
             case RESOURCE_ID:
-                uiSelector = uiSelector.resourceId((String) value);
-                break;
+                return uiSelector.resourceId((String) value);
             case CHECKABLE:
-                uiSelector = uiSelector.checkable((Boolean) value);
-                break;
+                return uiSelector.checkable((Boolean) value);
             case CHECKED:
-                uiSelector = uiSelector.checked((Boolean) value);
-                break;
+                return uiSelector.checked((Boolean) value);
             case CLICKABLE:
-                uiSelector = uiSelector.clickable((Boolean) value);
-                break;
+                return uiSelector.clickable((Boolean) value);
             case ENABLED:
-                uiSelector = uiSelector.enabled((Boolean) value);
-                break;
+                return uiSelector.enabled((Boolean) value);
             case FOCUSABLE:
-                uiSelector =  uiSelector.focusable((Boolean) value);
-                break;
+                return uiSelector.focusable((Boolean) value);
             case LONG_CLICKABLE:
-                uiSelector = uiSelector.longClickable((Boolean) value);
-                break;
+                return uiSelector.longClickable((Boolean) value);
             case SCROLLABLE:
-                uiSelector = uiSelector.scrollable((Boolean) value);
-                break;
+                return uiSelector.scrollable((Boolean) value);
             case SELECTED:
-                uiSelector = uiSelector.selected((Boolean) value);
-                break;
+                return uiSelector.selected((Boolean) value);
             case INDEX:
-                uiSelector = uiSelector.index((Integer) value);
-                break;
+                return uiSelector.index((Integer) value);
             default: //ignore
+                return uiSelector;
         }
     }
 }

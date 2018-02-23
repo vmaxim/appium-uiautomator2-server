@@ -11,6 +11,8 @@ import java.util.Arrays;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -18,8 +20,6 @@ import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
-
-import static io.appium.uiautomator2.App.session;
 
 /**
  * Send keys to a given element.
@@ -36,14 +36,14 @@ public class SendKeysToElement extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         try {
             Logger.info("send keys to element command");
             JSONObject payload = getPayload(request);
             AndroidElement element;
             if (payload.has("elementId")) {
                 String id = payload.getString("elementId");
-                element = session.getCachedElements().getElementFromCache(id);
+                element = getCachedElements().getElementFromCache(id);
                 if (element == null) {
                     return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
                 }
@@ -52,7 +52,7 @@ public class SendKeysToElement extends SafeRequestHandler {
                 try {
                     BySelector bySelector = By.focused(true);
                     element = App.core.getUiDeviceAdapter().findObject(bySelector);
-                    session.getCachedElements().add(element);
+                    getCachedElements().add(element);
                 } catch (ElementNotFoundException e) {
                     Logger.debug("Error retrieving focused element: " + e);
                     return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);

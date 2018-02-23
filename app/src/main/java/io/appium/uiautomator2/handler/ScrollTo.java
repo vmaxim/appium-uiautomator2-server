@@ -36,7 +36,7 @@ public class ScrollTo extends SafeRequestHandler {
                 scrollToString = m.group(1);
             }
             App.core.getUiDeviceAdapter().scrollTo(scrollToString);
-            Logger.info("Scrolled to String : ", scrollToString);
+            Logger.info("Scrolled to String : %s", scrollToString);
         } catch (JSONException e) {
             Logger.error("Exception while reading JSON: ", e);
             return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, e);

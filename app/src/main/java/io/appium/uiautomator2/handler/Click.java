@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -16,8 +18,6 @@ import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
 
-import static io.appium.uiautomator2.App.session;
-
 public class Click extends SafeRequestHandler {
 
     public Click(String mappedUri) {
@@ -25,14 +25,14 @@ public class Click extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         try {
 
             JSONObject payload = getPayload(request);
             if (payload.has(ELEMENT_ID_KEY_NAME)) {
                 Logger.info("Click element command");
                 String id = payload.getString(ELEMENT_ID_KEY_NAME);
-                AndroidElement element = session.getCachedElements().getElementFromCache(id);
+                AndroidElement element = getCachedElements().getElementFromCache(id);
                 if (element == null) {
                     return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
                 }

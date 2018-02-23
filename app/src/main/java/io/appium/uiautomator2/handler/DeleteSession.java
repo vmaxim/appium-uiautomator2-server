@@ -12,8 +12,6 @@ import io.appium.uiautomator2.server.ServerInstrumentation;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
-import static io.appium.uiautomator2.App.session;
-
 public class DeleteSession extends SafeRequestHandler {
 
     public DeleteSession(String mappedUri) {
@@ -28,7 +26,7 @@ public class DeleteSession extends SafeRequestHandler {
         NotificationListener.getInstance().stop();
         ServerInstrumentation.getInstance(InstrumentationRegistry.getInstrumentation().getContext(),
                 ServerConfig.getServerPort()).stopServer();
-        session = null;
+        App.deleteSession();
         return new AppiumResponse(sessionId, WDStatus.SUCCESS, "Session deleted");
     }
 }

@@ -29,10 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.model.AndroidElement;
-
-import static io.appium.uiautomator2.App.session;
 
 public abstract class ElementHelpers {
 
@@ -74,8 +74,8 @@ public abstract class ElementHelpers {
      *
      * For example, appium returns elements like [{"ELEMENT":1}, {"ELEMENT":2}]
      */
-    public static JSONObject toJSON(AndroidElement el) throws JSONException {
-        return new JSONObject().put("ELEMENT", session.getCachedElements().getIdOfElement(el));
+    public static JSONObject toJSON(AndroidElement el) throws JSONException, NoSuchDriverException {
+        return new JSONObject().put("ELEMENT", App.getSession().getCachedElements().getIdOfElement(el));
     }
 
     /**
@@ -103,7 +103,7 @@ public abstract class ElementHelpers {
                     return;
                 }
             } catch (NumberFormatException e) {
-                Logger.debug(String.format("Can not convert \"%s\" to float.", text));
+                Logger.debug("Can not convert \"%s\" to float.", text);
             }
             Logger.debug("Unable to perform ACTION_SET_PROGRESS action.  Falling back to element.setText()");
         }
@@ -113,7 +113,7 @@ public abstract class ElementHelpers {
          * `IndexOutOfBoundsException: setSpan (x ... x) ends beyond length y`
          * if text length is greater than getMaxTextLength()
          */
-        if (Build.VERSION.SDK_INT < 24) {
+        if (Build.VERSION.SDK_INT < 24 && Build.VERSION.SDK_INT >= 21) {
             textToSend = App.core.getAccessibilityNodeInfoHelper().truncateTextToMaxLength(nodeInfo, textToSend);
         }
 

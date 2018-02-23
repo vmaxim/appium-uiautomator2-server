@@ -16,8 +16,6 @@ import io.appium.uiautomator2.model.settings.WaitForIdleTimeout;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
-import static io.appium.uiautomator2.App.session;
-
 public class UpdateSettings extends SafeRequestHandler {
 
     private static final Map<String, Class<? extends ISetting>> SETTINGS = new HashMap<String, Class<? extends ISetting>>() {
@@ -43,7 +41,7 @@ public class UpdateSettings extends SafeRequestHandler {
                 Object settingValue = entry.getValue();
                 ISetting setting = getSetting(settingName);
                 setting.updateSetting(settingValue);
-                session.getSession().capabilities.put(settingName, settingValue);
+                getSession().getCapabilities().put(settingName, settingValue);
             }
         } catch (Exception e) {
             Logger.error("error settings " + e.getMessage());
@@ -53,7 +51,7 @@ public class UpdateSettings extends SafeRequestHandler {
         return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, true);
     }
 
-    public ISetting getSetting(String settingName) throws UnsupportedSettingException, IllegalAccessException, InstantiationException {
+    ISetting getSetting(String settingName) throws UnsupportedSettingException, IllegalAccessException, InstantiationException {
         if (!SETTINGS.containsKey(settingName)) {
             throw new UnsupportedSettingException(settingName);
         }

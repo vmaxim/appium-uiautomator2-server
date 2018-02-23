@@ -16,6 +16,8 @@ import java.util.List;
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
 import io.appium.uiautomator2.utils.ElementHelpers;
@@ -154,7 +156,7 @@ public class UiObject2Adapter implements AndroidElement {
     @Nullable
     @Override
     public AndroidElement getChild(final UiSelector selector) throws UiObjectNotFoundException,
-            InvalidSelectorException, ClassNotFoundException {
+            InvalidSelectorException, ClassNotFoundException, NoSuchDriverException {
         /*
           We can't find the child element with UiSelector on UiObject2,
           as an alternative creating UiObject with UiObject2's AccessibilityNodeInfo
@@ -182,7 +184,7 @@ public class UiObject2Adapter implements AndroidElement {
 
     @Override
     public List<AndroidElement> getChildren(final UiSelector selector) throws
-            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException {
+            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException, NoSuchDriverException {
         /*
           We can't find the child elements with UiSelector on UiObject2,
           as an alternative creating UiObject with UiObject2's AccessibilityNodeInfo

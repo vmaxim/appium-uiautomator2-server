@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.core.ReturningRunnable;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -17,7 +19,6 @@ import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
 
-import static io.appium.uiautomator2.App.session;
 
 public class Swipe extends SafeRequestHandler {
 
@@ -26,13 +27,13 @@ public class Swipe extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         final Point absStartPos, absEndPos;
-        final boolean isSwipePerformed;
+        final Boolean isSwipePerformed;
         try {
             final SwipeArguments swipeArgs;
             JSONObject payload = getPayload(request);
-            Logger.info("JSON Payload : ", payload.toString());
+            Logger.info("JSON Payload : %s", payload);
             swipeArgs = new SwipeArguments(request);
 
             if (payload.has("elementId")) {
@@ -57,12 +58,10 @@ public class Swipe extends SafeRequestHandler {
 
                 }
             });
-            if (!isSwipePerformed) {
+            if (isSwipePerformed == null || !isSwipePerformed) {
                 return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, "Swipe did not complete successfully");
-            } else {
-                return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, isSwipePerformed);
             }
-
+            return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, true);
         } catch (JSONException e) {
             Logger.error("Exception while reading JSON: ", e);
             return new AppiumResponse(getSessionId(request), WDStatus.JSON_DECODER_ERROR, e);
@@ -82,12 +81,12 @@ public class Swipe extends SafeRequestHandler {
         public AndroidElement element;
         public String id;
 
-        public SwipeArguments(final IHttpRequest request) throws JSONException {
+        SwipeArguments(final IHttpRequest request) throws JSONException, NoSuchDriverException {
             JSONObject payload = getPayload(request);
             if (payload.has("elementId")) {
                 Logger.info("Payload has elementId" + payload);
                 id = payload.getString("elementId");
-                element = session.getCachedElements().getElementFromCache(id);
+                element = getCachedElements().getElementFromCache(id);
             }
             start = new Point(payload.get("startX"), payload.get("startY"));
             end = new Point(payload.get("endX"), payload.get("endY"));

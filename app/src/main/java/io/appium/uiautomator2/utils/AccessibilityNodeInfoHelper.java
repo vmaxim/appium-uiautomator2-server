@@ -65,8 +65,7 @@ public class AccessibilityNodeInfoHelper {
             Logger.debug("The element does not support ACTION_SET_PROGRESS action.");
             return false;
         }
-        Logger.debug(String.format(
-                "Trying to perform ACTION_SET_PROGRESS accessibility action with value %s", value));
+        Logger.debug("Trying to perform ACTION_SET_PROGRESS accessibility action with value %s", value);
         final Bundle args = new Bundle();
         args.putFloat(AccessibilityNodeInfo.ACTION_ARGUMENT_PROGRESS_VALUE, value);
         return node.performAction(AccessibilityAction.ACTION_SET_PROGRESS.getId(), args);
@@ -83,9 +82,8 @@ public class AccessibilityNodeInfoHelper {
             text) {
         final int maxTextLength = node.getMaxTextLength();
         if (maxTextLength > 0 && text.length() > maxTextLength) {
-            Logger.debug(String.format(
-                    "The element has limited text length. Its text will be truncated to %s chars.",
-                    maxTextLength));
+            Logger.debug("The element has limited text length. Its text will be truncated to %s chars.",
+                    maxTextLength);
             return text.substring(0, maxTextLength);
         }
         return text;

@@ -12,6 +12,8 @@ import org.json.JSONObject;
 import java.util.List;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -22,7 +24,6 @@ import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
 import static io.appium.uiautomator2.App.model;
-import static io.appium.uiautomator2.App.session;
 
 /**
  * This method return first visible element inside provided element
@@ -34,11 +35,11 @@ public class FirstVisibleView extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         Logger.info("Get first visible element inside provided element");
         String elementId = getElementId(request);
 
-        AndroidElement element = session.getCachedElements().getElementFromCache(elementId);
+        AndroidElement element = getSession().getCachedElements().getElementFromCache(elementId);
         if (element == null) {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         }
@@ -78,7 +79,7 @@ public class FirstVisibleView extends SafeRequestHandler {
                 return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
             }
 
-            String id = App.session.getCachedElements().add(firstObject);
+            String id = getCachedElements().add(firstObject);
             JSONObject result = new JSONObject();
             result.put("ELEMENT", id);
             return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, result);

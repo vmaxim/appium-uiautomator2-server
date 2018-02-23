@@ -1,24 +1,18 @@
 package io.appium.uiautomator2.handler;
 
-
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.uiautomator.UiObjectNotFoundException;
-import android.support.test.uiautomator.UiSelector;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import javax.xml.parsers.ParserConfigurationException;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.common.exceptions.UiSelectorSyntaxException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
@@ -32,11 +26,7 @@ import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.UiAutomatorParser;
 
-import static android.support.test.uiautomator.By.clazz;
-import static android.support.test.uiautomator.By.desc;
-import static android.support.test.uiautomator.By.res;
 import static io.appium.uiautomator2.App.core;
-import static io.appium.uiautomator2.App.session;
 
 public class FindElement extends SafeRequestHandler {
 
@@ -56,8 +46,6 @@ public class FindElement extends SafeRequestHandler {
      * http://java-regex-tester.appspot.com/regex/5f04ac92-f9aa-45a6-b1dc-e2c25fd3cc6b
      *
      */
-    static final Pattern RESOURCE_ID_REGEX = Pattern
-            .compile("^[a-zA-Z_][a-zA-Z0-9\\._]*:[^\\/]+\\/[\\S]+$");
 
     public FindElement(String mappedUri) {
         super(mappedUri);
@@ -83,14 +71,14 @@ public class FindElement extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         try {
             Logger.info("Find element command");
             final JSONObject payload = getPayload(request);
             final String method = payload.getString("strategy");
             final String selector = payload.getString("selector");
             final String contextId = payload.getString("context");
-            Logger.info(String.format("find element command using '%s' with selector '%s'.", method, selector));
+            Logger.info("find element command using '%s' with selector '%s'.", method, selector);
             final By by = new By(method, selector);
             core.getUiDeviceAdapter().waitForIdle();
             AndroidElement element;
@@ -103,7 +91,7 @@ public class FindElement extends SafeRequestHandler {
                 return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
             } else {
                 JSONObject result = new JSONObject();
-                result.put("ELEMENT", App.session.getCachedElements().add(element));
+                result.put("ELEMENT", getCachedElements().add(element));
                 return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, result);
             }
         } catch (UnsupportedOperationException e) {
@@ -135,61 +123,31 @@ public class FindElement extends SafeRequestHandler {
 
     @Nullable
     private AndroidElement findElement(@NonNull final By by) throws InvalidSelectorException,
-             ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiAutomator2Exception {
+            ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiAutomator2Exception {
         switch (by.getElementStrategy()) {
-            case SELECTOR_NATIVE_ID:
-                return core.getUiDeviceAdapter().findObject(res(by.getElementLocator()));
-            case SELECTOR_ACCESSIBILITY_ID:
-                return core.getUiDeviceAdapter().findObject(desc(by.getElementLocator()));
-            case SELECTOR_CLASS:
-                return core.getUiDeviceAdapter().findObject(clazz(by.getElementLocator()));
             case SELECTOR_ANDROID_UIAUTOMATOR:
-                return core.getUiDeviceAdapter().findObject(findByUiAutomator(by.getElementLocator()));
+                return core.getUiDeviceAdapter().findObject(new UiAutomatorParser().parse(by.getElementLocator()).get(0));
             case SELECTOR_XPATH:
                 return getXPathUiObject(by.getElementLocator(), null /* AndroidElement */);
+            default:
+                return core.getUiDeviceAdapter().findObject(by.toBySelector());
         }
-        return null;
     }
 
     @Nullable
     private AndroidElement findElement(@NonNull final By by, @NonNull final String contextId) throws InvalidSelectorException,
-            ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiAutomator2Exception, UiObjectNotFoundException {
-        AndroidElement element = session.getCachedElements().getElementFromCache(contextId);
+            ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiObjectNotFoundException, NoSuchDriverException {
+        AndroidElement element = getCachedElements().getElementFromCache(contextId);
         if (element == null) {
             throw new ElementNotFoundException();
         }
         switch (by.getElementStrategy()) {
-            case SELECTOR_NATIVE_ID:
-                return element.getChild(res(by.getElementLocator()));
-            case SELECTOR_ACCESSIBILITY_ID:
-                return element.getChild(desc(by.getElementLocator()));
-            case SELECTOR_CLASS:
-                return element.getChild(clazz(by.getElementLocator()));
             case SELECTOR_ANDROID_UIAUTOMATOR:
-                return element.getChild(findByUiAutomator(by.getElementLocator()));
+                return element.getChild(new UiAutomatorParser().parse(by.getElementLocator()).get(0));
             case SELECTOR_XPATH:
                 return getXPathUiObject(by.getElementLocator(), element);
+            default:
+                return element.getChild(by.toBySelector());
         }
-        return null;
-    }
-
-    /**
-     * finds the UiSelector for given expression
-     */
-    public UiSelector findByUiAutomator(String expression) throws UiSelectorSyntaxException {
-        List<UiSelector> parsedSelectors = null;
-        UiAutomatorParser uiAutomatorParser = new UiAutomatorParser();
-        final List<UiSelector> selectors = new ArrayList<UiSelector>();
-        try {
-            parsedSelectors = uiAutomatorParser.parse(expression);
-        } catch (final UiSelectorSyntaxException e) {
-            throw new UiSelectorSyntaxException(
-                    "Could not parse UiSelector argument: " + e.getMessage());
-        }
-
-        for (final UiSelector selector : parsedSelectors) {
-            selectors.add(selector);
-        }
-        return selectors.get(0);
     }
 }

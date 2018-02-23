@@ -23,6 +23,8 @@ import android.view.MotionEvent.PointerCoords;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
@@ -55,7 +57,7 @@ public class InteractionControllerAdapter {
                 int.class), keyCode, metaState);
     }
 
-    public boolean injectEventSync(@NonNull final InputEvent event) throws UiAutomator2Exception {
+    public Boolean injectEventSync(@NonNull final InputEvent event) throws UiAutomator2Exception {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
@@ -66,7 +68,7 @@ public class InteractionControllerAdapter {
         });
     }
 
-    public boolean touchDown(final int x, final int y) throws UiAutomator2Exception {
+    public Boolean touchDown(final int x, final int y) throws UiAutomator2Exception {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
@@ -77,7 +79,7 @@ public class InteractionControllerAdapter {
         });
     }
 
-    public boolean touchUp(final int x, final int y) throws UiAutomator2Exception {
+    public Boolean touchUp(final int x, final int y) throws UiAutomator2Exception {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
@@ -89,7 +91,7 @@ public class InteractionControllerAdapter {
         });
     }
 
-    public boolean touchMove(final int x, final int y) throws UiAutomator2Exception {
+    public Boolean touchMove(final int x, final int y) throws UiAutomator2Exception {
         return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {

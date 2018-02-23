@@ -39,6 +39,8 @@ import javax.xml.xpath.XPathFactory;
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Attribute;
@@ -78,7 +80,7 @@ public class XPathFinder implements Finder {
 
     public static AccessibilityNodeInfoList getNodesList(String xpathExpression,
                                                          AccessibilityNodeInfo nodeInfo) throws
-            InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception {
+            InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception, NoSuchDriverException {
     if(nodeInfo == null) {
       XPathFinder.refreshUiElementTree();
     } else {
@@ -180,11 +182,11 @@ public class XPathFinder implements Finder {
       element.setAttribute(attr.getName(), String.valueOf(value));
   }
 
-  public static void refreshUiElementTree() {
+  public static void refreshUiElementTree() throws NoSuchDriverException {
     rootElement = UiAutomationElement.newRootElement(getRootAccessibilityNode(), NotificationListener.getToastMSGs());
   }
 
-  public static void refreshUiElementTree(AccessibilityNodeInfo nodeInfo) {
+  public static void refreshUiElementTree(AccessibilityNodeInfo nodeInfo) throws NoSuchDriverException {
     rootElement =UiAutomationElement.newRootElement(nodeInfo, null /*Toast Messages*/);
   }
 
@@ -268,13 +270,13 @@ public class XPathFinder implements Finder {
             try {
                 getDocument().removeChild(domNode);
             } catch (DOMException e) {
-                Logger.error(e, "Failed to clear document");
+                Logger.error("Failed to clear document", e);
                 document = null; // getDocument will create new
             }
         }
     }
 
-    public UiAutomationElement getRootElement() {
+    public UiAutomationElement getRootElement() throws NoSuchDriverException {
         if (rootElement == null) {
             refreshUiElementTree();
         }

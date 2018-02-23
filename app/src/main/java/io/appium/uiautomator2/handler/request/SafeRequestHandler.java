@@ -5,15 +5,18 @@ import android.support.test.uiautomator.StaleObjectException;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.NoSuchContextException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.session.CachedElements;
+import io.appium.uiautomator2.model.session.Session;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
-
-import static io.appium.uiautomator2.App.session;
 
 public abstract class SafeRequestHandler extends BaseRequestHandler {
 
@@ -24,15 +27,13 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
     }
 
 
-    protected String getIdOfKnownElement(IHttpRequest request, AndroidElement element) {
-        return session.getCachedElements().getIdOfElement(element);
+    protected String getIdOfKnownElement(IHttpRequest request, AndroidElement element) throws NoSuchDriverException {
+        return getCachedElements().getIdOfElement(element);
     }
 
-    protected AndroidElement getElementFromCache(IHttpRequest request, String id) {
-
-        return session.getCachedElements().getElementFromCache(id);
+    protected AndroidElement getElementFromCache(IHttpRequest request, String id) throws NoSuchDriverException {
+        return getCachedElements().getElementFromCache(id);
     }
-
 
     protected String[] extractKeysToSendFromPayload(IHttpRequest request) throws JSONException, UiAutomator2Exception {
         JSONArray valueArr = getPayload(request).getJSONArray("value");
@@ -49,7 +50,15 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
         return toReturn;
     }
 
-    public abstract AppiumResponse safeHandle(IHttpRequest request);
+    protected Session getSession() throws NoSuchDriverException {
+        return App.getSession();
+    }
+
+    protected CachedElements getCachedElements() throws NoSuchDriverException {
+        return App.getSession().getCachedElements();
+    }
+
+    public abstract AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException;
 
     @Override
     public final AppiumResponse handle(IHttpRequest request) {
@@ -61,6 +70,9 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
         } catch (StaleObjectException e) {
             Logger.error("Stale Element Reference Exception: ", e);
             return new AppiumResponse(getSessionId(request), WDStatus.STALE_ELEMENT_REFERENCE, e);
+        } catch (NoSuchDriverException e) {
+            Logger.error("Session is either deleted or not started.");
+            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_DRIVER, e);
         } catch (NoClassDefFoundError e) {
             // This is a potentially interesting class path problem which should be returned to client.
             return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_COMMAND, e);

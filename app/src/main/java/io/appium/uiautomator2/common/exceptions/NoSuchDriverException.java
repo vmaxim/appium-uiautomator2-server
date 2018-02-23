@@ -13,17 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2.model.session.di;
+package io.appium.uiautomator2.common.exceptions;
 
-import dagger.Subcomponent;
-import io.appium.uiautomator2.model.session.CachedElements;
-import io.appium.uiautomator2.model.session.Session;
+import io.appium.uiautomator2.server.WDStatus;
 
-@SessionScope
-@Subcomponent(modules = {SessionModule.class})
-public interface SessionComponent {
-
-    @SessionScope
-    Session getSession();
-
+public class NoSuchDriverException extends UiAutomator2Exception {
+    public NoSuchDriverException() {
+        super(WDStatus.NO_SUCH_DRIVER.message());
+    }
 }

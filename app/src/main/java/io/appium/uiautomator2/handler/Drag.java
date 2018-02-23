@@ -7,6 +7,8 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -16,15 +18,13 @@ import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
 
-import static io.appium.uiautomator2.App.session;
-
 public class Drag extends SafeRequestHandler {
     public Drag(String mappedUri) {
         super(mappedUri);
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         // DragArguments is created on each execute which prevents leaking state
         // across executions.
         final DragArguments dragArgs;
@@ -130,17 +130,17 @@ public class Drag extends SafeRequestHandler {
         public String elId;
         public String destElId;
 
-        public DragArguments(final IHttpRequest request) throws JSONException {
+        public DragArguments(final IHttpRequest request) throws JSONException, NoSuchDriverException {
 
             JSONObject payload = getPayload(request);
 
             if (payload.has("elementId")) {
                 elId = payload.getString("elementId");
-                el = session.getCachedElements().getElementFromCache(elId);
+                el = getCachedElements().getElementFromCache(elId);
             }
             if (payload.has("destElId")) {
                 destElId = payload.getString("destElId");
-                destEl = session.getCachedElements().getElementFromCache(destElId);
+                destEl = getCachedElements().getElementFromCache(destElId);
             }
 
             start = new Point(payload.get("startX"), payload.get("startY"));

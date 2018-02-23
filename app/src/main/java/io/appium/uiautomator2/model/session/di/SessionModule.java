@@ -28,8 +28,8 @@ public class SessionModule {
     @Provides
     @NonNull
     @SessionScope
-    Session provideSession() {
-        return new Session();
+    Session provideSession(CachedElements cachedElements) {
+        return new Session(cachedElements);
     }
 
     @Provides

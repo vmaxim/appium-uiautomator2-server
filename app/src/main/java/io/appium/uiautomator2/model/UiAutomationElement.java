@@ -28,12 +28,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.model.settings.AllowInvisibleElements;
 import io.appium.uiautomator2.utils.Attribute;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Preconditions;
-
-import static io.appium.uiautomator2.App.session;
 
 
 /**
@@ -56,7 +57,7 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
    * instance will be created in
    */
   protected UiAutomationElement( AccessibilityNodeInfo node,
-                                UiAutomationElement parent, int index) {
+                                UiAutomationElement parent, int index) throws NoSuchDriverException {
     this.node = Preconditions.checkNotNull(node);
     this.parent = parent;
 
@@ -94,7 +95,7 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
   }
 
   protected UiAutomationElement(String hierarchyClassName,
-                                AccessibilityNodeInfo childNode, int index){
+                                AccessibilityNodeInfo childNode, int index) throws NoSuchDriverException {
     this.parent = null;
     Map<Attribute, Object> attribs = new EnumMap<Attribute, Object>(Attribute.class);
 
@@ -125,23 +126,23 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     }
   }
 
-  private void addToastMsgToRoot(CharSequence tokenMSG){
+  private void addToastMsgToRoot(CharSequence tokenMSG) throws NoSuchDriverException {
     AccessibilityNodeInfo node = AccessibilityNodeInfo.obtain();
     node.setText(tokenMSG);
     node.setClassName(Toast.class.getName());
     node.setPackageName("com.android.settings");
 
-    this.children.add( new UiAutomationElement(node /* AccessibilityNodeInfo */, this /* parent UiAutomationElement*/, 0 /*index*/));
+    this.children.add(new UiAutomationElement(node /* AccessibilityNodeInfo */, this /* parent UiAutomationElement*/, 0 /*index*/));
   }
 
-  private List<UiAutomationElement> buildChildren(AccessibilityNodeInfo node) {
+  private List<UiAutomationElement> buildChildren(AccessibilityNodeInfo node) throws NoSuchDriverException {
     List<UiAutomationElement> children;
     int childCount = node.getChildCount();
     if (childCount == 0) {
       children = null;
     } else {
       children = new ArrayList<UiAutomationElement>(childCount);
-      Object allowInvisibleElements = session.getSession().capabilities.get(AllowInvisibleElements.SETTING_NAME);
+      Object allowInvisibleElements = App.getSession().getCapabilities().get(AllowInvisibleElements.SETTING_NAME);
       boolean isAllowInvisibleElements = allowInvisibleElements != null && (boolean) allowInvisibleElements;
 
       for (int i = 0; i < childCount; i++) {
@@ -155,7 +156,7 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     return children;
   }
 
-  public static UiAutomationElement newRootElement(AccessibilityNodeInfo rawElement, List<CharSequence> toastMSGs) {
+  public static UiAutomationElement newRootElement(AccessibilityNodeInfo rawElement, List<CharSequence> toastMSGs) throws NoSuchDriverException {
     clearData();
     /**
      * Injecting root element as hierarchy and adding rawElement as a child.
@@ -175,7 +176,7 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     XPathFinder.clearData();
   }
 
-  public static UiAutomationElement getElement(AccessibilityNodeInfo rawElement, UiAutomationElement parent, int index) {
+  public static UiAutomationElement getElement(AccessibilityNodeInfo rawElement, UiAutomationElement parent, int index) throws NoSuchDriverException {
     UiAutomationElement element = map.get(rawElement);
     if (element == null) {
       element = new UiAutomationElement(rawElement, parent, index);

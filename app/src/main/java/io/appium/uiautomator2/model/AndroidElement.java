@@ -12,6 +12,8 @@ import java.util.List;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.Point;
 
@@ -54,13 +56,13 @@ public interface AndroidElement {
     Rect getBounds() throws UiObjectNotFoundException;
 
     AndroidElement getChild(@NonNull final UiSelector sel) throws UiObjectNotFoundException,
-            InvalidSelectorException, ClassNotFoundException;
+            InvalidSelectorException, ClassNotFoundException, NoSuchDriverException;
 
     AndroidElement getChild(@NonNull final BySelector sel) throws UiObjectNotFoundException,
             InvalidSelectorException, ClassNotFoundException;
 
     List<AndroidElement> getChildren(@NonNull final UiSelector selector) throws
-            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException;
+            UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException, NoSuchDriverException;
 
     List<AndroidElement> getChildren(@NonNull final BySelector selector) throws
             UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException;

@@ -48,12 +48,12 @@ public class ByMatcherAdapter {
                 AccessibilityNodeInfo[].class);
     }
 
-    AccessibilityNodeInfo findMatch(BySelector selector,
+    AccessibilityNodeInfo findMatch(@NonNull final BySelector selector,
                                     AccessibilityNodeInfo... roots) {
         return reflectionUtils.invoke(findMatch, uiDevice, selector, roots);
     }
 
-    List<AccessibilityNodeInfo> findMatches(BySelector selector,
+    List<AccessibilityNodeInfo> findMatches(@NonNull final BySelector selector,
                                             AccessibilityNodeInfo... roots) {
         return reflectionUtils.invoke(findMatches, uiDevice, selector, roots);
     }

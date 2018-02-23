@@ -28,12 +28,12 @@ public abstract class AbstractSetting<T> implements ISetting {
     }
 
     public void updateSetting(Object value) {
-        Logger.debug(String.format("Set the %s to %s", getSettingName(), String.valueOf(value)));
+        Logger.debug("Set the %s to %s", getSettingName(), String.valueOf(value));
         T convertedValue = convertValue(value);
         try {
             apply(convertedValue);
         } catch (Exception e) {
-            Logger.error(String.format("Unable to update the setting %s: %s", getSettingName(), e.toString()));
+            Logger.error("Unable to update the setting %s: %s", getSettingName(), e.toString());
         }
     }
 

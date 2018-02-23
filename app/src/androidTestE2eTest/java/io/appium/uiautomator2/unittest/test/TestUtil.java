@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.model.By;
+import io.appium.uiautomator2.model.ByStrategy;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -326,24 +327,8 @@ public class TestUtil {
     public static JSONObject getJSon(By by, JSONObject jsonObject) {
         try {
             jsonObject.put("context", "");
-            if (by instanceof By.ByAccessibilityId) {
-                jsonObject.put("strategy", "accessibility id");
-                jsonObject.put("selector", ((By.ByAccessibilityId) by).getElementLocator());
-            } else if (by instanceof By.ByClass) {
-                jsonObject.put("strategy", "class name");
-                jsonObject.put("selector", ((By.ByClass) by).getElementLocator());
-            } else if (by instanceof By.ById) {
-                jsonObject.put("strategy", "id");
-                jsonObject.put("selector", ((By.ById) by).getElementLocator());
-            } else if (by instanceof By.ByXPath) {
-                jsonObject.put("strategy", "xpath");
-                jsonObject.put("selector", ((By.ByXPath) by).getElementLocator());
-            } else if (by instanceof By.ByAndroidUiAutomator) {
-                jsonObject.put("strategy", "-android uiautomator");
-                jsonObject.put("selector", ((By.ByAndroidUiAutomator) by).getElementLocator());
-            } else {
-                throw new JSONException("Unable to create json object: " + by);
-            }
+            jsonObject.put("strategy", by.getElementStrategy().getValue());
+            jsonObject.put("selector", by.getElementLocator());
         } catch (JSONException e) {
             Logger.error("Unable to form JSON Object: " + e);
         }

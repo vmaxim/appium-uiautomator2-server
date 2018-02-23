@@ -37,6 +37,8 @@ import java.util.List;
 import java.util.Set;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -140,11 +142,11 @@ public class W3CActions extends SafeRequestHandler {
         }
     }
 
-    private boolean injectEventSync(InputEvent event) {
+    private boolean injectEventSync(InputEvent event) throws NoSuchDriverException {
         return App.core.getInteractionControllerAdapter().injectEventSync(event);
     }
 
-    private boolean executeActions(final JSONArray actions) throws JSONException {
+    private boolean executeActions(final JSONArray actions) throws JSONException, NoSuchDriverException {
         final LongSparseArray<List<InputEventParams>> inputEventsMapping = actionsToInputEventsMapping(actions);
         final List<Long> allDeltas = new ArrayList<>();
         for (int i = 0; i < inputEventsMapping.size(); i++) {

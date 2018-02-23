@@ -47,7 +47,7 @@ public class AppiumResponse {
         } catch (JSONException e) {
             Logger.error("Unable to create JSON Object:", e);
         }
-        Logger.info("AppiumResponse: ", o.toString());
+        Logger.info("AppiumResponse: %s", o);
         return o.toString();
     }
 

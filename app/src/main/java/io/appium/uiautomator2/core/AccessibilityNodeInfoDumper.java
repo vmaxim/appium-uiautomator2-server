@@ -94,7 +94,7 @@ public class AccessibilityNodeInfoDumper {
             Logger.error("failed to dump window to file", e);
         }
         final long endTime = SystemClock.uptimeMillis();
-        Logger.info("Fetch time: " + (endTime - startTime) + "ms");
+        Logger.info("Fetch time: %d ms", (endTime - startTime));
         return xmlDump.toString();
     }
 
@@ -137,12 +137,11 @@ public class AccessibilityNodeInfoDumper {
                 if (child.isVisibleToUser()) {
                     dumpNodeRec(child, serializer, i, width, height);
                 } else {
-                    Logger.info(String.format("Skipping invisible child: %s", child.toString()));
+                    Logger.info("Skipping invisible child: %s", child.toString());
                 }
                 child.recycle();
             } else {
-                Logger.info(String.format("Null child %d/%d, parent: %s", i, count,
-                        node.toString()));
+                Logger.info("Null child %d/%d, parent: %s", i, count, node.toString());
             }
         }
         serializer.endTag("", "node");
@@ -197,8 +196,7 @@ public class AccessibilityNodeInfoDumper {
         for (int x = 0; x < childCount; x++) {
             AccessibilityNodeInfo childNode = node.getChild(x);
             if (childNode == null) {
-                Logger.info(String.format("Null child %d/%d, parent: %s", x, childCount,
-                        node.toString()));
+                Logger.info("Null child %d/%d, parent: %s", x, childCount, node.toString());
                 continue;
             }
             if (!safeCharSeqToString(childNode.getContentDescription()).isEmpty() ||

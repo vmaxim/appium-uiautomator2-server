@@ -18,10 +18,12 @@ package io.appium.uiautomator2;
 
 import android.support.annotation.Nullable;
 
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.core.di.CoreComponent;
 import io.appium.uiautomator2.core.di.DaggerCoreComponent;
 import io.appium.uiautomator2.model.di.DaggerModelComponent;
 import io.appium.uiautomator2.model.di.ModelComponent;
+import io.appium.uiautomator2.model.session.Session;
 import io.appium.uiautomator2.model.session.di.SessionComponent;
 
 public class App {
@@ -29,5 +31,21 @@ public class App {
     public static CoreComponent core = DaggerCoreComponent.create();
     public static ModelComponent model = DaggerModelComponent.create();
     @Nullable
-    public static SessionComponent session;
+    private static SessionComponent session;
+
+    public static Session getSession() throws NoSuchDriverException {
+        if (session == null) {
+            throw new NoSuchDriverException();
+        }
+        return session.getSession();
+    }
+
+    public static Session startSession() {
+        session = model.initSession();
+        return session.getSession();
+    }
+
+    public static void deleteSession() {
+        session = null;
+    }
 }

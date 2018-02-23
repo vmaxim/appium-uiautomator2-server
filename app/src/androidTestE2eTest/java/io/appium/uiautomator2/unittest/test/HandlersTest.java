@@ -99,7 +99,7 @@ public class HandlersTest {
      * @throws InterruptedException
      */
    // @BeforeClass
-    public void beforeStartServer() throws InterruptedException, IOException, SessionRemovedException, JSONException {
+    public void beforeStartServer() throws InterruptedException, IOException, JSONException, SessionRemovedException {
         if (serverInstrumentation == null) {
             assertNotNull(App.core.getUiDeviceAdapter().getUiDevice());
             ctx = InstrumentationRegistry.getInstrumentation().getContext();
@@ -124,7 +124,7 @@ public class HandlersTest {
     }
 
     @Before
-    public void launchAUT() throws InterruptedException, JSONException, IOException {
+    public void launchAUT() throws InterruptedException, JSONException, IOException, SessionRemovedException {
         beforeStartServer();
         Intent intent = new Intent().setClassName(testAppPkg, testAppPkg + ".ApiDemos").addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
         ctx.stopService(intent);
