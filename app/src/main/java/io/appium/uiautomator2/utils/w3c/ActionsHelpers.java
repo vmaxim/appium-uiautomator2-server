@@ -38,7 +38,6 @@ import java.util.Set;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
-import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.model.AndroidElement;
 
 import static io.appium.uiautomator2.utils.w3c.ActionsConstants.ACTION_ITEM_BUTTON_KEY;

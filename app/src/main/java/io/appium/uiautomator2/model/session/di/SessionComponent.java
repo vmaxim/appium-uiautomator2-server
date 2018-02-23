@@ -16,7 +16,6 @@
 package io.appium.uiautomator2.model.session.di;
 
 import dagger.Subcomponent;
-import io.appium.uiautomator2.model.session.CachedElements;
 import io.appium.uiautomator2.model.session.Session;
 
 @SessionScope

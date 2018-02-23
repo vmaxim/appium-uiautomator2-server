@@ -13,13 +13,11 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
-import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
-import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
+import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Point;

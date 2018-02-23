@@ -19,7 +19,6 @@ package io.appium.uiautomator2.handler;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
-import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;

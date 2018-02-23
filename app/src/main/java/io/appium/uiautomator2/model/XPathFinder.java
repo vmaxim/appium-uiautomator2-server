@@ -40,7 +40,6 @@ import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
-import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Attribute;

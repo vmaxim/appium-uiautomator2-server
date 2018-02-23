@@ -23,8 +23,6 @@ import android.support.annotation.RequiresApi;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.AccessibilityAction;
 
-import io.appium.uiautomator2.utils.Logger;
-
 /**
  * This class contains static helper methods to work with {@link AccessibilityNodeInfo}
  */

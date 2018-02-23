@@ -5,7 +5,6 @@ import android.support.test.uiautomator.UiSelector;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
-import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.utils.Attribute;
 
 import static io.appium.uiautomator2.model.UiAutomationElement.charSequenceToString;

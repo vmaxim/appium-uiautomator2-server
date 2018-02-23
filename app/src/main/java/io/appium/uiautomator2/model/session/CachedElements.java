@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.utils.Logger;
 
 public class CachedElements {
     private Map<String, AndroidElement> cache = new HashMap<>();

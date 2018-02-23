@@ -23,8 +23,6 @@ import android.view.MotionEvent.PointerCoords;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
-import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 

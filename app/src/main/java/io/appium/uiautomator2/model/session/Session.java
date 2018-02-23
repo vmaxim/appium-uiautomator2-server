@@ -8,8 +8,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import io.appium.uiautomator2.model.dto.AccessibilityScrollData;
 import io.appium.uiautomator2.model.NotificationListener;
+import io.appium.uiautomator2.model.dto.AccessibilityScrollData;
 
 public class Session {
     private final String SEND_KEYS_TO_ELEMENT = "sendKeysToElement";

@@ -8,7 +8,6 @@ import org.json.JSONException;
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.NoSuchContextException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
-import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;

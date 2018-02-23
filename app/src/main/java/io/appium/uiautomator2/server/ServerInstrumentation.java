@@ -3,7 +3,6 @@ package io.appium.uiautomator2.server;
 import android.content.Context;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.os.RemoteException;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
