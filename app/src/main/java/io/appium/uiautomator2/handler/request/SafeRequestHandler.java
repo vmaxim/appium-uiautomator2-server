@@ -2,9 +2,6 @@ package io.appium.uiautomator2.handler.request;
 
 import android.support.test.uiautomator.StaleObjectException;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.NoSuchContextException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
@@ -25,28 +22,8 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
         super(mappedUri);
     }
 
-
-    protected String getIdOfKnownElement(IHttpRequest request, AndroidElement element) throws NoSuchDriverException {
-        return getCachedElements().getIdOfElement(element);
-    }
-
-    protected AndroidElement getElementFromCache(IHttpRequest request, String id) throws NoSuchDriverException {
+    protected AndroidElement getElementFromCache(String id) throws NoSuchDriverException {
         return getCachedElements().getElementFromCache(id);
-    }
-
-    protected String[] extractKeysToSendFromPayload(IHttpRequest request) throws JSONException, UiAutomator2Exception {
-        JSONArray valueArr = getPayload(request).getJSONArray("value");
-        if (valueArr == null || valueArr.length() == 0) {
-            throw new UiAutomator2Exception("No key to send to an element was found.");
-        }
-
-        String[] toReturn = new String[valueArr.length()];
-
-        for (int i = 0; i < valueArr.length(); i++) {
-            toReturn[i] = valueArr.getString(i);
-        }
-
-        return toReturn;
     }
 
     protected Session getSession() throws NoSuchDriverException {

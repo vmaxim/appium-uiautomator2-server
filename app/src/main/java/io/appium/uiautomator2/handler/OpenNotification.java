@@ -1,7 +1,6 @@
 package io.appium.uiautomator2.handler;
 
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -17,7 +16,7 @@ public class OpenNotification extends SafeRequestHandler {
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) {
         boolean isNotificationOpened;
-        isNotificationOpened = App.core.getUiDeviceAdapter().openNotification();
+        isNotificationOpened = coreFacade.openNotification();
 
         if (isNotificationOpened) {
             Logger.info("Opened Notification");

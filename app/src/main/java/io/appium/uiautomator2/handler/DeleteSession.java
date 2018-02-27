@@ -19,7 +19,6 @@ public class DeleteSession extends SafeRequestHandler {
     }
 
     @Override
-
     public AppiumResponse safeHandle(IHttpRequest request) {
         Logger.info("Delete session command");
         String sessionId = getSessionId(request);

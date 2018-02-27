@@ -26,8 +26,6 @@ import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.UiAutomatorParser;
 
-import static io.appium.uiautomator2.App.core;
-
 public class FindElement extends SafeRequestHandler {
 
     /**
@@ -55,7 +53,7 @@ public class FindElement extends SafeRequestHandler {
      * returns  UiObject2 for an xpath expression
      * TODO: Need to handle contextId based finding
      */
-    private static AndroidElement getXPathUiObject(final String expression, AndroidElement
+    private AndroidElement getXPathUiObject(final String expression, AndroidElement
             element) throws ParserConfigurationException, InvalidSelectorException,
             ClassNotFoundException, UiAutomator2Exception {
         AccessibilityNodeInfo nodeInfo = null;
@@ -67,7 +65,7 @@ public class FindElement extends SafeRequestHandler {
         if (nodeList.isEmpty()) {
                 throw new ElementNotFoundException();
         }
-        return core.getUiDeviceAdapter().findObject(nodeList);
+        return coreFacade.findElement(nodeList);
     }
 
     @Override
@@ -80,7 +78,7 @@ public class FindElement extends SafeRequestHandler {
             final String contextId = payload.getString("context");
             Logger.info("find element command using '%s' with selector '%s'.", method, selector);
             final By by = new By(method, selector);
-            core.getUiDeviceAdapter().waitForIdle();
+            coreFacade.waitForIdle();
             AndroidElement element;
             if(contextId.length() > 0) {
                 element = this.findElement(by, contextId);
@@ -126,11 +124,11 @@ public class FindElement extends SafeRequestHandler {
             ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiAutomator2Exception {
         switch (by.getElementStrategy()) {
             case SELECTOR_ANDROID_UIAUTOMATOR:
-                return core.getUiDeviceAdapter().findObject(new UiAutomatorParser().parse(by.getElementLocator()).get(0));
+                return coreFacade.findElement(new UiAutomatorParser().parse(by.getElementLocator()).get(0));
             case SELECTOR_XPATH:
                 return getXPathUiObject(by.getElementLocator(), null /* AndroidElement */);
             default:
-                return core.getUiDeviceAdapter().findObject(by.toBySelector());
+                return coreFacade.findElement(by.toBySelector());
         }
     }
 

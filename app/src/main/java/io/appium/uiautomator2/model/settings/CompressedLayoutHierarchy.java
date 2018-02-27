@@ -16,7 +16,7 @@
 
 package io.appium.uiautomator2.model.settings;
 
-import io.appium.uiautomator2.App;
+import static io.appium.uiautomator2.App.core;
 
 public class CompressedLayoutHierarchy extends AbstractSetting<Boolean> {
 
@@ -28,7 +28,7 @@ public class CompressedLayoutHierarchy extends AbstractSetting<Boolean> {
 
     @Override
     protected void apply(Boolean compressLayout) {
-        App.core.getUiDeviceAdapter().setCompressedLayoutHeirarchy(compressLayout);
+        core.getCoreFacade().setCompressedLayoutHeirarchy(compressLayout);
     }
 
     @Override

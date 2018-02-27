@@ -7,7 +7,6 @@ import android.support.test.uiautomator.UiObjectNotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
@@ -39,7 +38,7 @@ public class Clear extends SafeRequestHandler {
                 //perform action on focused element
                 try {
                     BySelector bySelector = By.focused(true);
-                    element = App.core.getUiDeviceAdapter().findObject(bySelector);
+                    element = coreFacade.findElement(bySelector);
                     getCachedElements().add(element);
                 } catch (ElementNotFoundException e) {
                     Logger.debug("Error retrieving focused element: " + e);

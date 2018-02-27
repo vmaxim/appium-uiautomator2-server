@@ -9,7 +9,6 @@ import org.json.JSONObject;
 
 import java.util.Arrays;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
@@ -50,7 +49,7 @@ public class SendKeysToElement extends SafeRequestHandler {
                 //perform action on focused element
                 try {
                     BySelector bySelector = By.focused(true);
-                    element = App.core.getUiDeviceAdapter().findObject(bySelector);
+                    element = coreFacade.findElement(bySelector);
                     getCachedElements().add(element);
                 } catch (ElementNotFoundException e) {
                     Logger.debug("Error retrieving focused element: " + e);
@@ -91,7 +90,7 @@ public class SendKeysToElement extends SafeRequestHandler {
 
             String actionMsg = "";
             if (pressEnter) {
-                actionMsg = App.core.getUiDeviceAdapter().pressEnter() ?
+                actionMsg = coreFacade.pressEnter() ?
                         "Sent keys to the device" :
                         "Unable to send keys to the device";
             }

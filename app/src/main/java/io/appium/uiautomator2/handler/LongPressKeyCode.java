@@ -8,10 +8,8 @@ import android.view.KeyEvent;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.InteractionControllerAdapter;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -29,9 +27,6 @@ public class LongPressKeyCode extends SafeRequestHandler {
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         try {
-            InteractionControllerAdapter interactionControllerAdapter = App.core
-                    .getInteractionControllerAdapter();
-
             JSONObject payload = getPayload(request);
             Object kc = payload.get("keycode");
             if (kc instanceof Integer) {
@@ -53,13 +48,13 @@ public class LongPressKeyCode extends SafeRequestHandler {
             final long eventTime = SystemClock.uptimeMillis();
             // Send an initial down event
             final KeyEvent downEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_DOWN, keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0, InputDevice.SOURCE_KEYBOARD);
-            if (interactionControllerAdapter.injectEventSync(downEvent)) {
+            if (coreFacade.injectEventSync(downEvent)) {
                 // Send a repeat event. This will cause the FLAG_LONG_PRESS to be set.
                 final KeyEvent repeatEvent = KeyEvent.changeTimeRepeat(downEvent, eventTime, 1);
-                interactionControllerAdapter.injectEventSync(repeatEvent);
+                coreFacade.injectEventSync(repeatEvent);
                 // Finally, send the up event
                 final KeyEvent upEvent = new KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, keyCode, 0, metaState, KeyCharacterMap.VIRTUAL_KEYBOARD, 0, 0, InputDevice.SOURCE_KEYBOARD);
-                interactionControllerAdapter.injectEventSync(upEvent);
+                coreFacade.injectEventSync(upEvent);
             }
             return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, true);
         } catch (JSONException e) {

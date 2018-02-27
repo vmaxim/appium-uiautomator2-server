@@ -1,6 +1,7 @@
 package io.appium.uiautomator2.model.uiobject;
 
 import android.graphics.Rect;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.StaleObjectException;
@@ -137,7 +138,7 @@ public class UiObject2Adapter implements AndroidElement {
     }
 
     @Override
-    public void setText(final String text, boolean unicodeKeyboard) throws UiObjectNotFoundException {
+    public void setText(@NonNull final String text, boolean unicodeKeyboard) throws UiObjectNotFoundException {
         ElementHelpers.setText(this, text, unicodeKeyboard);
     }
 
@@ -153,7 +154,7 @@ public class UiObject2Adapter implements AndroidElement {
 
     @Nullable
     @Override
-    public AndroidElement getChild(final UiSelector selector) throws UiObjectNotFoundException,
+    public AndroidElement getChild(@NonNull final UiSelector selector) throws UiObjectNotFoundException,
             InvalidSelectorException, ClassNotFoundException, NoSuchDriverException {
         /*
           We can't find the child element with UiSelector on UiObject2,
@@ -162,7 +163,7 @@ public class UiObject2Adapter implements AndroidElement {
          */
         AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
         UiSelector uiSelector = model.getAccessibilityNodeInfo2UiSelector().generate(nodeInfo);
-        AndroidElement elementFromANI = core.getUiDeviceAdapter().findObject(uiSelector);
+        AndroidElement elementFromANI = core.getCoreFacade().findElement(uiSelector);
         /*
             If we can not found current element with ANI,
             then suppose that the current element is stale.
@@ -175,13 +176,13 @@ public class UiObject2Adapter implements AndroidElement {
     }
 
     @Override
-    public AndroidElement getChild(final BySelector selector) throws UiObjectNotFoundException,
+    public AndroidElement getChild(@NonNull final BySelector selector) throws UiObjectNotFoundException,
             InvalidSelectorException, ClassNotFoundException {
-        return model.getUiObjectElementFactory().create(element.findObject(selector));
+        return model.getUiObjectAdapterFactory().create(element.findObject(selector));
     }
 
     @Override
-    public List<AndroidElement> getChildren(final UiSelector selector) throws
+    public List<AndroidElement> getChildren(@NonNull final UiSelector selector) throws
             UiObjectNotFoundException, InvalidSelectorException, ClassNotFoundException, NoSuchDriverException {
         /*
           We can't find the child elements with UiSelector on UiObject2,
@@ -190,7 +191,7 @@ public class UiObject2Adapter implements AndroidElement {
          */
         AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
         UiSelector uiSelector = new AccessibilityNodeInfo2UiSelector().generate(nodeInfo);
-        AndroidElement elementFromANI = core.getUiDeviceAdapter().findObject(uiSelector);
+        AndroidElement elementFromANI = core.getCoreFacade().findElement(uiSelector);
         /*
             If we can not found current element with ANI,
             then suppose that the current element is stale.
@@ -208,7 +209,7 @@ public class UiObject2Adapter implements AndroidElement {
         List<UiObject2> uiObject2s = element.findObjects(selector);
         List<AndroidElement> result = new ArrayList<>(uiObject2s.size());
         for(UiObject2 uiObject2 : uiObject2s) {
-            AndroidElement androidElement = model.getUiObjectElementFactory().create(uiObject2) ;
+            AndroidElement androidElement = model.getUiObjectAdapterFactory().create(uiObject2) ;
             result.add(androidElement);
         }
         return result;

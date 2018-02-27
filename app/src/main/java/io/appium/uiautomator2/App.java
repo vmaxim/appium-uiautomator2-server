@@ -40,12 +40,15 @@ public class App {
         return session.getSession();
     }
 
-    public static Session startSession() {
+    public static synchronized Session startSession() {
         session = model.initSession();
         return session.getSession();
     }
 
-    public static void deleteSession() {
+    public static synchronized void deleteSession() {
+        if (session == null) {
+            throw new NoSuchDriverException();
+        }
         session = null;
     }
 }

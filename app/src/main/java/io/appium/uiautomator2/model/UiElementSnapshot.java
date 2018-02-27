@@ -25,13 +25,13 @@ import java.util.Map;
 import io.appium.uiautomator2.utils.Attribute;
 
 /**
- * UiElement that implements the common operations.
+ * UiElementSnapshot that implements the common operations.
  *
  * @param <R> the type of the raw element this class wraps, for example, View or
  *        AccessibilityNodeInfo
- * @param <E> the type of the concrete subclass of UiElement
+ * @param <E> the type of the concrete subclass of UiElementSnapshot
  */
-public abstract class UiElement<R, E extends UiElement<R, E>> {
+public abstract class UiElementSnapshot<R, E extends UiElementSnapshot<R, E>> {
   // These two attribute names are used for debugging only.
   // The two constants are used internally and must match to-uiautomator.xsl.
   public static final String ATTRIB_VISIBLE_BOUNDS = "VisibleBounds";

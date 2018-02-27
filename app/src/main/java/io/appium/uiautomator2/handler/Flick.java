@@ -5,7 +5,6 @@ import android.support.test.uiautomator.UiObjectNotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
@@ -61,8 +60,7 @@ public class Flick extends SafeRequestHandler {
             steps = Math.abs(steps);
             Logger.debug("Flicking from " + start.toString() + " to " + end.toString()
                     + " with steps: " + steps.intValue());
-            final boolean res = App.core.getUiDeviceAdapter().swipe(start.x.intValue(), start.y
-                            .intValue(),
+            final boolean res = coreFacade.swipe(start.x.intValue(), start.y.intValue(),
                     end.x.intValue(), end.y.intValue(), steps.intValue());
 
             if (res) {
@@ -90,8 +88,7 @@ public class Flick extends SafeRequestHandler {
         double xOff;
         double yOff;
 
-        final double value = Math.min(App.core.getUiDeviceAdapter().getDisplayHeight(), App.core
-                .getUiDeviceAdapter().getDisplayWidth());
+        final double value = Math.min(coreFacade.getDisplayHeight(), coreFacade.getDisplayWidth());
 
         if (speedRatio < 1) {
             yOff = value / 4;

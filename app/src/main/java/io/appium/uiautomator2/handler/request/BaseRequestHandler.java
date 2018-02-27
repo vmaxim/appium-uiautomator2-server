@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
+import io.appium.uiautomator2.core.CoreFacade;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.server.AppiumServlet;
@@ -17,8 +19,9 @@ import io.appium.uiautomator2.utils.Logger;
 public abstract class BaseRequestHandler {
 
     private final String mappedUri;
-
+    protected final CoreFacade coreFacade;
     public BaseRequestHandler(String mappedUri) {
+        this.coreFacade = App.core.getCoreFacade();
         this.mappedUri = mappedUri;
     }
 

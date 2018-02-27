@@ -3,7 +3,6 @@ package io.appium.uiautomator2.handler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -25,7 +24,7 @@ public class WaitForIdle extends SafeRequestHandler {
             if (payload.has("timeout")) {
                 timeout = Integer.parseInt(payload.getString("timeout"));
             }
-            App.core.getUiDeviceAdapter().waitForIdle(timeout);
+            coreFacade.waitForIdle(timeout);
         } catch (JSONException e) {
             Logger.error("Unable to get timeout value from the json payload", e);
             return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, e);

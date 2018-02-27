@@ -32,7 +32,7 @@ public class Source extends SafeRequestHandler {
     @Override
     public AppiumResponse safeHandle(IHttpRequest request) {
         try {
-            App.core.getAccessibilityInteractionClientAdapter().clearAccessibilityCache();
+            coreFacade.clearAccessibilityCache();
 
             final Document doc = (Document) new XMLHierarchy(App.core
                     .getAccessibilityNodeInfoDumper()).getFormattedXMLDoc();

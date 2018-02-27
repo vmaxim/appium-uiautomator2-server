@@ -31,8 +31,6 @@ import io.appium.uiautomator2.utils.ElementHelpers;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.UiAutomatorParser;
 
-import static io.appium.uiautomator2.App.core;
-
 public class FindElements extends SafeRequestHandler {
 
     public FindElements(String mappedUri) {
@@ -50,7 +48,7 @@ public class FindElements extends SafeRequestHandler {
             final String contextId = payload.getString("context");
             Logger.info("find element command using '%s' with selector '%s'.", method, selector);
             By by = new By(method, selector);
-            core.getUiDeviceAdapter().waitForIdle();
+            coreFacade.waitForIdle();
             List<AndroidElement> elements;
             if(contextId.length() > 0) {
                 elements = this.findElements(by, contextId);
@@ -110,7 +108,7 @@ public class FindElements extends SafeRequestHandler {
                 //TODO: need to handle the context parameter in a smart way
                 return getXPathUiObjects(locator, null /* AndroidElement */);
             default:
-                return core.getUiDeviceAdapter().findObjects(by.toBySelector());
+                return coreFacade.findElements(by.toBySelector());
         }
     }
 
@@ -146,7 +144,7 @@ public class FindElements extends SafeRequestHandler {
             try {
                 Logger.debug("Using: " + sel.toString());
                 if (contextId.isEmpty()) {
-                    foundElements.addAll(core.getUiDeviceAdapter().findObjects(sel));
+                    foundElements.addAll(coreFacade.findElements(sel));
                 } else {
                     AndroidElement element = getCachedElements().getElementFromCache(contextId);
                     final List<AndroidElement> elementsFromSelector = element.getChildren(sel);
@@ -163,7 +161,7 @@ public class FindElements extends SafeRequestHandler {
     /**
      * returns  UiObject2 for an xpath expression
      **/
-    private static List<AndroidElement> getXPathUiObjects(final String expression, AndroidElement
+    private List<AndroidElement> getXPathUiObjects(final String expression, AndroidElement
             element) throws ParserConfigurationException,
             InvalidSelectorException, ClassNotFoundException, UiAutomator2Exception {
         AccessibilityNodeInfo nodeInfo = null;
@@ -174,6 +172,6 @@ public class FindElements extends SafeRequestHandler {
         if (nodeList.isEmpty()) {
             throw new ElementNotFoundException();
         }
-        return core.getUiDeviceAdapter().findObjects(nodeList);
+        return coreFacade.findElements(nodeList);
     }
 }

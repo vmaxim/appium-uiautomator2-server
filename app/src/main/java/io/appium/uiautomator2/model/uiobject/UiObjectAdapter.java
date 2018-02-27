@@ -16,7 +16,6 @@ import java.util.regex.Pattern;
 
 import javax.inject.Inject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.model.AndroidElement;
@@ -26,6 +25,7 @@ import io.appium.uiautomator2.utils.Point;
 import io.appium.uiautomator2.utils.PositionHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
+import static io.appium.uiautomator2.App.core;
 import static io.appium.uiautomator2.App.model;
 
 public class UiObjectAdapter implements AndroidElement {
@@ -139,7 +139,7 @@ public class UiObjectAdapter implements AndroidElement {
           and finding the child element on UiObject2.
          */
         AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
-        AndroidElement elementFromANI = App.core.getUiDeviceAdapter().findObject(nodeInfo);
+        AndroidElement elementFromANI = core.getCoreFacade().findElement(nodeInfo);
         /*
             If we can not found current element with ANI,
             then suppose that the current element is stale.
@@ -153,8 +153,8 @@ public class UiObjectAdapter implements AndroidElement {
     }
 
     @Override
-    public AndroidElement getChild(final UiSelector selector) throws UiObjectNotFoundException {
-        return model.getUiObjectElementFactory().create(element.getChild(selector));
+    public AndroidElement getChild(@NonNull final UiSelector selector) throws UiObjectNotFoundException {
+        return model.getUiObjectAdapterFactory().create(element.getChild(selector));
     }
 
     @Override
@@ -166,7 +166,7 @@ public class UiObjectAdapter implements AndroidElement {
             and finding the child elements on UiObject2.
          */
         AccessibilityNodeInfo nodeInfo = getAccessibilityNodeInfo();
-        AndroidElement elementFromANI = App.core.getUiDeviceAdapter().findObject(nodeInfo);
+        AndroidElement elementFromANI = core.getCoreFacade().findElement(nodeInfo);
         /*
             If we can not found current element with ANI,
             then suppose that the current element is stale.
@@ -195,7 +195,7 @@ public class UiObjectAdapter implements AndroidElement {
             The selector now points to an entirely different element.
          */
         if (endsWithInstance) {
-            return App.core.getUiDeviceAdapter().findObjects(selector);
+            return core.getCoreFacade().findElements(selector);
         }
 
         UiObjectAdapter lastFoundObj;

@@ -29,8 +29,8 @@ public class GesturesAdapter {
     @NonNull
     private final ReflectionUtils reflectionUtils;
 
-    public GesturesAdapter(@NonNull final UiDevice uiDevice, @NonNull final ReflectionUtils
-            reflectionUtils) {
+    public GesturesAdapter(@NonNull final UiDevice uiDevice,
+                           @NonNull final ReflectionUtils reflectionUtils) {
         this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetClass(CLASS_GESTURES);
         Object instance = reflectionUtils.invoke(reflectionUtils.method(METHOD_GET_INSTANCE,

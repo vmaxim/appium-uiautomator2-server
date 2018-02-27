@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
@@ -27,7 +26,7 @@ public class MultiPointerGesture extends SafeRequestHandler {
         try {
             pcs = parsePointerCoords(request);
 
-            Boolean rt = App.core.getInteractionControllerAdapter().performMultiPointerGesture(pcs);
+            Boolean rt = coreFacade.performMultiPointerGesture(pcs);
             if (!rt) {
                 return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, "Unable to perform multi pointer gesture");
             }

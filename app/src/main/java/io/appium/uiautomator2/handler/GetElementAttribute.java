@@ -12,16 +12,15 @@ import org.json.JSONObject;
 
 import java.text.MessageFormat;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
+import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -42,7 +41,7 @@ public class GetElementAttribute extends SafeRequestHandler {
             firstChild = uiScrollable.getChild(new UiSelector().index(0));
         } else {
             UiObject2 uiObject2 = uiScrollable.getUiObject();
-            firstChild = model.getUiObjectElementFactory().create(uiObject2);
+            firstChild = model.getUiObjectAdapterFactory().create(uiObject2);
         }
 
         try {
@@ -59,9 +58,9 @@ public class GetElementAttribute extends SafeRequestHandler {
         return offset;
     }
 
-    private static int getTouchPadding(AndroidElement element) throws UiObjectNotFoundException,
+    private int getTouchPadding(AndroidElement element) throws UiObjectNotFoundException,
             ReflectiveOperationException {
-        int touchPadding = App.core.getGesturesAdapter().getViewConfig().getScaledTouchSlop();
+        int touchPadding = coreFacade.getScaledTouchSlop();
         return touchPadding / 2;
     }
 

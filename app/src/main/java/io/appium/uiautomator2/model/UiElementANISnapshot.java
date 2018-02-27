@@ -37,26 +37,26 @@ import io.appium.uiautomator2.utils.Preconditions;
 
 
 /**
- * A UiElement that gets attributes via the Accessibility API.
+ * A UiElementSnapshot that gets attributes via the Accessibility API.
  */
 @TargetApi(18)
-public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAutomationElement> {
+public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInfo, UiElementANISnapshot> {
 
   private final Map<Attribute, Object> attributes;
   private final boolean visible;
   private final Rect visibleBounds;
-  private final UiAutomationElement parent;
-  private final List<UiAutomationElement> children;
-  public final static Map<AccessibilityNodeInfo, UiAutomationElement>  map = new WeakHashMap<AccessibilityNodeInfo, UiAutomationElement>();
+  private final UiElementANISnapshot parent;
+  private final List<UiElementANISnapshot> children;
+  public final static Map<AccessibilityNodeInfo, UiElementANISnapshot>  map = new WeakHashMap<AccessibilityNodeInfo, UiElementANISnapshot>();
 
   /**
    * A snapshot of all attributes is taken at construction. The attributes of a
-   * {@code UiAutomationElement} instance are immutable. If the underlying
-   * {@link AccessibilityNodeInfo} is updated, a new {@code UiAutomationElement}
+   * {@code UiElementANISnapshot} instance are immutable. If the underlying
+   * {@link AccessibilityNodeInfo} is updated, a new {@code UiElementANISnapshot}
    * instance will be created in
    */
-  protected UiAutomationElement( AccessibilityNodeInfo node,
-                                UiAutomationElement parent, int index) throws NoSuchDriverException {
+  protected UiElementANISnapshot(AccessibilityNodeInfo node,
+                                 UiElementANISnapshot parent, int index) throws NoSuchDriverException {
     this.node = Preconditions.checkNotNull(node);
     this.parent = parent;
 
@@ -89,12 +89,12 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     // Order matters as getVisibleBounds depends on visible
     visible = node.isVisibleToUser();
     visibleBounds = getVisibleBounds(node);
-    List<UiAutomationElement> mutableChildren = buildChildren(node);
+    List<UiElementANISnapshot> mutableChildren = buildChildren(node);
     this.children = mutableChildren == null ? null : Collections.unmodifiableList(mutableChildren);
   }
 
-  protected UiAutomationElement(String hierarchyClassName,
-                                AccessibilityNodeInfo childNode, int index) throws NoSuchDriverException {
+  protected UiElementANISnapshot(String hierarchyClassName,
+                                 AccessibilityNodeInfo childNode, int index) throws NoSuchDriverException {
     this.parent = null;
     Map<Attribute, Object> attribs = new EnumMap<Attribute, Object>(Attribute.class);
 
@@ -114,8 +114,8 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     this.attributes = Collections.unmodifiableMap(attribs);
     this.visible= true;
     this.visibleBounds = null;
-    List<UiAutomationElement> mutableChildren =new ArrayList<UiAutomationElement>();
-    mutableChildren.add(new UiAutomationElement(childNode, this /* parent UiAutomationElement*/, 0/* index */));
+    List<UiElementANISnapshot> mutableChildren =new ArrayList<UiElementANISnapshot>();
+    mutableChildren.add(new UiElementANISnapshot(childNode, this /* parent UiElementANISnapshot*/, 0/* index */));
     this.children = mutableChildren;
   }
 
@@ -131,16 +131,16 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     node.setClassName(Toast.class.getName());
     node.setPackageName("com.android.settings");
 
-    this.children.add(new UiAutomationElement(node /* AccessibilityNodeInfo */, this /* parent UiAutomationElement*/, 0 /*index*/));
+    this.children.add(new UiElementANISnapshot(node /* AccessibilityNodeInfo */, this /* parent UiElementANISnapshot*/, 0 /*index*/));
   }
 
-  private List<UiAutomationElement> buildChildren(AccessibilityNodeInfo node) throws NoSuchDriverException {
-    List<UiAutomationElement> children;
+  private List<UiElementANISnapshot> buildChildren(AccessibilityNodeInfo node) throws NoSuchDriverException {
+    List<UiElementANISnapshot> children;
     int childCount = node.getChildCount();
     if (childCount == 0) {
       children = null;
     } else {
-      children = new ArrayList<UiAutomationElement>(childCount);
+      children = new ArrayList<UiElementANISnapshot>(childCount);
       Object allowInvisibleElements = App.getSession().getCapabilities().get(AllowInvisibleElements.SETTING_NAME);
       boolean isAllowInvisibleElements = allowInvisibleElements != null && (boolean) allowInvisibleElements;
 
@@ -155,12 +155,12 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     return children;
   }
 
-  public static UiAutomationElement newRootElement(AccessibilityNodeInfo rawElement, List<CharSequence> toastMSGs) throws NoSuchDriverException {
+  public static UiElementANISnapshot newRootElement(AccessibilityNodeInfo rawElement, List<CharSequence> toastMSGs) throws NoSuchDriverException {
     clearData();
     /**
      * Injecting root element as hierarchy and adding rawElement as a child.
      */
-    UiAutomationElement rootElement = new UiAutomationElement("hierarchy" /*root element*/, rawElement /* child nodInfo */, 0 /* index */);
+    UiElementANISnapshot rootElement = new UiElementANISnapshot("hierarchy" /*root element*/, rawElement /* child nodInfo */, 0 /* index */);
     if( toastMSGs!= null) {
       for(CharSequence toastMSG : toastMSGs) {
         Logger.debug("Adding toastMSG to root:" + toastMSG);
@@ -175,10 +175,10 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     XPathFinder.clearData();
   }
 
-  public static UiAutomationElement getElement(AccessibilityNodeInfo rawElement, UiAutomationElement parent, int index) throws NoSuchDriverException {
-    UiAutomationElement element = map.get(rawElement);
+  public static UiElementANISnapshot getElement(AccessibilityNodeInfo rawElement, UiElementANISnapshot parent, int index) throws NoSuchDriverException {
+    UiElementANISnapshot element = map.get(rawElement);
     if (element == null) {
-      element = new UiAutomationElement(rawElement, parent, index);
+      element = new UiElementANISnapshot(rawElement, parent, index);
       map.put(rawElement, element);
     }
     return element;
@@ -195,7 +195,7 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
       return new Rect();
     }
     Rect visibleBounds = getBounds(this.node);
-    UiAutomationElement parent = getParent();
+    UiElementANISnapshot parent = getParent();
     Rect parentBounds;
     while (parent != null && parent.node != null) {
       parentBounds = parent.getBounds(this.parent.node);
@@ -205,12 +205,12 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
     return visibleBounds;
   }
 
-  public UiAutomationElement getParent() {
+  public UiElementANISnapshot getParent() {
     return parent;
   }
 
   @Override
-  protected List<UiAutomationElement> getChildren() {
+  protected List<UiElementANISnapshot> getChildren() {
     if (children == null) {
       return Collections.emptyList();
     }

@@ -21,16 +21,16 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import java.util.List;
 
 /**
- * Interface for finding UiElement.
+ * Interface for finding UiElementSnapshot.
  */
 public interface Finder {
     /**
      *
-     * @param context The starting UiAutomationElement, used as search context
+     * @param context The starting UiElementANISnapshot, used as search context
      *
      * @return The matching elements on the current context
      */
-    List<AccessibilityNodeInfo> find(UiElement context);
+    List<AccessibilityNodeInfo> find(UiElementSnapshot context);
 
     /**
      * {@inheritDoc}

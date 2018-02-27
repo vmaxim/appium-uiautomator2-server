@@ -18,12 +18,8 @@ package io.appium.uiautomator2.core.di;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import io.appium.uiautomator2.core.AccessibilityInteractionClientAdapter;
 import io.appium.uiautomator2.core.AccessibilityNodeInfoDumper;
-import io.appium.uiautomator2.core.EventRegister;
-import io.appium.uiautomator2.core.GesturesAdapter;
-import io.appium.uiautomator2.core.InteractionControllerAdapter;
-import io.appium.uiautomator2.core.QueryControllerAdapter;
+import io.appium.uiautomator2.core.CoreFacade;
 import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
 import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
@@ -35,22 +31,12 @@ public interface CoreComponent {
 
     UiAutomatorBridgeAdapter getUiAutomatorBridge();
 
-    InteractionControllerAdapter getInteractionControllerAdapter();
-
-    QueryControllerAdapter getQueryControllerAdapter();
-
-    EventRegister getEventRegister();
-
     AccessibilityNodeInfoDumper getAccessibilityNodeInfoDumper();
-
-    UiDeviceAdapter getUiDeviceAdapter();
-
-    AccessibilityInteractionClientAdapter getAccessibilityInteractionClientAdapter();
 
     AccessibilityNodeInfoHelper getAccessibilityNodeInfoHelper();
 
-    GesturesAdapter getGesturesAdapter();
-
     ReflectionUtils getReflectionUtils();
+
+    CoreFacade getCoreFacade();
 
 }

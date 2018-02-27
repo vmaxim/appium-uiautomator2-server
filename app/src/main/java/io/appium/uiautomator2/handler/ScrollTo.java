@@ -9,7 +9,6 @@ import org.json.JSONException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -28,14 +27,14 @@ public class ScrollTo extends SafeRequestHandler {
             String json = getPayload(request).toString();
             String selector = "$.params.selector", uiSelectorString, scrollToString = "";
             uiSelectorString = JsonPath.compile(selector).read(json);
-            App.core.getUiDeviceAdapter().waitForIdle();
+            coreFacade.waitForIdle();
             // Extracting (\"Radio Group\") text from the String
             // TODO This logic needs to be changed according to the request body from the Driver
             Matcher m = Pattern.compile("\\(\"([^)]+)\"\\)").matcher(uiSelectorString);
             while (m.find()) {
                 scrollToString = m.group(1);
             }
-            App.core.getUiDeviceAdapter().scrollTo(scrollToString);
+            coreFacade.scrollTo(scrollToString);
             Logger.info("Scrolled to String : %s", scrollToString);
         } catch (JSONException e) {
             Logger.error("Exception while reading JSON: ", e);

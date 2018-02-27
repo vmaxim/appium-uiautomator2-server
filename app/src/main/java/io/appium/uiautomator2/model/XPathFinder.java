@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,19 +48,20 @@ import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Preconditions;
 
 /**
- * Find matching UiElement by XPath.
+ * Find matching UiElementSnapshot by XPath.
  */
 public class XPathFinder implements Finder {
   private static final XPath XPATH_COMPILER = XPathFactory.newInstance().newXPath();
   // The two maps should be kept in sync
-  private static final Map<UiElement<?, ?>, Element> TO_DOM_MAP =
-      new HashMap<UiElement<?, ?>, Element>();
-  private static final Map<Element, UiElement<?, ?>> FROM_DOM_MAP =
-      new HashMap<Element, UiElement<?, ?>>();
+  private static final Map<UiElementSnapshot<?, ?>, Element> TO_DOM_MAP =
+      new HashMap<UiElementSnapshot<?, ?>, Element>();
+  private static final Map<Element, UiElementSnapshot<?, ?>> FROM_DOM_MAP =
+      new HashMap<Element, UiElementSnapshot<?, ?>>();
     // document needs to be static so that when buildDomNode is called recursively
     // on children they are in the same document to be appended.
     private static Document document;
-    private static UiAutomationElement rootElement;
+    private static UiElementANISnapshot rootElement;
+  public final static Map<AccessibilityNodeInfo, UiElementANISnapshot>  map = new WeakHashMap<AccessibilityNodeInfo, UiElementANISnapshot>();
   private final String xPathString;
   private final XPathExpression xPathExpression;
   public XPathFinder(String xPathString) {
@@ -81,15 +83,15 @@ public class XPathFinder implements Finder {
                                                          AccessibilityNodeInfo nodeInfo) throws
             InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception, NoSuchDriverException {
     if(nodeInfo == null) {
-      XPathFinder.refreshUiElementTree();
+      refreshUiElementTree();
     } else {
-      XPathFinder.refreshUiElementTree(nodeInfo);
+      refreshUiElementTree(nodeInfo);
     }
     XPathFinder finder = new XPathFinder(xpathExpression);
     return finder.find(finder.getRootElement());
   }
 
-  private static Document getDocument() {
+  private Document getDocument() {
     if (document == null) {
       try {
         document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -101,17 +103,17 @@ public class XPathFinder implements Finder {
   }
 
   /**
-   * Returns the DOM node representing this UiElement.
+   * Returns the DOM node representing this UiElementSnapshot.
    */
-  private static Element getDomNode(UiElement<?, ?> uiElement) {
-    Element domNode = TO_DOM_MAP.get(uiElement);
+  private Element getDomNode(UiElementSnapshot<?, ?> uiElementSnapshot) {
+    Element domNode = TO_DOM_MAP.get(uiElementSnapshot);
     if (domNode == null) {
-      domNode = buildDomNode(uiElement);
+      domNode = buildDomNode(uiElementSnapshot);
     }
     return domNode;
   }
 
-  private static void setNodeLocalName(Element element, String className) {
+  private void setNodeLocalName(Element element, String className) {
     try {
       Field localName = element.getClass().getDeclaredField("localName");
       localName.setAccessible(true);
@@ -123,14 +125,14 @@ public class XPathFinder implements Finder {
     }
   }
 
-  private static Element buildDomNode(UiElement<?, ?> uiElement) {
-    String className = uiElement.getClassName();
+  private Element buildDomNode(UiElementSnapshot<?, ?> uiElementSnapshot) {
+    String className = uiElementSnapshot.getClassName();
     if (className == null) {
       className = "UNKNOWN";
     }
     Element element = getDocument().createElement(simpleClassName(className));
-    TO_DOM_MAP.put(uiElement, element);
-    FROM_DOM_MAP.put(element, uiElement);
+    TO_DOM_MAP.put(uiElementSnapshot, element);
+    FROM_DOM_MAP.put(element, uiElementSnapshot);
 
     /**
      * Setting the Element's className field.
@@ -141,63 +143,63 @@ public class XPathFinder implements Finder {
      */
     setNodeLocalName(element, className);
 
-    setAttribute(element, Attribute.INDEX, String.valueOf(uiElement.getIndex()));
+    setAttribute(element, Attribute.INDEX, String.valueOf(uiElementSnapshot.getIndex()));
     setAttribute(element, Attribute.CLASS, className);
-    setAttribute(element, Attribute.RESOURCE_ID, uiElement.getResourceId());
-    setAttribute(element, Attribute.PACKAGE, uiElement.getPackageName());
-    setAttribute(element, Attribute.CONTENT_DESC, uiElement.getContentDescription());
-    setAttribute(element, Attribute.TEXT, uiElement.getText());
-    setAttribute(element, Attribute.CHECKABLE, uiElement.isCheckable());
-    setAttribute(element, Attribute.CHECKED, uiElement.isChecked());
-    setAttribute(element, Attribute.CLICKABLE, uiElement.isClickable());
-    setAttribute(element, Attribute.ENABLED, uiElement.isEnabled());
-    setAttribute(element, Attribute.FOCUSABLE, uiElement.isFocusable());
-    setAttribute(element, Attribute.FOCUSED, uiElement.isFocused());
-    setAttribute(element, Attribute.SCROLLABLE, uiElement.isScrollable());
-    setAttribute(element, Attribute.LONG_CLICKABLE, uiElement.isLongClickable());
-    setAttribute(element, Attribute.PASSWORD, uiElement.isPassword());
-    if (uiElement.hasSelection()) {
+    setAttribute(element, Attribute.RESOURCE_ID, uiElementSnapshot.getResourceId());
+    setAttribute(element, Attribute.PACKAGE, uiElementSnapshot.getPackageName());
+    setAttribute(element, Attribute.CONTENT_DESC, uiElementSnapshot.getContentDescription());
+    setAttribute(element, Attribute.TEXT, uiElementSnapshot.getText());
+    setAttribute(element, Attribute.CHECKABLE, uiElementSnapshot.isCheckable());
+    setAttribute(element, Attribute.CHECKED, uiElementSnapshot.isChecked());
+    setAttribute(element, Attribute.CLICKABLE, uiElementSnapshot.isClickable());
+    setAttribute(element, Attribute.ENABLED, uiElementSnapshot.isEnabled());
+    setAttribute(element, Attribute.FOCUSABLE, uiElementSnapshot.isFocusable());
+    setAttribute(element, Attribute.FOCUSED, uiElementSnapshot.isFocused());
+    setAttribute(element, Attribute.SCROLLABLE, uiElementSnapshot.isScrollable());
+    setAttribute(element, Attribute.LONG_CLICKABLE, uiElementSnapshot.isLongClickable());
+    setAttribute(element, Attribute.PASSWORD, uiElementSnapshot.isPassword());
+    if (uiElementSnapshot.hasSelection()) {
       element.setAttribute(Attribute.SELECTION_START.getName(),
-          Integer.toString(uiElement.getSelectionStart()));
+          Integer.toString(uiElementSnapshot.getSelectionStart()));
       element.setAttribute(Attribute.SELECTION_END.getName(),
-          Integer.toString(uiElement.getSelectionEnd()));
+          Integer.toString(uiElementSnapshot.getSelectionEnd()));
     }
-    setAttribute(element, Attribute.SELECTED, uiElement.isSelected());
-    element.setAttribute(Attribute.BOUNDS.getName(), uiElement.getBounds()==null ? null : uiElement.getBounds().toShortString());
+    setAttribute(element, Attribute.SELECTED, uiElementSnapshot.isSelected());
+    element.setAttribute(Attribute.BOUNDS.getName(), uiElementSnapshot.getBounds()==null ? null : uiElementSnapshot.getBounds().toShortString());
 
-    for (UiElement<?, ?> child : uiElement.getChildren()) {
+    for (UiElementSnapshot<?, ?> child : uiElementSnapshot.getChildren()) {
       element.appendChild(getDomNode(child));
     }
     return element;
   }
 
-  private static void setAttribute(Element element, Attribute attr, String value) {
+  private void setAttribute(Element element, Attribute attr, String value) {
     if (value != null) {
       element.setAttribute(attr.getName(), value);
     }
   }
 
-  private static void setAttribute(Element element, Attribute attr, boolean value) {
+  private void setAttribute(Element element, Attribute attr, boolean value) {
       element.setAttribute(attr.getName(), String.valueOf(value));
   }
 
   public static void refreshUiElementTree() throws NoSuchDriverException {
-    rootElement = UiAutomationElement.newRootElement(getRootAccessibilityNode(), NotificationListener.getToastMSGs());
+    rootElement = UiElementANISnapshot.newRootElement(getRootAccessibilityNode(), NotificationListener.getToastMSGs());
   }
 
   public static void refreshUiElementTree(AccessibilityNodeInfo nodeInfo) throws NoSuchDriverException {
-    rootElement =UiAutomationElement.newRootElement(nodeInfo, null /*Toast Messages*/);
+    rootElement = UiElementANISnapshot.newRootElement(nodeInfo, null /*Toast Messages*/);
   }
 
   public static AccessibilityNodeInfo getRootAccessibilityNode() throws UiAutomator2Exception {
     final long timeoutMillis = 10000;
-    App.core.getUiDeviceAdapter().waitForIdle();
+    App.core.getCoreFacade().waitForIdle();
 
     long end = SystemClock.uptimeMillis() + timeoutMillis;
     while (end > SystemClock.uptimeMillis()) {
       AccessibilityNodeInfo root = null;
       try {
-          root = App.core.getQueryControllerAdapter().getRootNode();
+          root = App.core.getCoreFacade().getRootNode();
       } catch (IllegalStateException ignore) {
           /*
             Sometimes getRootNode() throws
@@ -216,10 +218,10 @@ public class XPathFinder implements Finder {
   }
 
   /**
-   * @return The tag name used to build UiElement DOM. It is preferable to use
+   * @return The tag name used to build UiElementSnapshot DOM. It is preferable to use
    *         this to build XPath instead of String literals.
    */
-  public static String tag(String className) {
+  public String tag(String className) {
     // the nth anonymous class has a class name ending in "Outer$n"
     // and local inner classes have names ending in "Outer.$1Inner"
     className = className.replaceAll("\\$[0-9]+", "\\$");
@@ -229,7 +231,7 @@ public class XPathFinder implements Finder {
   /**
    * returns by excluding inner class name.
    */
-  private static String simpleClassName(String name) {
+  private String simpleClassName(String name) {
     name = name.replaceAll("\\$[0-9]+", "\\$");
     // we want the index of the inner class
     int start = name.lastIndexOf('$');
@@ -248,8 +250,8 @@ public class XPathFinder implements Finder {
     }
 
     @Override
-    public AccessibilityNodeInfoList find(UiElement context) {
-        Element domNode = getDomNode((UiElement<?, ?>) context);
+    public AccessibilityNodeInfoList find(UiElementSnapshot context) {
+        Element domNode = getDomNode((UiElementSnapshot<?, ?>) context);
         try {
             getDocument().appendChild(domNode);
             NodeList nodes = (NodeList) xPathExpression.evaluate(domNode, XPathConstants.NODESET);
@@ -275,7 +277,7 @@ public class XPathFinder implements Finder {
         }
     }
 
-    public UiAutomationElement getRootElement() throws NoSuchDriverException {
+    public UiElementANISnapshot getRootElement() throws NoSuchDriverException {
         if (rootElement == null) {
             refreshUiElementTree();
         }

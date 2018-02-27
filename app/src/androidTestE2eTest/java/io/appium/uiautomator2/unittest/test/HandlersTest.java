@@ -1,5 +1,6 @@
 package io.appium.uiautomator2.unittest.test;
 
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -7,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.Configurator;
+import android.support.test.uiautomator.UiDevice;
 import android.util.Base64;
 
 import com.jayway.jsonpath.JsonPath;
@@ -98,10 +100,9 @@ public class HandlersTest {
      *
      * @throws InterruptedException
      */
-   // @BeforeClass
-    public void beforeStartServer() throws InterruptedException, IOException, JSONException, SessionRemovedException {
+    @BeforeClass
+    public static void beforeStartServer() throws InterruptedException, IOException, JSONException, SessionRemovedException {
         if (serverInstrumentation == null) {
-            assertNotNull(App.core.getUiDeviceAdapter().getUiDevice());
             ctx = InstrumentationRegistry.getInstrumentation().getContext();
             serverInstrumentation = ServerInstrumentation.getInstance(ctx, ServerConfig.getServerPort());
             Logger.info("[AppiumUiAutomator2Server]", " Starting Server ");
@@ -114,8 +115,8 @@ public class HandlersTest {
 
     }
 
-  //  @AfterClass
-    public void stopSever() throws InterruptedException {
+    @AfterClass
+    public static void stopSever() throws InterruptedException {
         deleteSession();
         if (serverInstrumentation != null) {
             serverInstrumentation.stopServer();
@@ -133,7 +134,7 @@ public class HandlersTest {
 
         TestHelper.waitForAppToLaunch(testAppPkg, 15 * SECOND);
         waitForElement(By.accessibilityId("Accessibility"), 10 * SECOND);
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         Logger.info("Configurator.getInstance().getWaitForSelectorTimeout:" + Configurator.getInstance().getWaitForSelectorTimeout());
         element = findElement(By.accessibilityId("Accessibility"));
         assertTrue(By.accessibilityId("Accessibility") + " not found", isElementPresent(element));
@@ -155,7 +156,7 @@ public class HandlersTest {
         Logger.info("[AppiumUiAutomator2Server]", " click element:" + element);
         assertTrue(By.accessibilityId("Accessibility") + "not found", isElementPresent(element));
         click(element);
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         waitForElementInvisible(By.accessibilityId("Accessibility"), 5 * SECOND);
         element = findElement(By.accessibilityId("Accessibility"));
         assertFalse(By.accessibilityId("Accessibility") + " found", isElementPresent(element));
@@ -169,7 +170,7 @@ public class HandlersTest {
      */
     @Test
     public void dragAndDropTest() throws JSONException, InterruptedException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         scrollTo("Views"); // Due to 'Views' option not visible on small screen
         waitForElement(By.accessibilityId("Views"), 10 * SECOND);
         click(findElement(By.accessibilityId("Views")));
@@ -276,12 +277,12 @@ public class HandlersTest {
         element = findElement(androidUiAutomator);
 
 
-        Logger.info("[AppiumUiAutomator2Server]", " findElement By.androidUiAutomator: " + element);
+        Logger.info("[AppiumUiAutomator2Server]" + " findElement By.androidUiAutomator: " + element);
         assertTrue(androidUiAutomator + "not found", isElementPresent(element));
 
         click(element);
         element = findElement(By.accessibilityId("Radio Group"));
-        Logger.info("[AppiumUiAutomator2Server]", " findElement By.accessibilityId: " + element);
+        Logger.info("[AppiumUiAutomator2Server]" + " findElement By.accessibilityId: " + element);
         assertFalse(By.accessibilityId("Radio Group") + "not found", isElementPresent(element));
     }
 
@@ -360,7 +361,7 @@ public class HandlersTest {
 
     @Test
     public void sendKeysTest() throws JSONException, InterruptedException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         scrollTo("Views"); // Due to 'Views' option not visible on small screen
 
         waitForElement(By.accessibilityId("Views"), 10 * SECOND);
@@ -385,7 +386,7 @@ public class HandlersTest {
      */
     @Test
     public void getNameTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         waitForElement(By.id("android:id/text1"), 5 * SECOND);
         String response = getName(findElement(By.id("android:id/text1")));
         assertEquals("Access'ibility", getStringValueInJsonObject(response, "value"));
@@ -398,7 +399,7 @@ public class HandlersTest {
      */
     @Test
     public void getElementSizeTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         waitForElement(By.id("android:id/text1"), 5 * SECOND);
         response = getSize(findElement(By.id("android:id/text1")));
         Integer height = JsonPath.compile("$.value.height").read(response);
@@ -414,7 +415,7 @@ public class HandlersTest {
      */
     @Test
     public void getDeviceSizeTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         response = getDeviceSize();
         Integer height = JsonPath.compile("$.value.height").read(response);
         Integer width = JsonPath.compile("$.value.width").read(response);
@@ -429,10 +430,10 @@ public class HandlersTest {
      */
     @Test
     public void flickOnElementTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         waitForElement(By.id("android:id/text1"), 5 * SECOND);
         response = flickOnElement(findElement(By.id("android:id/text1")));
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         waitForElement(By.accessibilityId("Custom View"), 10 * SECOND);
         assertTrue(JsonPath.compile("$.value").<Boolean>read(response));
     }
@@ -444,7 +445,7 @@ public class HandlersTest {
      */
     @Test
     public void flickTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         response = flickOnPosition();
         assertTrue(JsonPath.compile("$.value").<Boolean>read(response));
     }
@@ -534,7 +535,7 @@ public class HandlersTest {
      */
     @Test
     public void swipeTest() throws JSONException, InterruptedException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         scrollTo("Views"); // Due to 'Views' option not visible on small screen
         waitForElement(By.accessibilityId("Views"), 10 * SECOND);
         click(findElement(By.accessibilityId("Views")));
@@ -575,7 +576,7 @@ public class HandlersTest {
         Logger.info("[AppiumUiAutomator2Server]", "long click element:" + element);
         assertTrue(By.accessibilityId("Accessibility") + " not found", isElementPresent(element));
         longClick(element);
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         waitForElementInvisible(By.accessibilityId("Accessibility"), 5 * SECOND);
         element = findElement(By.accessibilityId("Accessibility"));
         assertFalse(By.accessibilityId("Accessibility") + " found", isElementPresent(element));
@@ -589,7 +590,7 @@ public class HandlersTest {
      */
     @Test
     public void scrollTest() throws JSONException, InterruptedException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         scrollTo("Views"); // Due to 'Views' option not visible on small screen
         waitForElement(By.accessibilityId("Views"), 10 * SECOND);
         click(findElement(By.accessibilityId("Views")));
@@ -620,7 +621,7 @@ public class HandlersTest {
      */
     @Test
     public void screenRotationTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
 
         rotateScreen("LANDSCAPE");
         assertEquals("LANDSCAPE", getScreenOrientation());
@@ -690,7 +691,7 @@ public class HandlersTest {
 
     @Test
     public void touchActionsTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
 
         scrollTo("Views"); // Due to 'Views' option not visible on small screen
         waitForElement(By.accessibilityId("Views"), 10 * SECOND);
@@ -766,7 +767,7 @@ public class HandlersTest {
         assertEquals("Accessibility", elementTxt);
 
         click(findElement(By.accessibilityId("Animation")));
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         waitForElement(By.accessibilityId("Events"), 5 * SECOND);
         click(findElement(By.accessibilityId("Events")));
         waitForElement(By.xpath("//*[@class='android.widget.LinearLayout'][3]"), 5 * SECOND);
@@ -786,7 +787,7 @@ public class HandlersTest {
         scrollTo("Views");
         click(findElement(By.accessibilityId("Views")));
         waitForElement(By.accessibilityId("Focus"), 10 * SECOND);
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
 
         element = findElement(By.accessibilityId("Focus"));
         Logger.info("[AppiumUiAutomator2Server]", " findElement By.accessibilityId: " + element);
@@ -840,7 +841,7 @@ public class HandlersTest {
 
     @Test
     public void toastVerificationTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         scrollTo("Views"); // Due to 'Views' option not visible on small screen
         waitForElement(By.accessibilityId("Views"), 10 * SECOND);
         click(findElement(By.accessibilityId("Views")));
@@ -891,7 +892,7 @@ public class HandlersTest {
 
     @Test
     public void screenshotTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         element = findElement(By.accessibilityId("Accessibility"));
         click(element);
         waitForElement(By.xpath("//*[@text='Accessibility Node Provider']"), 5 * SECOND);
@@ -901,14 +902,14 @@ public class HandlersTest {
         byte[] bytes = Base64.decode(value, Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         assertNotNull(bitmap);
-        Bitmap uiautoBitmap = App.core.getUiDeviceAdapter().getInstrumentation()
+        Bitmap uiautoBitmap = InstrumentationRegistry.getInstrumentation()
                 .getUiAutomation().takeScreenshot();
         assertTrue(bitmap.sameAs(uiautoBitmap));
     }
 
     @Test
     public void elementScreenshotTest() throws JSONException {
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
         element = findElement(By.accessibilityId("Accessibility"));
         click(element);
         waitForElement(By.xpath("//*[@text='Accessibility Node Provider']"), 5 * SECOND);

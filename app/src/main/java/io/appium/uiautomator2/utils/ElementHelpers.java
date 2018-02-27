@@ -17,6 +17,7 @@
 package io.appium.uiautomator2.utils;
 
 import android.os.Build;
+import android.support.annotation.Nullable;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiObjectNotFoundException;
@@ -35,6 +36,7 @@ import io.appium.uiautomator2.model.AndroidElement;
 
 public abstract class ElementHelpers {
 
+    @Nullable
     private static AccessibilityNodeInfo elementToNode(AndroidElement element) {
         AccessibilityNodeInfo result = null;
         try {

@@ -33,8 +33,7 @@ import static android.graphics.Bitmap.CompressFormat.PNG;
 
 public class ScreenshotHelper {
 
-    private static final UiAutomation uia = App.core.getUiDeviceAdapter().getInstrumentation()
-            .getUiAutomation();
+    private static final UiAutomation uia = App.core.getUiAutomatorBridge().getUiAutomation();
 
     /**
      * Grab device screenshot and crop it to specifyed area if cropArea is not null.

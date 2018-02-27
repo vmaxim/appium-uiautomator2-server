@@ -5,7 +5,6 @@ import android.support.test.uiautomator.UiObjectNotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.core.ReturningRunnable;
@@ -48,10 +47,10 @@ public class Swipe extends SafeRequestHandler {
                         + absEndPos.toString() + " with steps: " + swipeArgs.steps.toString());
             }
 
-            isSwipePerformed = App.core.getEventRegister().runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
+            isSwipePerformed = coreFacade.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
                 @Override
                 public void run() {
-                    setResult(App.core.getUiDeviceAdapter().swipe(absStartPos.x.intValue(),
+                    setResult(coreFacade.swipe(absStartPos.x.intValue(),
                             absStartPos.y.intValue(), absEndPos.x.intValue(),
                             absEndPos.y.intValue(), swipeArgs.steps));
 

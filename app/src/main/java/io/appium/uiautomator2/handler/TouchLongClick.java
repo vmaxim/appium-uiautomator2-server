@@ -5,9 +5,7 @@ import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import org.json.JSONException;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.InteractionControllerAdapter;
 import io.appium.uiautomator2.utils.Logger;
 
 public class TouchLongClick extends TouchEvent {
@@ -16,19 +14,11 @@ public class TouchLongClick extends TouchEvent {
         super(mappedUri);
     }
 
-    protected static boolean correctLongClick(final int x, final int y, final int duration) {
+    protected boolean correctLongClick(final int x, final int y, final int duration) {
         try {
-            /*
-             * bridge.getClass() returns ShellUiAutomatorBridge on API 18/19 so use
-             * the super class.
-             */
-
-            InteractionControllerAdapter interactionControllerAdapter = App.core
-                    .getInteractionControllerAdapter();
-
-            if (interactionControllerAdapter.touchDown(x, y)) {
+            if (coreFacade.touchDown(x, y)) {
                 SystemClock.sleep(duration);
-                if (interactionControllerAdapter.touchUp(x, y)) {
+                if (coreFacade.touchUp(x, y)) {
                     return true;
                 }
             }

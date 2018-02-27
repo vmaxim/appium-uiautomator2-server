@@ -26,9 +26,9 @@ import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
 @Component(modules = {ModelModule.class})
 public interface ModelComponent {
 
-    UiObjectAdapterFactory getUiObjectElementFactory();
-
     SessionComponent initSession();
+
+    UiObjectAdapterFactory getUiObjectAdapterFactory();
 
     AccessibilityNodeInfo2UiSelector getAccessibilityNodeInfo2UiSelector();
 

@@ -5,7 +5,6 @@ import android.support.test.uiautomator.UiObjectNotFoundException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
@@ -57,7 +56,7 @@ public class Drag extends SafeRequestHandler {
 
         Logger.debug("Dragging from " + absStartPos.toString() + " to "
                 + absEndPos.toString() + " with steps: " + dragArgs.steps.toString());
-        final boolean res = App.core.getUiDeviceAdapter().drag(absStartPos.x.intValue(),
+        final boolean res = coreFacade.drag(absStartPos.x.intValue(),
                 absStartPos.y.intValue(), absEndPos.x.intValue(),
                 absEndPos.y.intValue(), dragArgs.steps);
         if (!res) {

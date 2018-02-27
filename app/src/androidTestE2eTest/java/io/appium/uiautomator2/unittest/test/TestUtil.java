@@ -10,7 +10,6 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.model.By;
-import io.appium.uiautomator2.model.ByStrategy;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -368,7 +367,7 @@ public class TestUtil {
         ctx.startActivity(intent);
         Logger.info("[AppiumUiAutomator2Server]", " waiting for activity to launch ");
         TestHelper.waitForAppToLaunch(packg, 15 * SECOND);
-        App.core.getUiDeviceAdapter().waitForIdle();
+        App.core.getCoreFacade().waitForIdle();
     }
 
     /**

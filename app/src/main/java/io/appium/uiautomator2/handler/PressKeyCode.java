@@ -3,7 +3,6 @@ package io.appium.uiautomator2.handler;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -33,9 +32,9 @@ public class PressKeyCode extends SafeRequestHandler {
             }
             if (payload.has("metastate") && payload.get("metastate") != JSONObject.NULL) {
                 metaState = (Integer) payload.get("metastate");
-                App.core.getUiDeviceAdapter().pressKeyCode(keyCode, metaState);
+                coreFacade.pressKeyCode(keyCode, metaState);
             } else {
-                App.core.getUiDeviceAdapter().pressKeyCode(keyCode);
+                coreFacade.pressKeyCode(keyCode);
             }
             return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, true);
         } catch (JSONException e) {

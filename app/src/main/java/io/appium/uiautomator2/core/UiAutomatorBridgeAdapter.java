@@ -36,7 +36,6 @@ public class UiAutomatorBridgeAdapter {
     private final Object queryController;
     private final Object interactionController;
     private final UiAutomation uiAutomation;
-    @NonNull
     private final ReflectionUtils reflectionUtils;
     private final Display defaultDisplay;
 
@@ -58,10 +57,6 @@ public class UiAutomatorBridgeAdapter {
         return queryController;
     }
 
-    public UiAutomation getUiAutomation() {
-        return uiAutomation;
-    }
-
     Display getDefaultDisplay() throws UiAutomator2Exception {
         return defaultDisplay;
     }
@@ -70,6 +65,10 @@ public class UiAutomatorBridgeAdapter {
             UiAutomator2Exception {
         return reflectionUtils.invoke(reflectionUtils.method(METHOD_INJECT_INPUT_EVENT,
                 InputEvent.class, boolean.class), event, sync);
+    }
+
+    public UiAutomation getUiAutomation() {
+        return uiAutomation;
     }
 
 }

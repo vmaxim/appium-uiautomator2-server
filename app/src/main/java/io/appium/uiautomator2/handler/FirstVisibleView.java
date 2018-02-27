@@ -13,11 +13,11 @@ import java.util.List;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
+import io.appium.uiautomator2.model.uiobject.UiObject2Adapter;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.uiobject.UiObject2Adapter;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -49,7 +49,7 @@ public class FirstVisibleView extends SafeRequestHandler {
                 for (int i = 0; i < uiObject.getChildCount(); i++) {
                     UiObject object = uiObject.getChild(new UiSelector().index(i));
                     if (object.exists()) {
-                        firstObject = model.getUiObjectElementFactory().create(object);
+                        firstObject = model.getUiObjectAdapterFactory().create(object);
                         break;
                     }
                 }
@@ -62,7 +62,7 @@ public class FirstVisibleView extends SafeRequestHandler {
                 }
                 for (UiObject2 childObject : childObjects) {
                     try {
-                        UiObject2Adapter uiObject2Adapter = model.getUiObjectElementFactory().create(childObject);
+                        UiObject2Adapter uiObject2Adapter = model.getUiObjectAdapterFactory().create(childObject);
                         if (uiObject2Adapter.getAccessibilityNodeInfo() != null) {
                             firstObject = uiObject2Adapter;
                             break;
