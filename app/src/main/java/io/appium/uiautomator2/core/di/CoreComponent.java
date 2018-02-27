@@ -18,10 +18,8 @@ package io.appium.uiautomator2.core.di;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import io.appium.uiautomator2.core.AccessibilityNodeInfoDumper;
 import io.appium.uiautomator2.core.CoreFacade;
 import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
-import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
@@ -30,8 +28,6 @@ import io.appium.uiautomator2.utils.ReflectionUtils;
 public interface CoreComponent {
 
     UiAutomatorBridgeAdapter getUiAutomatorBridge();
-
-    AccessibilityNodeInfoDumper getAccessibilityNodeInfoDumper();
 
     AccessibilityNodeInfoHelper getAccessibilityNodeInfoHelper();
 

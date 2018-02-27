@@ -28,16 +28,17 @@ import dagger.Module;
 import dagger.Provides;
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.core.AccessibilityInteractionClientAdapter;
+import io.appium.uiautomator2.core.AccessibilityNodeInfoDumper;
 import io.appium.uiautomator2.core.ByMatcherAdapter;
 import io.appium.uiautomator2.core.CoreFacade;
 import io.appium.uiautomator2.core.ElementFinder;
-import io.appium.uiautomator2.core.EventRegister;
 import io.appium.uiautomator2.core.GesturesAdapter;
 import io.appium.uiautomator2.core.InteractionControllerAdapter;
 import io.appium.uiautomator2.core.QueryControllerAdapter;
+import io.appium.uiautomator2.core.RootNodesFinder;
+import io.appium.uiautomator2.core.ScrollEventRegister;
 import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
 import io.appium.uiautomator2.core.UiDeviceAdapter;
-import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
@@ -130,11 +131,19 @@ public class CoreModule {
     @Singleton
     ByMatcherAdapter provideByMatcherAdapter(
             @NonNull final UiDevice uiDevice,
-            @NonNull final ReflectionUtils reflectionUtils,
+            @NonNull final RootNodesFinder rootNodesFinder,
+            @NonNull final ReflectionUtils reflectionUtils) {
+        return new ByMatcherAdapter(uiDevice, rootNodesFinder, reflectionUtils);
+    }
+
+    @Provides
+    @NonNull
+    @Singleton
+    RootNodesFinder provideRootNodesFinder(
             @NonNull final UiAutomation uiAutomation,
             @NonNull @Named("apiLevelActual") final Integer apiLevelActual,
             @NonNull @Named("allowMultiWindow") final Boolean allowMultiWindow) {
-        return new ByMatcherAdapter(uiDevice, uiAutomation, reflectionUtils, apiLevelActual, allowMultiWindow);
+        return new RootNodesFinder(uiAutomation, apiLevelActual, allowMultiWindow);
     }
 
     @Provides
@@ -175,8 +184,8 @@ public class CoreModule {
     @Provides
     @NonNull
     @Singleton
-    EventRegister provideEventRegister(@NonNull final UiAutomation uiAutomation) {
-        return new EventRegister(uiAutomation);
+    ScrollEventRegister provideScrollEventRegister(@NonNull final UiAutomation uiAutomation) {
+        return new ScrollEventRegister(uiAutomation);
     }
 
     @Provides
@@ -184,10 +193,10 @@ public class CoreModule {
     @Singleton
     InteractionControllerAdapter provideInteractionControllerAdapter(
             @NonNull final UiAutomatorBridgeAdapter uiAutomatorBridgeAdapter,
-            @NonNull final EventRegister eventRegister,
+            @NonNull final ScrollEventRegister scrollEventRegister,
             @NonNull final ReflectionUtils reflectionUtils) {
         return new InteractionControllerAdapter(uiAutomatorBridgeAdapter.getInteractionController
-                (), eventRegister, reflectionUtils);
+                (), scrollEventRegister, reflectionUtils);
     }
 
     @Provides
@@ -211,11 +220,12 @@ public class CoreModule {
             @NonNull final UiAutomation uiAutomation,
             @NonNull final AccessibilityInteractionClientAdapter
                     accessibilityInteractionClientAdapter,
-            @NonNull final EventRegister eventRegister,
-            @NonNull final QueryControllerAdapter queryControllerAdapter) {
+            @NonNull final ScrollEventRegister scrollEventRegister,
+            @NonNull final QueryControllerAdapter queryControllerAdapter,
+            @NonNull final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper) {
         return new CoreFacade(elementFinder, uiDeviceAdapter, gesturesAdapter,
                 interactionControllerAdapter, uiAutomation, accessibilityInteractionClientAdapter,
-                eventRegister, queryControllerAdapter);
+                scrollEventRegister, queryControllerAdapter, accessibilityNodeInfoDumper);
     }
 
 }

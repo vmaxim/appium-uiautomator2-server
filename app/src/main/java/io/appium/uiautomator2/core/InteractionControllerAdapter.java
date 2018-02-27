@@ -26,6 +26,9 @@ import javax.inject.Named;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
+/**
+ * Wrapper for {@link android.support.test.uiautomator.InteractionController}
+ */
 public class InteractionControllerAdapter {
 
     private static final String METHOD_PERFORM_MULTI_POINTER_GESTURE = "performMultiPointerGesture";
@@ -36,16 +39,16 @@ public class InteractionControllerAdapter {
     private static final String METHOD_TOUCH_MOVE = "touchMove";
 
     @NonNull
-    private final EventRegister eventRegister;
+    private final ScrollEventRegister scrollEventRegister;
     @NonNull
     private final ReflectionUtils reflectionUtils;
 
     @Inject
-    public InteractionControllerAdapter(@NonNull @Named("InteractionController") final Object
-                                                interactionController, @NonNull final EventRegister
-                                                eventRegister, @NonNull final ReflectionUtils
-                                                reflectionUtils) {
-        this.eventRegister = eventRegister;
+    public InteractionControllerAdapter(
+            @NonNull @Named("InteractionController") final Object interactionController,
+            @NonNull final ScrollEventRegister scrollEventRegister,
+            @NonNull final ReflectionUtils reflectionUtils) {
+        this.scrollEventRegister = scrollEventRegister;
         this.reflectionUtils = reflectionUtils;
         reflectionUtils.setTargetObject(interactionController);
     }
@@ -55,8 +58,9 @@ public class InteractionControllerAdapter {
                 int.class), keyCode, metaState);
     }
 
+    @Nullable
     public Boolean injectEventSync(@NonNull final InputEvent event) throws UiAutomator2Exception {
-        return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
+        return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
                 final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
@@ -66,8 +70,9 @@ public class InteractionControllerAdapter {
         });
     }
 
+    @Nullable
     public Boolean touchDown(final int x, final int y) throws UiAutomator2Exception {
-        return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
+        return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
                 final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
@@ -77,8 +82,9 @@ public class InteractionControllerAdapter {
         });
     }
 
+    @Nullable
     public Boolean touchUp(final int x, final int y) throws UiAutomator2Exception {
-        return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
+        return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
                 final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
@@ -89,8 +95,9 @@ public class InteractionControllerAdapter {
         });
     }
 
+    @Nullable
     public Boolean touchMove(final int x, final int y) throws UiAutomator2Exception {
-        return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
+        return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
                 final Boolean result = reflectionUtils.invoke(reflectionUtils.method(
@@ -103,7 +110,7 @@ public class InteractionControllerAdapter {
     @Nullable
     public Boolean performMultiPointerGesture(final PointerCoords[][] pcs) throws
             UiAutomator2Exception {
-        return eventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
+        return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
                 final Boolean result = reflectionUtils.invoke(reflectionUtils.method(

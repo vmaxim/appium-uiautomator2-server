@@ -15,8 +15,8 @@
  */
 package io.appium.uiautomator2.core;
 
-
 import android.app.UiAutomation;
+import android.app.UiAutomation.AccessibilityEventFilter;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.test.uiautomator.Configurator;
@@ -32,21 +32,19 @@ import io.appium.uiautomator2.model.dto.AccessibilityScrollData;
 import io.appium.uiautomator2.model.session.Session;
 import io.appium.uiautomator2.utils.Logger;
 
-public class EventRegister {
+public class ScrollEventRegister {
 
-    @NonNull
     private final UiAutomation uiAutomation;
 
     @Inject
-    public EventRegister(@NonNull final UiAutomation uiAutomation) {
+    public ScrollEventRegister(@NonNull final UiAutomation uiAutomation) {
         this.uiAutomation = uiAutomation;
     }
 
     @Nullable
     private Boolean runAndRegisterScrollEvents(@NonNull ReturningRunnable<Boolean> runnable, long
             timeout) throws NoSuchDriverException {
-        final UiAutomation.AccessibilityEventFilter eventFilter = new UiAutomation
-                .AccessibilityEventFilter() {
+        final AccessibilityEventFilter eventFilter = new AccessibilityEventFilter() {
             @Override
             public boolean accept(@NonNull AccessibilityEvent event) {
                 return event.getEventType() == AccessibilityEvent.TYPE_VIEW_SCROLLED;
@@ -55,8 +53,7 @@ public class EventRegister {
 
         AccessibilityEvent event = null;
         try {
-            event = uiAutomation.executeAndWaitForEvent(runnable,
-                    eventFilter, timeout);
+            event = uiAutomation.executeAndWaitForEvent(runnable, eventFilter, timeout);
             Logger.debug("Retrieved accessibility event for scroll");
         } catch (TimeoutException ignore) {
             Logger.error("Expected to receive a scroll accessibility event but hit the timeout " +

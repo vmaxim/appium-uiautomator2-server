@@ -16,11 +16,11 @@ import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -58,7 +58,7 @@ public class GetElementAttribute extends SafeRequestHandler {
         return offset;
     }
 
-    private int getTouchPadding(AndroidElement element) throws UiObjectNotFoundException,
+    private int getTouchPadding() throws UiObjectNotFoundException,
             ReflectiveOperationException {
         int touchPadding = coreFacade.getScaledTouchSlop();
         return touchPadding / 2;
@@ -102,7 +102,7 @@ public class GetElementAttribute extends SafeRequestHandler {
             case "contentSize":
                 Rect boundsRect = element.getBounds();
                 ContentSize contentSize = new ContentSize(boundsRect);
-                contentSize.touchPadding = getTouchPadding(element);
+                contentSize.touchPadding = getTouchPadding();
                 contentSize.scrollableOffset = getScrollableOffset(element);
                 return contentSize.toString();
             default:

@@ -37,17 +37,16 @@ import javax.xml.xpath.XPathFactory;
 
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.AccessibilityNodeInfoDumper;
 import io.appium.uiautomator2.model.XPathFinder;
+
+import static io.appium.uiautomator2.App.core;
 
 
 public class XMLHierarchy {
     private final static String DEFAULT_VIEW_NAME = "android.view.View";
-    private final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper;
 
     @Inject
-    public XMLHierarchy(AccessibilityNodeInfoDumper accessibilityNodeInfoDumper) {
-        this.accessibilityNodeInfoDumper = accessibilityNodeInfoDumper;
+    public XMLHierarchy() {
     }
 
     private XPathExpression compileXpath(String xpathExpression) throws InvalidSelectorException {
@@ -68,7 +67,7 @@ public class XMLHierarchy {
 
     private InputSource getRawXMLHierarchy(AccessibilityNodeInfo root) throws
             UiAutomator2Exception {
-        String xmlDump = accessibilityNodeInfoDumper.getWindowXMLHierarchy(root);
+        String xmlDump = core.getCoreFacade().getWindowXMLHierarchy(root);
         return new InputSource(new StringReader(xmlDump));
     }
 
@@ -151,7 +150,7 @@ public class XMLHierarchy {
                 .replaceAll("[$@#&]", ".")
                 // https://github.com/appium/appium/issues/9934
                 .replaceAll("[ˊ\\s]", "");
-        fixedName = accessibilityNodeInfoDumper.safeCharSeqToString(fixedName)
+        fixedName = core.getCoreFacade().safeCharSeqToString(fixedName)
                 // https://github.com/appium/appium/issues/9934
                 .replace("?", "")
                 .replaceAll("\\.+", ".")

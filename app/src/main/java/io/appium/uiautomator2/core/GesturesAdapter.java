@@ -21,12 +21,15 @@ import android.view.ViewConfiguration;
 
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
+/**
+ * Wrapper for {@link android.support.test.uiautomator.Gestures}
+ */
 public class GesturesAdapter {
 
     private static final String METHOD_GET_INSTANCE = "getInstance";
     private static final String FIELD_VIEW_CONFIG = "mViewConfig";
     private static final String CLASS_GESTURES = "android.support.test.uiautomator.Gestures";
-    @NonNull
+
     private final ReflectionUtils reflectionUtils;
 
     public GesturesAdapter(@NonNull final UiDevice uiDevice,

@@ -50,9 +50,8 @@ public class AccessibilityNodeInfoDumper {
     private static final String[] NAF_EXCLUDED_CLASSES = new String[]{android.widget.GridView
             .class.getName(), android.widget.GridLayout.class.getName(), android.widget.ListView
             .class.getName(), android.widget.TableLayout.class.getName()};
-    @NonNull
+
     private final UiAutomatorBridgeAdapter uiAutomatorBridgeAdapter;
-    @NonNull
     private final AccessibilityNodeInfoHelper accessibilityNodeInfoHelper;
 
     @Inject

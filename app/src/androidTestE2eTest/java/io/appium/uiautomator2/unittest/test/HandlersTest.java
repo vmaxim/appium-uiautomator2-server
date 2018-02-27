@@ -1,6 +1,5 @@
 package io.appium.uiautomator2.unittest.test;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -8,7 +7,6 @@ import android.graphics.BitmapFactory;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.test.uiautomator.Configurator;
-import android.support.test.uiautomator.UiDevice;
 import android.util.Base64;
 
 import com.jayway.jsonpath.JsonPath;

@@ -33,13 +33,17 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
+import io.appium.uiautomator2.model.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.model.AndroidElement;
 import io.appium.uiautomator2.model.uiobject.UiObject2Adapter;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
-import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Logger;
 
+/**
+ * The helper class for finding element[s] by {@link UiSelector} and {@link BySelector}.
+ * <br>Also {@link AndroidElement} can be created via {@link AccessibilityNodeInfo}.
+ */
 public class ElementFinder {
 
     private static final Pattern UI_SELECTOR_ENDS_WITH_INSTANCE = Pattern.compile("" +

@@ -42,7 +42,6 @@ import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.utils.Attribute;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Preconditions;
@@ -141,8 +140,6 @@ public class XPathFinder implements Finder {
      * just not possible to create Element object with special characters.
      * But Appium should consider Inner classes i.e special characters should be included.
      */
-    setNodeLocalName(element, className);
-
     setAttribute(element, Attribute.INDEX, String.valueOf(uiElementSnapshot.getIndex()));
     setAttribute(element, Attribute.CLASS, className);
     setAttribute(element, Attribute.RESOURCE_ID, uiElementSnapshot.getResourceId());
@@ -224,24 +221,23 @@ public class XPathFinder implements Finder {
   public String tag(String className) {
     // the nth anonymous class has a class name ending in "Outer$n"
     // and local inner classes have names ending in "Outer.$1Inner"
-    className = className.replaceAll("\\$[0-9]+", "\\$");
-    return className;
+    return className.replaceAll("\\$[0-9]+", "\\$");
   }
 
   /**
    * returns by excluding inner class name.
    */
   private String simpleClassName(String name) {
-    name = name.replaceAll("\\$[0-9]+", "\\$");
+    String result = name.replaceAll("\\$[0-9]+", "\\$");
     // we want the index of the inner class
-    int start = name.lastIndexOf('$');
+    int start = result.lastIndexOf('$');
 
     // if this isn't an inner class, just find the start of the
     // top level class name.
     if (start == -1) {
-      return name;
+      return result;
     }
-    return name.substring(0, start);
+    return result.substring(0, start);
   }
 
     @Override

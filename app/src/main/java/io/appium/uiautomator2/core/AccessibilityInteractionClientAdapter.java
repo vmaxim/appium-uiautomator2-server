@@ -23,6 +23,9 @@ import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
+/**
+ * Wrapper for {@link android.view.accessibility.AccessibilityInteractionClient}
+ */
 public class AccessibilityInteractionClientAdapter {
 
     private static final String ACCESSIBILITY_INTERACTION_CLIENT = "android.view.accessibility" +

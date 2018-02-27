@@ -10,8 +10,6 @@ import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiScrollable;
 import android.support.test.uiautomator.UiSelector;
 
-import java.util.regex.Pattern;
-
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 

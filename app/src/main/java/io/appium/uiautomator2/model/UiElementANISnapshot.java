@@ -44,7 +44,6 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
 
   private final Map<Attribute, Object> attributes;
   private final boolean visible;
-  private final Rect visibleBounds;
   private final UiElementANISnapshot parent;
   private final List<UiElementANISnapshot> children;
   public final static Map<AccessibilityNodeInfo, UiElementANISnapshot>  map = new WeakHashMap<AccessibilityNodeInfo, UiElementANISnapshot>();
@@ -88,7 +87,6 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
 
     // Order matters as getVisibleBounds depends on visible
     visible = node.isVisibleToUser();
-    visibleBounds = getVisibleBounds(node);
     List<UiElementANISnapshot> mutableChildren = buildChildren(node);
     this.children = mutableChildren == null ? null : Collections.unmodifiableList(mutableChildren);
   }
@@ -113,8 +111,7 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
 
     this.attributes = Collections.unmodifiableMap(attribs);
     this.visible= true;
-    this.visibleBounds = null;
-    List<UiElementANISnapshot> mutableChildren =new ArrayList<UiElementANISnapshot>();
+    List<UiElementANISnapshot> mutableChildren =new ArrayList<>();
     mutableChildren.add(new UiElementANISnapshot(childNode, this /* parent UiElementANISnapshot*/, 0/* index */));
     this.children = mutableChildren;
   }
@@ -140,7 +137,7 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
     if (childCount == 0) {
       children = null;
     } else {
-      children = new ArrayList<UiElementANISnapshot>(childCount);
+      children = new ArrayList<>(childCount);
       Object allowInvisibleElements = App.getSession().getCapabilities().get(AllowInvisibleElements.SETTING_NAME);
       boolean isAllowInvisibleElements = allowInvisibleElements != null && (boolean) allowInvisibleElements;
 
@@ -190,15 +187,15 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
     return rect;
   }
 
-  private Rect getVisibleBounds(AccessibilityNodeInfo node) {
+  private Rect getVisibleBounds() {
     if (!visible) {
       return new Rect();
     }
-    Rect visibleBounds = getBounds(this.node);
+    Rect visibleBounds = getBounds(node);
     UiElementANISnapshot parent = getParent();
     Rect parentBounds;
     while (parent != null && parent.node != null) {
-      parentBounds = parent.getBounds(this.parent.node);
+      parentBounds = parent.getBounds(parent.node);
       visibleBounds.intersect(parentBounds);
       parent = parent.getParent();
     }

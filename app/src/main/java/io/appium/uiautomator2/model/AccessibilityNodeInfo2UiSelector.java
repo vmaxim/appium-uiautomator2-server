@@ -14,7 +14,8 @@ import static io.appium.uiautomator2.utils.Attribute.INDEX;
 public class AccessibilityNodeInfo2UiSelector {
 
     /**
-     * returns UiSelector object, based on UiElementANISnapshot attributes
+     * Returns UiSelector object, based on UiElementANISnapshot attributes
+     *
      * @param node
      * @return UiSelector
      */
@@ -55,6 +56,7 @@ public class AccessibilityNodeInfo2UiSelector {
                     case SELECTED:
                         uiSelector = uiSelector.selected(booleanValue);
                         break;
+                    default: /* ignore */;
                 }
             }
             if (value instanceof Integer && attribute == INDEX) {
@@ -78,6 +80,7 @@ public class AccessibilityNodeInfo2UiSelector {
                     case RESOURCE_ID:
                         uiSelector = uiSelector.resourceId(stringValue);
                         break;
+                    default: /* ignore */;
                 }
             }
         }

@@ -25,6 +25,9 @@ import javax.inject.Named;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
+/**
+ * Wrapper for {@link android.support.test.uiautomator.QueryController}
+ */
 public class QueryControllerAdapter {
 
     private static final String METHOD_GET_ROOT_NODE = "getRootNode";

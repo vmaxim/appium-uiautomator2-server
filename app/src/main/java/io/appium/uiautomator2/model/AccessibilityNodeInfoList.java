@@ -1,4 +1,4 @@
-package io.appium.uiautomator2.utils;
+package io.appium.uiautomator2.model;
 
 import android.view.accessibility.AccessibilityNodeInfo;
 

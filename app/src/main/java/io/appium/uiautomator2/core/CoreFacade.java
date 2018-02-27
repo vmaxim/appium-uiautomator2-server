@@ -29,8 +29,9 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
 
+import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
+import io.appium.uiautomator2.model.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.utils.AccessibilityNodeInfoList;
 
 public class CoreFacade {
 
@@ -40,8 +41,9 @@ public class CoreFacade {
     private final InteractionControllerAdapter interactionControllerAdapter;
     private final UiAutomation uiAutomation;
     private final AccessibilityInteractionClientAdapter accessibilityInteractionClientAdapter;
-    private final EventRegister eventRegister;
+    private final ScrollEventRegister scrollEventRegister;
     private final QueryControllerAdapter queryControllerAdapter;
+    private final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper;
 
     public CoreFacade(@NonNull final ElementFinder elementFinder,
                       @NonNull final UiDeviceAdapter uiDeviceAdapter,
@@ -50,16 +52,18 @@ public class CoreFacade {
                       @NonNull final UiAutomation uiAutomation,
                       @NonNull final AccessibilityInteractionClientAdapter
                               accessibilityInteractionClientAdapter,
-                      @NonNull final EventRegister eventRegister,
-                      @NonNull final QueryControllerAdapter queryControllerAdapter) {
+                      @NonNull final ScrollEventRegister scrollEventRegister,
+                      @NonNull final QueryControllerAdapter queryControllerAdapter,
+                      @NonNull final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper) {
         this.elementFinder = elementFinder;
         this.uiDeviceAdapter = uiDeviceAdapter;
         this.gesturesAdapter = gesturesAdapter;
         this.interactionControllerAdapter = interactionControllerAdapter;
         this.uiAutomation = uiAutomation;
         this.accessibilityInteractionClientAdapter = accessibilityInteractionClientAdapter;
-        this.eventRegister = eventRegister;
+        this.scrollEventRegister = scrollEventRegister;
         this.queryControllerAdapter = queryControllerAdapter;
+        this.accessibilityNodeInfoDumper = accessibilityNodeInfoDumper;
     }
 
     public void back() {
@@ -156,8 +160,9 @@ public class CoreFacade {
         uiDeviceAdapter.pressKeyCode(keyCode);
     }
 
+    @Nullable
     public Boolean runAndRegisterScrollEvents(@NonNull final ReturningRunnable<Boolean> returningRunnable) {
-        return eventRegister.runAndRegisterScrollEvents(returningRunnable);
+        return scrollEventRegister.runAndRegisterScrollEvents(returningRunnable);
     }
 
     public void scrollTo(@NonNull final String scrollToString) throws UiObjectNotFoundException {
@@ -189,14 +194,17 @@ public class CoreFacade {
         return uiDeviceAdapter.swipe(startX, startY, endX, endY, steps);
     }
 
+    @Nullable
     public boolean touchDown(final int x, final int y) {
         return interactionControllerAdapter.touchDown(x, y);
     }
 
+    @Nullable
     public boolean touchMove(final int x, final int y) {
         return interactionControllerAdapter.touchMove(x, y);
     }
 
+    @Nullable
     public boolean touchUp(final int x, final int y) {
         return interactionControllerAdapter.touchUp(x, y);
     }
@@ -215,5 +223,14 @@ public class CoreFacade {
 
     public void wakeUp() throws RemoteException {
         uiDeviceAdapter.wakeUp();
+    }
+
+    public String getWindowXMLHierarchy(@Nullable final AccessibilityNodeInfo root) throws
+            UiAutomator2Exception {
+        return accessibilityNodeInfoDumper.getWindowXMLHierarchy(root);
+    }
+
+    public String safeCharSeqToString(@Nullable final CharSequence cs) {
+        return accessibilityNodeInfoDumper.safeCharSeqToString(cs);
     }
 }
