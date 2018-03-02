@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 public abstract class ReturningRunnable<T> implements Runnable {
 
     @Nullable
-    public T result;
+    private T result;
 
     public ReturningRunnable() {
         result = null;
@@ -16,7 +16,7 @@ public abstract class ReturningRunnable<T> implements Runnable {
         return result;
     }
 
-    protected void setResult(T value) {
+    protected void setResult(@Nullable T value) {
         result = value;
     }
 }

@@ -16,6 +16,7 @@
 package io.appium.uiautomator2.core;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.test.uiautomator.BySelector;
 import android.support.test.uiautomator.UiDevice;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -59,10 +60,13 @@ public class ByMatcherAdapter {
      * method
      *
      * @param selector The {@link BySelector} criteria used to determine if a node is a match.
-     * @return The first {@link AccessibilityNodeInfo} which matched the search criteria.
+     * @return The first {@link AccessibilityNodeInfo} which matched the search criteria or
+     * {@code null} otherwise.
      */
+    @Nullable
     public AccessibilityNodeInfo findMatch(@NonNull final BySelector selector) {
-        return reflectionUtils.invoke(findMatch, uiDevice, selector, rootNodesFinder.getWindowRoots());
+        return reflectionUtils.invoke(findMatch, uiDevice, selector, rootNodesFinder
+                .getWindowRoots());
     }
 
     /**
@@ -73,10 +77,10 @@ public class ByMatcherAdapter {
      * @param selector The {@link BySelector} criteria used to determine if a node is a match.
      * @return A list containing all of the nodes which matched the search criteria.
      */
+    @SuppressWarnings("ConstantConditions")
+    @NonNull
     public List<AccessibilityNodeInfo> findMatches(@NonNull final BySelector selector) {
-        return reflectionUtils.invoke(findMatches, uiDevice, selector, rootNodesFinder.getWindowRoots());
+        return reflectionUtils.invoke(findMatches, uiDevice, selector, rootNodesFinder
+                .getWindowRoots());
     }
-
-
-
 }

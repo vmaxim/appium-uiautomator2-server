@@ -26,12 +26,10 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.core.AccessibilityInteractionClientAdapter;
 import io.appium.uiautomator2.core.AccessibilityNodeInfoDumper;
 import io.appium.uiautomator2.core.ByMatcherAdapter;
 import io.appium.uiautomator2.core.CoreFacade;
-import io.appium.uiautomator2.core.ElementFinder;
 import io.appium.uiautomator2.core.GesturesAdapter;
 import io.appium.uiautomator2.core.InteractionControllerAdapter;
 import io.appium.uiautomator2.core.QueryControllerAdapter;
@@ -39,6 +37,9 @@ import io.appium.uiautomator2.core.RootNodesFinder;
 import io.appium.uiautomator2.core.ScrollEventRegister;
 import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
 import io.appium.uiautomator2.core.UiDeviceAdapter;
+import io.appium.uiautomator2.core.finder.BySelectorFinder;
+import io.appium.uiautomator2.core.finder.UiSelectorFinder;
+import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
@@ -149,10 +150,20 @@ public class CoreModule {
     @Provides
     @NonNull
     @Singleton
-    ElementFinder provideElementFinder(
-            @NonNull final UiDeviceAdapter uiDeviceAdapter,
-            @NonNull final ByMatcherAdapter byMatcherAdapter) {
-        return new ElementFinder(uiDeviceAdapter, byMatcherAdapter, App.model.getUiObjectAdapterFactory());
+    UiSelectorFinder provideUiObjectFinder(
+            @NonNull final UiObjectAdapterFactory uiObjectAdapterFactory,
+            @NonNull final UiDeviceAdapter uiDeviceAdapter) {
+        return new UiSelectorFinder(uiObjectAdapterFactory, uiDeviceAdapter);
+    }
+
+    @Provides
+    @NonNull
+    @Singleton
+    BySelectorFinder provideUiObject2Finder(
+            @NonNull UiDeviceAdapter uiDeviceAdapter,
+            @NonNull ByMatcherAdapter byMatcherAdapter,
+            @NonNull UiObjectAdapterFactory uiObjectAdapterFactory) {
+        return new BySelectorFinder(uiDeviceAdapter, byMatcherAdapter, uiObjectAdapterFactory);
     }
 
     @Provides
@@ -213,7 +224,6 @@ public class CoreModule {
     @NonNull
     @Singleton
     CoreFacade provideCoreFacade(
-            @NonNull final ElementFinder elementFinder,
             @NonNull final UiDeviceAdapter uiDeviceAdapter,
             @NonNull final GesturesAdapter gesturesAdapter,
             @NonNull final InteractionControllerAdapter interactionControllerAdapter,
@@ -222,10 +232,12 @@ public class CoreModule {
                     accessibilityInteractionClientAdapter,
             @NonNull final ScrollEventRegister scrollEventRegister,
             @NonNull final QueryControllerAdapter queryControllerAdapter,
-            @NonNull final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper) {
-        return new CoreFacade(elementFinder, uiDeviceAdapter, gesturesAdapter,
+            @NonNull final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper,
+            @NonNull final UiSelectorFinder uiSelectorFinder,
+            @NonNull final BySelectorFinder bySelectorFinder) {
+        return new CoreFacade(uiDeviceAdapter, gesturesAdapter,
                 interactionControllerAdapter, uiAutomation, accessibilityInteractionClientAdapter,
-                scrollEventRegister, queryControllerAdapter, accessibilityNodeInfoDumper);
+                scrollEventRegister, queryControllerAdapter, accessibilityNodeInfoDumper, uiSelectorFinder, bySelectorFinder);
     }
 
 }

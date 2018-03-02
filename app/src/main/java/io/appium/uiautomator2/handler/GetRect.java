@@ -23,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -40,14 +41,11 @@ public class GetRect extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException {
         Logger.info("Get Rect of element command");
         String id = getElementId(request);
         final JSONObject result = new JSONObject();
-        AndroidElement element = getCachedElements().getElementFromCache(id);
-        if (element == null) {
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-        }
+        AndroidElement element = getCachedElements().getElement(id);
         try {
             final Rect rect = element.getBounds();
             result.put("x", rect.left);

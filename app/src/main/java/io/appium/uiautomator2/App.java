@@ -45,7 +45,7 @@ public class App {
         return session.getSession();
     }
 
-    public static synchronized void deleteSession() {
+    public static synchronized void deleteSession() throws NoSuchDriverException {
         if (session == null) {
             throw new NoSuchDriverException();
         }

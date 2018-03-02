@@ -18,7 +18,6 @@ public class AppiumUiAutomator2Server {
     private static ServerInstrumentation serverInstrumentation;
     private Context ctx;
 
-
     /**
      * Starts the server on the device
      */

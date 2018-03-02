@@ -111,7 +111,7 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
 
     this.attributes = Collections.unmodifiableMap(attribs);
     this.visible= true;
-    List<UiElementANISnapshot> mutableChildren =new ArrayList<>();
+    List<UiElementANISnapshot> mutableChildren = new ArrayList<>();
     mutableChildren.add(new UiElementANISnapshot(childNode, this /* parent UiElementANISnapshot*/, 0/* index */));
     this.children = mutableChildren;
   }
@@ -158,7 +158,7 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
      * Injecting root element as hierarchy and adding rawElement as a child.
      */
     UiElementANISnapshot rootElement = new UiElementANISnapshot("hierarchy" /*root element*/, rawElement /* child nodInfo */, 0 /* index */);
-    if( toastMSGs!= null) {
+    if( toastMSGs!= null ) {
       for(CharSequence toastMSG : toastMSGs) {
         Logger.debug("Adding toastMSG to root:" + toastMSG);
         rootElement.addToastMsgToRoot(toastMSG);
@@ -185,21 +185,6 @@ public class UiElementANISnapshot extends UiElementSnapshot<AccessibilityNodeInf
     Rect rect = new Rect();
     node.getBoundsInScreen(rect);
     return rect;
-  }
-
-  private Rect getVisibleBounds() {
-    if (!visible) {
-      return new Rect();
-    }
-    Rect visibleBounds = getBounds(node);
-    UiElementANISnapshot parent = getParent();
-    Rect parentBounds;
-    while (parent != null && parent.node != null) {
-      parentBounds = parent.getBounds(parent.node);
-      visibleBounds.intersect(parentBounds);
-      parent = parent.getParent();
-    }
-    return visibleBounds;
   }
 
   public UiElementANISnapshot getParent() {

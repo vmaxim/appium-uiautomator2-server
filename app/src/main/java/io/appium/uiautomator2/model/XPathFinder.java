@@ -42,6 +42,8 @@ import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
+import io.appium.uiautomator2.http.AppiumResponse;
+import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Attribute;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.Preconditions;
@@ -80,14 +82,18 @@ public class XPathFinder implements Finder {
 
     public static AccessibilityNodeInfoList getNodesList(String xpathExpression,
                                                          AccessibilityNodeInfo nodeInfo) throws
-            InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception, NoSuchDriverException {
+            InvalidSelectorException, ParserConfigurationException, UiAutomator2Exception, NoSuchDriverException, ElementNotFoundException {
     if(nodeInfo == null) {
       refreshUiElementTree();
     } else {
       refreshUiElementTree(nodeInfo);
     }
     XPathFinder finder = new XPathFinder(xpathExpression);
-    return finder.find(finder.getRootElement());
+    AccessibilityNodeInfoList result = finder.find(finder.getRootElement());
+    if (result.isEmpty()) {
+        throw new ElementNotFoundException("Strategy:ByXpath;Locator:" + xpathExpression);
+    }
+    return result;
   }
 
   private Document getDocument() {
@@ -246,7 +252,7 @@ public class XPathFinder implements Finder {
     }
 
     @Override
-    public AccessibilityNodeInfoList find(UiElementSnapshot context) {
+    public AccessibilityNodeInfoList find(UiElementSnapshot context) throws ElementNotFoundException {
         Element domNode = getDomNode((UiElementSnapshot<?, ?>) context);
         try {
             getDocument().appendChild(domNode);

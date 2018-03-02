@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -34,31 +35,18 @@ public class SendKeysToElement extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException, ElementNotFoundException {
         try {
             Logger.info("send keys to element command");
             JSONObject payload = getPayload(request);
             AndroidElement element;
             if (payload.has("elementId")) {
                 String id = payload.getString("elementId");
-                element = getCachedElements().getElementFromCache(id);
-                if (element == null) {
-                    return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-                }
+                element = getCachedElements().getElement(id);
             } else {
                 //perform action on focused element
-                try {
-                    BySelector bySelector = By.focused(true);
-                    element = coreFacade.findElement(bySelector);
-                    getCachedElements().add(element);
-                } catch (ElementNotFoundException e) {
-                    Logger.debug("Error retrieving focused element: " + e);
-                    return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-                } catch (UiAutomator2Exception e) {
-                    Logger.debug("Error in finding focused element: " + e);
-                    return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR,
-                            "Unable to find a focused element." + Arrays.toString(e.getStackTrace()));
-                }
+                BySelector bySelector = By.focused(true);
+                element = coreFacade.findElement(bySelector);
             }
             boolean replace = Boolean.parseBoolean(payload.getString("replace"));
             String text = payload.getString("text");

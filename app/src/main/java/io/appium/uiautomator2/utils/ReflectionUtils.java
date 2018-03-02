@@ -17,6 +17,7 @@
 package io.appium.uiautomator2.utils;
 
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -60,9 +61,8 @@ public class ReflectionUtils {
         }
     }
 
-    @NonNull
+    @Nullable
     public <T> T getField(@NonNull final String fieldName) throws UiAutomator2Exception {
-        assert targetObject != null;
         for (Field field : getAllFields()) {
             if (field.getName().equals(fieldName)) {
                 field.setAccessible(true);
@@ -89,11 +89,9 @@ public class ReflectionUtils {
         return allFields;
     }
 
-    @NonNull
-    public <T> T
-    invoke(@NonNull final Method method, final Object... parameters) throws
+    @Nullable
+    public <T> T invoke(@NonNull final Method method, final Object... parameters) throws
             UiAutomator2Exception {
-        assert targetObject != null;
         try {
             return (T) method.invoke(targetObject, parameters);
         } catch (final Exception e) {
@@ -104,6 +102,7 @@ public class ReflectionUtils {
         }
     }
 
+    @NonNull
     public Method method(@NonNull final String methodName, final Class... parameterTypes) throws
             UiAutomator2Exception {
         try {

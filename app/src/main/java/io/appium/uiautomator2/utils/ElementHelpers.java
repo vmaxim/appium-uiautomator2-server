@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.model.AndroidElement;
 
@@ -76,7 +78,7 @@ public abstract class ElementHelpers {
      * For example, appium returns elements like [{"ELEMENT":1}, {"ELEMENT":2}]
      */
     public static JSONObject toJSON(AndroidElement el) throws JSONException, NoSuchDriverException {
-        return new JSONObject().put("ELEMENT", App.getSession().getCachedElements().getIdOfElement(el));
+        return new JSONObject().put("ELEMENT", App.getSession().getCachedElements().getId(el));
     }
 
     /**
@@ -87,7 +89,8 @@ public abstract class ElementHelpers {
      * @param unicodeKeyboard - true, if text should be encoded to unicode
      */
     public static void setText(final AndroidElement element, final String text, final boolean
-            unicodeKeyboard) throws UiObjectNotFoundException {
+            unicodeKeyboard) throws ElementNotFoundException, StaleElementReferenceException,
+            UiObjectNotFoundException {
         String textToSend = text;
         AccessibilityNodeInfo nodeInfo = element.getAccessibilityNodeInfo();
 

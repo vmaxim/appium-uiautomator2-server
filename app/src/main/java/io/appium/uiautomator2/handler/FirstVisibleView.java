@@ -11,13 +11,14 @@ import org.json.JSONObject;
 
 import java.util.List;
 
+import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
-import io.appium.uiautomator2.model.uiobject.UiObject2Adapter;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -33,18 +34,15 @@ public class FirstVisibleView extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException, ElementNotFoundException {
         Logger.info("Get first visible element inside provided element");
         String elementId = getElementId(request);
 
-        AndroidElement element = getSession().getCachedElements().getElementFromCache(elementId);
-        if (element == null) {
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-        }
+        AndroidElement element = getSession().getCachedElements().getElement(elementId);
         try {
             AndroidElement firstObject = null;
             if (element.getUiObject() instanceof UiObject) {
-                UiObject uiObject = element.getUiObject();
+                UiObject uiObject = (UiObject) element.getUiObject();
                 Logger.debug("Container for first visible is a uiobject; looping through children");
                 for (int i = 0; i < uiObject.getChildCount(); i++) {
                     UiObject object = uiObject.getChild(new UiSelector().index(i));
@@ -54,7 +52,7 @@ public class FirstVisibleView extends SafeRequestHandler {
                     }
                 }
             } else {
-                UiObject2 uiObject = element.getUiObject();
+                UiObject2 uiObject = (UiObject2) element.getUiObject();
                 Logger.debug("Container for first visible is a uiobject2; looping through children");
                 List<UiObject2> childObjects = uiObject.getChildren();
                 if (childObjects.isEmpty()) {
@@ -62,7 +60,7 @@ public class FirstVisibleView extends SafeRequestHandler {
                 }
                 for (UiObject2 childObject : childObjects) {
                     try {
-                        UiObject2Adapter uiObject2Adapter = model.getUiObjectAdapterFactory().create(childObject);
+                        AndroidElement uiObject2Adapter = model.getUiObjectAdapterFactory().create(childObject);
                         if (uiObject2Adapter.getAccessibilityNodeInfo() != null) {
                             firstObject = uiObject2Adapter;
                             break;

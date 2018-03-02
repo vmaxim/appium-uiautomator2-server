@@ -18,15 +18,27 @@ package io.appium.uiautomator2.model.uiobject;
 import android.support.test.uiautomator.UiObject;
 import android.support.test.uiautomator.UiObject2;
 
+import javax.inject.Inject;
+
+import io.appium.uiautomator2.model.uiobject.impl.UiObject2AdapterImpl;
+import io.appium.uiautomator2.model.uiobject.impl.UiObjectAdapterImpl;
+import io.appium.uiautomator2.model.uiobject.proxy.UiObject2AdapterProxy;
+import io.appium.uiautomator2.model.uiobject.proxy.UiObjectAdapterProxy;
+
 import static io.appium.uiautomator2.App.core;
 
 public class UiObjectAdapterFactory {
 
+    @Inject
+    public UiObjectAdapterFactory(){
+
+    }
+
     public UiObjectAdapter create(UiObject object) {
-        return new UiObjectAdapter(object, core.getReflectionUtils());
+        return UiObjectAdapterProxy.newInstance(new UiObjectAdapterImpl(object, core.getReflectionUtils()));
     }
 
     public UiObject2Adapter create(UiObject2 object) {
-        return new UiObject2Adapter(object, core.getReflectionUtils());
+        return UiObject2AdapterProxy.newInstance(new UiObject2AdapterImpl(object, core.getReflectionUtils()));
     }
 }

@@ -41,4 +41,5 @@ public class ModelModule {
     AccessibilityNodeInfo2UiSelector provideAccessibilityNodeInfo2UiSelector() {
         return new AccessibilityNodeInfo2UiSelector();
     }
+
 }

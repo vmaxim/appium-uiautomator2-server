@@ -1,10 +1,15 @@
 package io.appium.uiautomator2.handler.request;
 
+import android.support.annotation.Nullable;
 import android.support.test.uiautomator.StaleObjectException;
+import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
+import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.NoSuchContextException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -22,8 +27,9 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
         super(mappedUri);
     }
 
-    protected AndroidElement getElementFromCache(String id) throws NoSuchDriverException {
-        return getCachedElements().getElementFromCache(id);
+    @Nullable
+    protected AndroidElement getElementFromCache(String id) throws StaleElementReferenceException, NoSuchDriverException {
+        return getCachedElements().getElement(id);
     }
 
     protected Session getSession() throws NoSuchDriverException {
@@ -34,18 +40,20 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
         return App.getSession().getCachedElements();
     }
 
-    public abstract AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException;
+    public abstract AppiumResponse safeHandle(IHttpRequest request) throws ElementNotFoundException, NoSuchDriverException, NoSuchContextException, StaleElementReferenceException, UiObjectNotFoundException, InvalidCoordinatesException;
 
     @Override
     public final AppiumResponse handle(IHttpRequest request) {
         try {
             return safeHandle(request);
+        } catch (ElementNotFoundException e) {
+            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT, e);
         } catch (NoSuchContextException e) {
             //TODO: update error code when w3c spec gets updated
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_WINDOW, new UiAutomator2Exception("Invalid window handle was used: only 'NATIVE_APP' and 'WEBVIEW' are supported."));
-        } catch (StaleObjectException e) {
+        } catch (StaleElementReferenceException e) {
             Logger.error("Stale Element Reference Exception: ", e);
-            return new AppiumResponse(getSessionId(request), WDStatus.STALE_ELEMENT_REFERENCE, e);
+            return new AppiumResponse(getSessionId(request), WDStatus.STALE_ELEMENT_REFERENCE, e.getId());
         } catch (NoSuchDriverException e) {
             Logger.error("Session is either deleted or not started.");
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_DRIVER, e);

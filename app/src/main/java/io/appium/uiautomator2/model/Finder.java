@@ -20,6 +20,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import java.util.List;
 
+import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
+
 /**
  * Interface for finding UiElementSnapshot.
  */
@@ -30,7 +32,7 @@ public interface Finder {
      *
      * @return The matching elements on the current context
      */
-    List<AccessibilityNodeInfo> find(UiElementSnapshot context);
+    List<AccessibilityNodeInfo> find(UiElementSnapshot context) throws ElementNotFoundException;
 
     /**
      * {@inheritDoc}

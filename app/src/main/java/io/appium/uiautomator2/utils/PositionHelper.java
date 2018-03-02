@@ -17,6 +17,7 @@
 package io.appium.uiautomator2.utils;
 
 import android.graphics.Rect;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
@@ -56,12 +57,11 @@ public abstract class PositionHelper {
      *                          absolute coordinates of the display rectangle.
      * @param shouldCheckBounds Throw if the translated point is outside displayRect?
      * @return
-     * @throws UiObjectNotFoundException
      * @throws InvalidCoordinatesException
      */
     public static Point getAbsolutePosition(final Point point, final Rect displayRect,
                                             final Point offsets, final boolean shouldCheckBounds)
-            throws UiObjectNotFoundException, InvalidCoordinatesException {
+            throws InvalidCoordinatesException {
         final Point absolutePosition = new Point();
 
         absolutePosition.x = translateCoordinate(point.x, displayRect.width(), offsets.x);
@@ -77,8 +77,8 @@ public abstract class PositionHelper {
     }
 
     public static Point getDeviceAbsPos(final Point point)
-            throws UiObjectNotFoundException, InvalidCoordinatesException {
-        final UiDevice d = UiDevice.getInstance();
+            throws InvalidCoordinatesException {
+        final UiDevice d = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         final Rect displayRect = new Rect(0, 0, d.getDisplayWidth(), d.getDisplayHeight());
 
         Logger.debug("Display bounds: " + displayRect.toShortString());

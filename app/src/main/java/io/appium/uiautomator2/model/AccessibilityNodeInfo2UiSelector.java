@@ -56,7 +56,7 @@ public class AccessibilityNodeInfo2UiSelector {
                     case SELECTED:
                         uiSelector = uiSelector.selected(booleanValue);
                         break;
-                    default: /* ignore */;
+                    default: /* ignore */
                 }
             }
             if (value instanceof Integer && attribute == INDEX) {
@@ -80,7 +80,7 @@ public class AccessibilityNodeInfo2UiSelector {
                     case RESOURCE_ID:
                         uiSelector = uiSelector.resourceId(stringValue);
                         break;
-                    default: /* ignore */;
+                    default: /* ignore */
                 }
             }
         }

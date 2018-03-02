@@ -97,7 +97,7 @@ public final class NotificationListener {
 
         public List<CharSequence> init(){
             if( currentTimeMillis() - previousTime  > TOAST_CLEAR_TIMEOUT) {
-                return new ArrayList<CharSequence>();
+                return null;
             }
             return toastMessages;
         }

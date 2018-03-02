@@ -1,7 +1,6 @@
 package io.appium.uiautomator2.handler;
 
 import android.graphics.Rect;
-import android.support.test.uiautomator.StaleObjectException;
 import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
@@ -12,9 +11,11 @@ import org.json.JSONObject;
 
 import java.text.MessageFormat;
 
+import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoAttributeFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -33,14 +34,14 @@ public class GetElementAttribute extends SafeRequestHandler {
     }
 
     private static int getScrollableOffset(AndroidElement uiScrollable) throws
-            UiObjectNotFoundException, ClassNotFoundException, InvalidSelectorException, NoSuchDriverException {
+            ClassNotFoundException, InvalidSelectorException, NoSuchDriverException, ElementNotFoundException, StaleElementReferenceException {
         AccessibilityNodeInfo nodeInfo = null;
         AndroidElement firstChild;
         int offset = 0;
         if (uiScrollable instanceof UiObjectAdapter) {
-            firstChild = uiScrollable.getChild(new UiSelector().index(0));
+            firstChild = uiScrollable.findElement(new UiSelector().index(0));
         } else {
-            UiObject2 uiObject2 = uiScrollable.getUiObject();
+            UiObject2 uiObject2 = (UiObject2) uiScrollable.getUiObject();
             firstChild = model.getUiObjectAdapterFactory().create(uiObject2);
         }
 
@@ -96,28 +97,33 @@ public class GetElementAttribute extends SafeRequestHandler {
             case "selected":
                 return element.isSelected();
             case "displayed":
-                return element.getAccessibilityNodeInfo() != null;
+                return element.exists();
             case "password":
-                return element.getAccessibilityNodeInfo().isPassword();
+                try {
+                    return element.getAccessibilityNodeInfo().isPassword();
+                } catch (StaleElementReferenceException e) {
+                    return null;
+                }
             case "contentSize":
                 Rect boundsRect = element.getBounds();
                 ContentSize contentSize = new ContentSize(boundsRect);
                 contentSize.touchPadding = getTouchPadding();
-                contentSize.scrollableOffset = getScrollableOffset(element);
+                try {
+                    contentSize.scrollableOffset = getScrollableOffset(element);
+                } catch (ElementNotFoundException|StaleElementReferenceException e) {
+                    Logger.debug("");
+                }
                 return contentSize.toString();
             default:
                 throw new NoAttributeFoundException(attributeName);
         }
     }
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException {
         Logger.info("get attribute of element command");
         String id = getElementId(request);
         String attributeName = getNameAttribute(request);
-        AndroidElement element = getCachedElements().getElementFromCache(id);
-        if (element == null) {
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-        }
+        AndroidElement element = getCachedElements().getElement(id);
         try {
             String attributeValue = String.valueOf(getAttribute(element, attributeName));
             return new AppiumResponse(getSessionId(request), WDStatus.SUCCESS, attributeValue);
@@ -127,9 +133,6 @@ public class GetElementAttribute extends SafeRequestHandler {
         } catch (NoAttributeFoundException e) {
             Logger.error(MessageFormat.format("Requested attribute {0} not supported.", attributeName), e);
             return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_COMMAND, e);
-        } catch(StaleObjectException e){
-            Logger.error("Stale Element Exception: ", e);
-            return new AppiumResponse(getSessionId(request), WDStatus.STALE_ELEMENT_REFERENCE, e);
         } catch (UiAutomator2Exception e) {
             Logger.error(MessageFormat.format("Unable to retrieve attribute {0}", attributeName), e);
             return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, e);
@@ -141,12 +144,12 @@ public class GetElementAttribute extends SafeRequestHandler {
     }
 
     private static class ContentSize {
-        int width;
-        int height;
-        int top;
-        int left;
-        int scrollableOffset;
-        int touchPadding;
+        private int width;
+        private int height;
+        private int top;
+        private int left;
+        private int scrollableOffset;
+        private int touchPadding;
 
         ContentSize(Rect rect) {
             width = rect.width();

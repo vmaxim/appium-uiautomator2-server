@@ -52,6 +52,33 @@ public class TestUtil {
     }
 
     /**
+     * finds the elements using By selector
+     *
+     * @param by
+     * @return
+     */
+    public static String findElements(By by) {
+        JSONObject json = new JSONObject();
+        json = getJSon(by, json);
+        return post(baseUrl + "/elements", json.toString());
+    }
+
+    /**
+     * finds the element using By selector
+     *
+     * @param by
+     * @return
+     */
+    public static String findElements(By by, String contextId) {
+        JSONObject json = new JSONObject();
+        json = getJSon(by, contextId, json);
+        String result = post(baseUrl + "/elements", json.toString());
+
+        Logger.info("findElements: " + result);
+        return result;
+    }
+
+    /**
      * finds the element using By selector
      *
      * @param by
@@ -125,18 +152,6 @@ public class TestUtil {
             }
         } while (foundStatus && ((elapsedRealtime() - start) <= TIME));
         return foundStatus;
-    }
-
-    /**
-     * finds the elements using By selector
-     *
-     * @param by
-     * @return
-     */
-    public static String findElements(By by) {
-        JSONObject json = new JSONObject();
-        json = getJSon(by, json);
-        return post(baseUrl + "/elements", json.toString());
     }
 
     /**

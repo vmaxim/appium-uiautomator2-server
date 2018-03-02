@@ -24,6 +24,9 @@ import android.view.InputEvent;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
+/**
+ * Wrapper for {@link UiAutomatorBridge}
+ */
 public class UiAutomatorBridgeAdapter {
 
     private static final String FIELD_QUERY_CONTROLLER = "mQueryController";

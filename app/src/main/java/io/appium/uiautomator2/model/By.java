@@ -19,6 +19,7 @@ import android.support.test.uiautomator.BySelector;
 import java.util.regex.Pattern;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.Logger;
@@ -36,15 +37,14 @@ import static io.appium.uiautomator2.model.ByStrategy.SELECTOR_XPATH;
  */
 public class By {
 
-    private static final String ERR_MSG_UNSUPPORTED_LOCATOR = "By locator %s is currently not supported!";
     private static final Pattern RESOURCE_ID_REGEX = Pattern
             .compile("^[a-zA-Z_][a-zA-Z0-9\\._]*:[^\\/]+\\/[\\S]+$");
-    private static final String ERR_MSG_CONVERT_TO_UIAUTO_BY = "Can not convert %s to android.support.test.uiautomator.By";
+    private static final String ERR_MSG_CONVERT_TO_UIAUTO_BY = "Can not convert %s to android.support.test.uiautomator.BySelector";
 
     private String locator;
     private final ByStrategy strategy;
 
-    public By(@NonNull final ByStrategy strategy, @NonNull final String locator) {
+    public By(@NonNull final ByStrategy strategy, @NonNull final String locator)  {
         this.strategy = strategy;
         this.locator = locator;
         if (strategy == SELECTOR_NATIVE_ID) {
@@ -52,12 +52,8 @@ public class By {
         }
     }
 
-    public By(@NonNull final String strategyName, @NonNull final String locator) {
+    public By(@NonNull final String strategyName, @NonNull final String locator) throws InvalidSelectorException {
         this(ByStrategy.get(strategyName), locator);
-        if (strategy == null) {
-            String msg = String.format(ERR_MSG_UNSUPPORTED_LOCATOR, strategyName);
-            throw new UnsupportedOperationException(msg);
-        }
     }
 
     @Override
@@ -94,14 +90,22 @@ public class By {
         }
     }
 
-    private void addAppPackage() throws NoSuchDriverException {
+    private void addAppPackage()  {
+        String appPackage = null;
+        try {
+            appPackage = (String) App.getSession().getCapabilities().get("appPackage");
+        } catch (NoSuchDriverException e) {
+            Logger.error("Uable to get app package. Session does not started.");
+        }
+        if (appPackage == null) {
+            return;
+        }
         String locatorWithAppPackage = getElementLocator();
         if (!RESOURCE_ID_REGEX.matcher(getElementLocator()).matches()) {
             // not a fully qualified resource id
             // transform "textToBeChanged" into:
             // com.example.android.testing.espresso.BasicSample:id/textToBeChanged
             // it's prefixed with the app package.
-            String appPackage = (String) App.getSession().getCapabilities().get("appPackage");
             locatorWithAppPackage =  appPackage + ":id/" + getElementLocator();
             Logger.debug("Updated findElement locator strategy: " + locatorWithAppPackage);
         }

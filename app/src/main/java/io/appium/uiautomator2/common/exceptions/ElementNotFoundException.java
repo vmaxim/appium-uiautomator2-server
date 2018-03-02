@@ -16,6 +16,11 @@
 
 package io.appium.uiautomator2.common.exceptions;
 
+import android.support.test.uiautomator.BySelector;
+import android.support.test.uiautomator.UiSelector;
+import android.view.accessibility.AccessibilityNodeInfo;
+
+import io.appium.uiautomator2.model.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.model.Finder;
 
 /**
@@ -23,25 +28,41 @@ import io.appium.uiautomator2.model.Finder;
  */
 
 @SuppressWarnings("serial")
-public class ElementNotFoundException extends UiAutomator2Exception {
-    final static String error = "Could not find an element using supplied strategy. ";
+public class ElementNotFoundException extends Exception {
+    private static final String ERR_MSG_ELEMENT_NOT_FOUND = "An element could not be located. Strategy: %s; Locator:%s";
 
     public ElementNotFoundException() {
-        super(error);
+        super(ERR_MSG_ELEMENT_NOT_FOUND);
+    }
+
+    private ElementNotFoundException(String strategy, Object locator) {
+        super(String.format(ERR_MSG_ELEMENT_NOT_FOUND , strategy, locator));
+    }
+    public ElementNotFoundException(final AccessibilityNodeInfo node) {
+        this("AccessibilityNodeInfo", node);
+    }
+
+    public ElementNotFoundException(final BySelector bySelector) {
+        this("BySelector", bySelector);
+    }
+
+    public ElementNotFoundException(final UiSelector uiSelector) {
+        this("UiSelector", uiSelector);
     }
 
     public ElementNotFoundException(final String extra) {
-        super(error + extra);
+        super(ERR_MSG_ELEMENT_NOT_FOUND + extra);
     }
 
-    public ElementNotFoundException(Finder finder) {
-        super(failMessage(finder));
-    }
-    protected static String failMessage(Finder finder) {
-        return "Could not find any element matching " + finder;
+    public ElementNotFoundException(final Finder finder) {
+        this("XPath", finder);
     }
 
     public ElementNotFoundException(Throwable t) {
         super(t);
+    }
+
+    public ElementNotFoundException(AccessibilityNodeInfoList nodeList) {
+        this("AccessibilityNodeInfoList", nodeList);
     }
 }

@@ -23,6 +23,7 @@ import android.view.MotionEvent.PointerCoords;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
@@ -59,7 +60,7 @@ public class InteractionControllerAdapter {
     }
 
     @Nullable
-    public Boolean injectEventSync(@NonNull final InputEvent event) throws UiAutomator2Exception {
+    public Boolean injectEventSync(@NonNull final InputEvent event) throws UiAutomator2Exception, NoSuchDriverException {
         return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
@@ -71,7 +72,7 @@ public class InteractionControllerAdapter {
     }
 
     @Nullable
-    public Boolean touchDown(final int x, final int y) throws UiAutomator2Exception {
+    public Boolean touchDown(final int x, final int y) throws UiAutomator2Exception, NoSuchDriverException {
         return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
@@ -83,7 +84,7 @@ public class InteractionControllerAdapter {
     }
 
     @Nullable
-    public Boolean touchUp(final int x, final int y) throws UiAutomator2Exception {
+    public Boolean touchUp(final int x, final int y) throws UiAutomator2Exception, NoSuchDriverException {
         return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
@@ -96,7 +97,7 @@ public class InteractionControllerAdapter {
     }
 
     @Nullable
-    public Boolean touchMove(final int x, final int y) throws UiAutomator2Exception {
+    public Boolean touchMove(final int x, final int y) throws UiAutomator2Exception, NoSuchDriverException {
         return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {
@@ -109,7 +110,7 @@ public class InteractionControllerAdapter {
 
     @Nullable
     public Boolean performMultiPointerGesture(final PointerCoords[][] pcs) throws
-            UiAutomator2Exception {
+            UiAutomator2Exception, NoSuchDriverException {
         return scrollEventRegister.runAndRegisterScrollEvents(new ReturningRunnable<Boolean>() {
             @Override
             public void run() {

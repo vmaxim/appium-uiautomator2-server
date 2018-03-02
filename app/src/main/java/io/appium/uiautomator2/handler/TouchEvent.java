@@ -7,6 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -25,7 +26,7 @@ public abstract class TouchEvent extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException {
         try {
             params = new JSONObject(getPayload(request).getString("params"));
             if (params.has(ELEMENT_ID_KEY_NAME) && !(params.has("x") && params.has("y"))) {
@@ -33,10 +34,7 @@ public abstract class TouchEvent extends SafeRequestHandler {
                  * Finding centerX and centerY.
                  */
                 String id = params.getString(ELEMENT_ID_KEY_NAME);
-                element = getCachedElements().getElementFromCache(id);
-                if (element == null) {
-                    return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-                }
+                element = getCachedElements().getElement(id);
                 final Rect bounds = element.getBounds();
                 clickX = bounds.centerX();
                 clickY = bounds.centerY();

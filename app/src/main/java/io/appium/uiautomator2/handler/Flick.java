@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -23,7 +24,7 @@ public class Flick extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException, UiObjectNotFoundException {
         Logger.info("Get Text of element command");
         Point start = new Point(0.5, 0.5);
         Point end = new Point();
@@ -32,10 +33,8 @@ public class Flick extends SafeRequestHandler {
             JSONObject payload = getPayload(request);
             if (payload.has(ELEMENT_ID_KEY_NAME)) {
                 String id = payload.getString(ELEMENT_ID_KEY_NAME);
-                AndroidElement element = getCachedElements().getElementFromCache(id);
-                if (element == null) {
-                    return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-                }
+                AndroidElement element = getCachedElements().getElement(id);
+
                 start = element.getAbsolutePosition(start);
                 final Integer xoffset = Integer.parseInt(payload.getString("xoffset"));
                 final Integer yoffset = Integer.parseInt(payload.getString("yoffset"));
@@ -68,9 +67,6 @@ public class Flick extends SafeRequestHandler {
             } else {
                 return new AppiumResponse(getSessionId(request), WDStatus.UNKNOWN_ERROR, "Flick did not complete successfully");
             }
-        } catch (UiObjectNotFoundException e) {
-            Logger.error("Unable to find the element: ", e);
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
         } catch (JSONException e) {
             Logger.error("Exception while reading JSON: ", e);
             return new AppiumResponse(getSessionId(request), WDStatus.JSON_DECODER_ERROR, e);

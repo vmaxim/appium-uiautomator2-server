@@ -1,5 +1,7 @@
 package io.appium.uiautomator2.handler.request;
 
+import android.support.test.uiautomator.UiObjectNotFoundException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -8,8 +10,12 @@ import java.util.Iterator;
 import java.util.Map;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
+import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
+import io.appium.uiautomator2.common.exceptions.NoSuchContextException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.SessionRemovedException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.core.CoreFacade;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -69,7 +75,7 @@ public abstract class BaseRequestHandler {
 
     public abstract AppiumResponse handle(IHttpRequest request);
 
-    public AppiumResponse safeHandle(IHttpRequest request) throws SessionRemovedException, NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws SessionRemovedException, NoSuchDriverException, NoSuchContextException, ElementNotFoundException, StaleElementReferenceException, UiObjectNotFoundException, InvalidCoordinatesException {
         return handle(request);
     }
 }

@@ -19,6 +19,7 @@ package io.appium.uiautomator2.handler;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -36,14 +37,11 @@ public class GetName extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException {
         Logger.info("Get Name of element command");
         String id = getElementId(request);
-        AndroidElement element = getCachedElements().getElementFromCache(id);
+        AndroidElement element = getCachedElements().getElement(id);
         String elementName;
-        if (element == null) {
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-        }
         try {
             elementName = element.getContentDesc();
             Logger.info("Element Name %s", elementName);

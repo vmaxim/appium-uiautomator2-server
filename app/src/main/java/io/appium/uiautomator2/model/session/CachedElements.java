@@ -1,12 +1,15 @@
 package io.appium.uiautomator2.model.session;
 
+import android.support.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.utils.Logger;
 
 public class CachedElements {
     private Map<String, AndroidElement> cache = new HashMap<>();
@@ -23,24 +26,36 @@ public class CachedElements {
         return null;
     }
 
-    public String getIdOfElement(AndroidElement element) {
+    public String getId(AndroidElement element) {
         if (cache.containsValue(element)) {
             return getCacheKey(element);
         }
         return null;
     }
 
-    public AndroidElement getElementFromCache(String id) {
-        return cache.get(id);
+    @NonNull
+    public AndroidElement getElement(String id) throws StaleElementReferenceException {
+        AndroidElement element = cache.get(id);
+        if (element != null && element.exists()) {
+            return element;
+        }
+        cache.remove(id);
+        throw new StaleElementReferenceException(id);
     }
 
-    public String add(AndroidElement element) {
+    public String add(@NonNull final AndroidElement element) {
         if (cache.containsValue(element)) {
+            Logger.debug("The element is already in cache: " + element);
             return getCacheKey(element);
         }
-        String id = UUID.randomUUID().toString();
-        cache.put(id, element);
-        return id;
+
+        final String elementId = element.getId();
+        if (cache.containsKey(elementId)) {
+            Logger.debug("The element with id is already in cache: " + elementId);
+            return elementId;
+        }
+        cache.put(elementId, element);
+        return elementId;
     }
 
     public List<String> add(List<AndroidElement> elementList) {

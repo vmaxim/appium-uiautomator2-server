@@ -20,6 +20,8 @@ import javax.inject.Singleton;
 import dagger.Component;
 import io.appium.uiautomator2.core.CoreFacade;
 import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
+import io.appium.uiautomator2.core.finder.BySelectorFinder;
+import io.appium.uiautomator2.core.finder.UiSelectorFinder;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
@@ -34,5 +36,9 @@ public interface CoreComponent {
     ReflectionUtils getReflectionUtils();
 
     CoreFacade getCoreFacade();
+
+    UiSelectorFinder getUiObjectFinder();
+
+    BySelectorFinder getUiObject2Finder();
 
 }

@@ -17,7 +17,7 @@ package io.appium.uiautomator2.common.exceptions;
 
 import io.appium.uiautomator2.server.WDStatus;
 
-public class NoSuchDriverException extends UiAutomator2Exception {
+public class NoSuchDriverException extends Exception {
     public NoSuchDriverException() {
         super(WDStatus.NO_SUCH_DRIVER.message());
     }

@@ -6,6 +6,7 @@ import android.support.test.uiautomator.UiObjectNotFoundException;
 import android.support.test.uiautomator.UiSelector;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -21,7 +22,7 @@ public class ScrollToElement extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException {
         Logger.info("Scroll into view command");
         String id = getElementId(request);
         String scrollToId = getElementNextId(request);
@@ -29,14 +30,8 @@ public class ScrollToElement extends SafeRequestHandler {
         UiObject elementUiObject = null;
         UiObject scrollElementUiObject = null;
 
-        AndroidElement element = getCachedElements().getElementFromCache(id);
-        if (element == null) {
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-        }
-        AndroidElement scrollToElement = getCachedElements().getElementFromCache(scrollToId);
-        if (scrollToElement == null) {
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-        }
+        AndroidElement element = getCachedElements().getElement(id);
+        AndroidElement scrollToElement = getCachedElements().getElement(scrollToId);
 
         // attempt to get UiObjects from the container and scroll to element
         // if we can't, we have to error out, since scrollIntoView only works with UiObjects

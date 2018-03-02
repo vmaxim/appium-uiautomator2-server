@@ -13,6 +13,9 @@ import android.support.test.uiautomator.UiSelector;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.ReflectionUtils;
 
+/**
+ * Wrapper for {@link UiDevice}
+ */
 public class UiDeviceAdapter {
 
     private static final String FIELD_INSTRUMENTATION = "mInstrumentation";
@@ -33,10 +36,12 @@ public class UiDeviceAdapter {
         this.uiAutomatorBridge = reflectionUtils.getField(FIELD_UI_AUTOMATOR_BRIDGE);
     }
 
+    @NonNull
     public UiAutomatorBridge getUiAutomatorBridge() {
         return uiAutomatorBridge;
     }
 
+    @NonNull
     public Instrumentation getInstrumentation() {
         return mInstrumentation;
     }
@@ -134,7 +139,7 @@ public class UiDeviceAdapter {
         return uiDevice.openNotification();
     }
 
-    public void setCompressedLayoutHeirarchy(@NonNull final Boolean compressLayout) {
+    public void setCompressedLayoutHierarchy(@NonNull final Boolean compressLayout) {
         uiDevice.setCompressedLayoutHeirarchy(compressLayout);
     }
 
@@ -143,6 +148,7 @@ public class UiDeviceAdapter {
         return uiDevice;
     }
 
+    @NonNull
     public Integer getApiLevelActual() {
         return apiLevelActual;
     }

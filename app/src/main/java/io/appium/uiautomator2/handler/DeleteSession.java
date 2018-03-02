@@ -3,6 +3,7 @@ package io.appium.uiautomator2.handler;
 import android.support.test.InstrumentationRegistry;
 
 import io.appium.uiautomator2.App;
+import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -19,7 +20,7 @@ public class DeleteSession extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
         Logger.info("Delete session command");
         String sessionId = getSessionId(request);
         NotificationListener.getInstance().stop();

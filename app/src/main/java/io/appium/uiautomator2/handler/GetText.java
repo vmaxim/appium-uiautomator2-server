@@ -3,6 +3,7 @@ package io.appium.uiautomator2.handler;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
@@ -17,14 +18,11 @@ public class GetText extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException {
         Logger.info("Get Text of element command");
         String id = getElementId(request);
         String text;
-        AndroidElement element = getCachedElements().getElementFromCache(id);
-        if (element == null) {
-            return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT);
-        }
+        AndroidElement element = getCachedElements().getElement(id);
         try {
             text = element.getText();
             Logger.info("Get Text :" + text);

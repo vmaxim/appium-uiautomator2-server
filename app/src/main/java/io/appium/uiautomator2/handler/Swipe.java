@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
+import io.appium.uiautomator2.common.exceptions.StaleElementReferenceException;
 import io.appium.uiautomator2.core.ReturningRunnable;
 import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
@@ -25,7 +26,7 @@ public class Swipe extends SafeRequestHandler {
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException {
         final Point absStartPos, absEndPos;
         final Boolean isSwipePerformed;
         try {
@@ -79,12 +80,12 @@ public class Swipe extends SafeRequestHandler {
         public AndroidElement element;
         public String id;
 
-        SwipeArguments(final IHttpRequest request) throws JSONException, NoSuchDriverException {
+        SwipeArguments(final IHttpRequest request) throws JSONException, NoSuchDriverException, StaleElementReferenceException {
             JSONObject payload = getPayload(request);
             if (payload.has("elementId")) {
                 Logger.info("Payload has elementId" + payload);
                 id = payload.getString("elementId");
-                element = getCachedElements().getElementFromCache(id);
+                element = getCachedElements().getElement(id);
             }
             start = new Point(payload.get("startX"), payload.get("startY"));
             end = new Point(payload.get("endX"), payload.get("endY"));
