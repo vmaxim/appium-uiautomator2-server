@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
@@ -75,7 +77,7 @@ public abstract class BaseRequestHandler {
 
     public abstract AppiumResponse handle(IHttpRequest request);
 
-    public AppiumResponse safeHandle(IHttpRequest request) throws SessionRemovedException, NoSuchDriverException, NoSuchContextException, ElementNotFoundException, StaleElementReferenceException, UiObjectNotFoundException, InvalidCoordinatesException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws SessionRemovedException, NoSuchDriverException, NoSuchContextException, ElementNotFoundException, StaleElementReferenceException, UiObjectNotFoundException, InvalidCoordinatesException, XPathExpressionException {
         return handle(request);
     }
 }

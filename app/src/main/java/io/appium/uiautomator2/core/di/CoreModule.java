@@ -37,8 +37,9 @@ import io.appium.uiautomator2.core.RootNodesFinder;
 import io.appium.uiautomator2.core.ScrollEventRegister;
 import io.appium.uiautomator2.core.UiAutomatorBridgeAdapter;
 import io.appium.uiautomator2.core.UiDeviceAdapter;
-import io.appium.uiautomator2.core.finder.BySelectorFinder;
-import io.appium.uiautomator2.core.finder.UiSelectorFinder;
+import io.appium.uiautomator2.model.finder.impl.BySelectorFinder;
+import io.appium.uiautomator2.model.finder.ElementFinder;
+import io.appium.uiautomator2.model.finder.impl.UiSelectorFinder;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
 import io.appium.uiautomator2.utils.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.utils.ReflectionUtils;
@@ -150,7 +151,7 @@ public class CoreModule {
     @Provides
     @NonNull
     @Singleton
-    UiSelectorFinder provideUiObjectFinder(
+    ElementFinder provideUiSelectorFinder(
             @NonNull final UiObjectAdapterFactory uiObjectAdapterFactory,
             @NonNull final UiDeviceAdapter uiDeviceAdapter) {
         return new UiSelectorFinder(uiObjectAdapterFactory, uiDeviceAdapter);
@@ -159,7 +160,7 @@ public class CoreModule {
     @Provides
     @NonNull
     @Singleton
-    BySelectorFinder provideUiObject2Finder(
+    ElementFinder provideBySelectorFinder(
             @NonNull UiDeviceAdapter uiDeviceAdapter,
             @NonNull ByMatcherAdapter byMatcherAdapter,
             @NonNull UiObjectAdapterFactory uiObjectAdapterFactory) {
@@ -234,10 +235,12 @@ public class CoreModule {
             @NonNull final QueryControllerAdapter queryControllerAdapter,
             @NonNull final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper,
             @NonNull final UiSelectorFinder uiSelectorFinder,
-            @NonNull final BySelectorFinder bySelectorFinder) {
+            @NonNull final BySelectorFinder bySelectorFinder,
+            @NonNull final RootNodesFinder rootNodesFinder) {
         return new CoreFacade(uiDeviceAdapter, gesturesAdapter,
                 interactionControllerAdapter, uiAutomation, accessibilityInteractionClientAdapter,
-                scrollEventRegister, queryControllerAdapter, accessibilityNodeInfoDumper, uiSelectorFinder, bySelectorFinder);
+                scrollEventRegister, queryControllerAdapter, accessibilityNodeInfoDumper,
+                uiSelectorFinder, bySelectorFinder, rootNodesFinder);
     }
 
 }

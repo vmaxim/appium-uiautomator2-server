@@ -61,7 +61,7 @@ public class XMLHierarchy {
     }
 
     private InputSource getRawXMLHierarchy() throws UiAutomator2Exception {
-        AccessibilityNodeInfo root = XPathFinder.getRootAccessibilityNode();
+        AccessibilityNodeInfo root = core.getCoreFacade().getRootNode();
         return getRawXMLHierarchy(root);
     }
 

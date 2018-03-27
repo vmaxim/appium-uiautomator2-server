@@ -9,7 +9,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPathExpressionException;
 
+import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidSelectorException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
@@ -26,6 +28,8 @@ import io.appium.uiautomator2.model.XPathFinder;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.utils.Logger;
 import io.appium.uiautomator2.utils.UiAutomatorParser;
+
+import static io.appium.uiautomator2.App.model;
 
 public class FindElement extends SafeRequestHandler {
 
@@ -55,8 +59,8 @@ public class FindElement extends SafeRequestHandler {
      * TODO: Need to handle contextId based finding
      */
     private AndroidElement getXPathUiObject(final String expression, AndroidElement
-            element) throws ParserConfigurationException, InvalidSelectorException,
-            ClassNotFoundException, UiAutomator2Exception, NoSuchDriverException, ElementNotFoundException, StaleElementReferenceException {
+            element) throws StaleElementReferenceException, ElementNotFoundException,
+            XPathExpressionException, NoSuchDriverException {
         AccessibilityNodeInfo nodeInfo = null;
         if(element != null) {
             nodeInfo = element.getAccessibilityNodeInfo();
@@ -66,11 +70,11 @@ public class FindElement extends SafeRequestHandler {
         }
         final AccessibilityNodeInfoList nodeList = XPathFinder.getNodesList(expression, nodeInfo
                 /* AccessibilityNodeInfo */);
-        return coreFacade.findElement(nodeList);
+        return model.getUiObjectAdapterFactory().create(nodeList.get(0));
     }
 
     @Override
-    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException, ElementNotFoundException, UiObjectNotFoundException {
+    public AppiumResponse safeHandle(IHttpRequest request) throws NoSuchDriverException, StaleElementReferenceException, ElementNotFoundException, UiObjectNotFoundException, XPathExpressionException {
         try {
             Logger.info("Find element command");
             final JSONObject payload = getPayload(request);
@@ -118,8 +122,9 @@ public class FindElement extends SafeRequestHandler {
     }
 
     @Nullable
-    private AndroidElement findElement(@NonNull final By by) throws InvalidSelectorException,
-            ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiAutomator2Exception, NoSuchDriverException, ElementNotFoundException, StaleElementReferenceException {
+    private AndroidElement findElement(@NonNull final By by) throws UiSelectorSyntaxException,
+            StaleElementReferenceException, ElementNotFoundException, XPathExpressionException,
+            NoSuchDriverException {
         switch (by.getElementStrategy()) {
             case SELECTOR_ANDROID_UIAUTOMATOR:
                 return coreFacade.findElement(new UiAutomatorParser().parse(by.getElementLocator()).get(0));
@@ -132,7 +137,7 @@ public class FindElement extends SafeRequestHandler {
 
     @Nullable
     private AndroidElement findElement(@NonNull final By by, @NonNull final String contextId) throws InvalidSelectorException,
-            ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiObjectNotFoundException, NoSuchDriverException, StaleElementReferenceException, ElementNotFoundException {
+            ParserConfigurationException, ClassNotFoundException, UiSelectorSyntaxException, UiObjectNotFoundException, NoSuchDriverException, StaleElementReferenceException, ElementNotFoundException, XPathExpressionException {
         AndroidElement element = getCachedElements().getElement(contextId);
         switch (by.getElementStrategy()) {
             case SELECTOR_ANDROID_UIAUTOMATOR:

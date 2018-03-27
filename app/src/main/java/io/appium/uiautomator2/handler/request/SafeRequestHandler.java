@@ -4,6 +4,8 @@ import android.support.annotation.Nullable;
 import android.support.test.uiautomator.StaleObjectException;
 import android.support.test.uiautomator.UiObjectNotFoundException;
 
+import javax.xml.xpath.XPathExpressionException;
+
 import io.appium.uiautomator2.App;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.InvalidCoordinatesException;
@@ -40,7 +42,7 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
         return App.getSession().getCachedElements();
     }
 
-    public abstract AppiumResponse safeHandle(IHttpRequest request) throws ElementNotFoundException, NoSuchDriverException, NoSuchContextException, StaleElementReferenceException, UiObjectNotFoundException, InvalidCoordinatesException;
+    public abstract AppiumResponse safeHandle(IHttpRequest request) throws ElementNotFoundException, NoSuchDriverException, NoSuchContextException, StaleElementReferenceException, UiObjectNotFoundException, InvalidCoordinatesException, XPathExpressionException;
 
     @Override
     public final AppiumResponse handle(IHttpRequest request) {
@@ -48,6 +50,8 @@ public abstract class SafeRequestHandler extends BaseRequestHandler {
             return safeHandle(request);
         } catch (ElementNotFoundException e) {
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_ELEMENT, e);
+        } catch (XPathExpressionException e) {
+            return new AppiumResponse(getSessionId(request), WDStatus.XPATH_LOOKUP_ERROR, e);
         } catch (NoSuchContextException e) {
             //TODO: update error code when w3c spec gets updated
             return new AppiumResponse(getSessionId(request), WDStatus.NO_SUCH_WINDOW, new UiAutomator2Exception("Invalid window handle was used: only 'NATIVE_APP' and 'WEBVIEW' are supported."));

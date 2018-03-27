@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2.core.finder;
+package io.appium.uiautomator2.model.finder.impl;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -36,6 +36,7 @@ import io.appium.uiautomator2.core.ByMatcherAdapter;
 import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.model.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.finder.ElementFinder;
 import io.appium.uiautomator2.model.uiobject.UiObject2Adapter;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
@@ -48,11 +49,10 @@ import io.appium.uiautomator2.utils.Logger;
  * {@link io.appium.uiautomator2.common.exceptions.ElementNotFoundException}
  * if element can not be found.
  */
-public class BySelectorFinder {
+public class BySelectorFinder implements ElementFinder<BySelector> {
 
-    private static final String ERR_MSG_CREATE_UIOBJECT2 = "Error while creating UiObject2 object";
     private static final String ERR_MSG_CONVERT_UIOBJECT_TO_UIOBJECT2 = "Unable to convert UiObject to " +
-            "UiObject2. UiObject id:%s. AccessibilityNodeInfo:%s";
+            "UiObject2. UiObject id:%s.";
     private final UiDeviceAdapter uiDeviceAdapter;
     private final ByMatcherAdapter byMatcherAdapter;
     private final UiObjectAdapterFactory uiObjectAdapterFactory;
@@ -75,11 +75,11 @@ public class BySelectorFinder {
         if (node == null) {
             throw new ElementNotFoundException(selector);
         }
-        return createUiObject2Element(selector, node);
+        return uiObjectAdapterFactory.create(selector, node);
     }
 
     @NonNull
-    public AndroidElement findElement(@NonNull final UiObject2Adapter parentContext, @NonNull
+    public UiObject2Adapter findElement(@NonNull final UiObject2Adapter parentContext, @NonNull
     final BySelector selector) throws ElementNotFoundException {
         UiObject2 uiObject2 = parentContext.getUiObject().findObject(selector);
         /* UiObject2.findObject() returns null if element is not exist */
@@ -99,7 +99,11 @@ public class BySelectorFinder {
     @NonNull
     public List<AndroidElement> findElements(@NonNull final BySelector selector) {
         final List<AccessibilityNodeInfo> nodeList = byMatcherAdapter.findMatches(selector);
-        return createUiObject2Elements(nodeList);
+        List<AndroidElement> result = new ArrayList<>(nodeList.size());
+        for (AccessibilityNodeInfo node : nodeList) {
+            result.add(uiObjectAdapterFactory.create(selector, node));
+        }
+        return result;
     }
 
     @NonNull
@@ -108,7 +112,7 @@ public class BySelectorFinder {
         final List<UiObject2> uiObject2List = parentContext.getUiObject().findObjects(selector);
         List<AndroidElement> result = new ArrayList<>(uiObject2List.size());
         for (UiObject2 uiObject2 : uiObject2List) {
-            UiObject2Adapter androidElement = uiObjectAdapterFactory.create(uiObject2);
+            AndroidElement androidElement = uiObjectAdapterFactory.create(uiObject2);
             result.add(androidElement);
         }
         return result;
@@ -117,58 +121,35 @@ public class BySelectorFinder {
     @NonNull
     public List<AndroidElement> findElements(@NonNull final UiObjectAdapter parentContext,
                                              @NonNull final BySelector selector) throws
-            StaleElementReferenceException, ElementNotFoundException {
+            StaleElementReferenceException {
         UiObject2Adapter uiObject2Adapter = convertUiObjectToUiObject2(parentContext);
         return findElements(uiObject2Adapter, selector);
     }
 
-    @NonNull
-    public UiObject2Adapter findElement(@Nullable final AccessibilityNodeInfo node) throws ElementNotFoundException {
-        if (node == null) {
-            throw new ElementNotFoundException();
-        }
-        final BySelector selector = By.clazz(node.getClassName().toString());
-        return createUiObject2Element(selector, node);
-    }
+//    @NonNull
+//    public UiObject2Adapter findElement(@Nullable final AccessibilityNodeInfo node) throws ElementNotFoundException {
+//        if (node == null) {
+//            throw new ElementNotFoundException();
+//        }
+//        return uiObjectAdapterFactory.create(node);
+//    }
 
-    @NonNull
-    public UiObject2Adapter findElement(@NonNull final AccessibilityNodeInfoList nodeList) throws ElementNotFoundException {
-        if (nodeList.isEmpty()) {
-            throw new ElementNotFoundException(nodeList);
-        }
-        return findElement(nodeList.get(0));
-    }
+//    @NonNull
+//    public UiObject2Adapter findElement(@NonNull final AccessibilityNodeInfoList nodeList) throws ElementNotFoundException {
+//        if (nodeList.isEmpty()) {
+//            throw new ElementNotFoundException(nodeList);
+//        }
+//        return findElement(nodeList.get(0));
+//    }
 
-    @NonNull
-    public List<AndroidElement> findElements(@NonNull final AccessibilityNodeInfoList nodeList) {
-        return createUiObject2Elements(nodeList);
-    }
-
-    @NonNull
-    private UiObject2Adapter createUiObject2Element(@Nullable final BySelector selector,
-                                                    @NonNull final AccessibilityNodeInfo node) {
-        final Constructor cons = UiObject2.class.getDeclaredConstructors()[0];
-        cons.setAccessible(true);
-        final Object[] constructorParams = {uiDeviceAdapter.getUiDevice(), selector, node};
-        try {
-            final UiObject2 uiObject2 = (UiObject2) cons.newInstance(constructorParams);
-            return uiObjectAdapterFactory.create(uiObject2);
-        } catch (@NonNull InstantiationException | IllegalAccessException |
-                InvocationTargetException e) {
-            Logger.error(ERR_MSG_CREATE_UIOBJECT2 + " " + e);
-            throw new UiAutomator2Exception(ERR_MSG_CREATE_UIOBJECT2, e);
-        }
-    }
-
-    @NonNull
-    private List<AndroidElement> createUiObject2Elements(
-            @NonNull final List<AccessibilityNodeInfo> nodeList) {
-        final List<AndroidElement> result = new ArrayList<>();
-        for (final AccessibilityNodeInfo node : nodeList) {
-            result.add(createUiObject2Element(By.clazz(node.getClassName().toString()), node));
-        }
-        return result;
-    }
+//    @NonNull
+//    public List<AndroidElement> findElements(@NonNull final AccessibilityNodeInfoList nodeList) {
+//        final List<AndroidElement> result = new ArrayList<>();
+//        for (final AccessibilityNodeInfo node : nodeList) {
+//            result.add(uiObjectAdapterFactory.create(node));
+//        }
+//        return result;
+//    }
 
     /**
      * We can't find the child element with BySelector on UiObject,
@@ -179,11 +160,10 @@ public class BySelectorFinder {
     private UiObject2Adapter convertUiObjectToUiObject2(
             @NonNull final UiObjectAdapter uiObjectAdapter) throws StaleElementReferenceException {
         final AccessibilityNodeInfo nodeInfo = uiObjectAdapter.getAccessibilityNodeInfo();
-        try {
-            return findElement(nodeInfo);
-        } catch (ElementNotFoundException e) {
+        if (nodeInfo == null) {
             throw new UiAutomator2Exception(String.format(ERR_MSG_CONVERT_UIOBJECT_TO_UIOBJECT2,
-                    uiObjectAdapter.getId(), nodeInfo));
+                    uiObjectAdapter.getId()));
         }
+        return uiObjectAdapterFactory.create(nodeInfo);
     }
 }

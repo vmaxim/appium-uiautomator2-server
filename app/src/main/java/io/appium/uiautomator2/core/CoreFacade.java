@@ -32,8 +32,8 @@ import java.util.List;
 import io.appium.uiautomator2.common.exceptions.ElementNotFoundException;
 import io.appium.uiautomator2.common.exceptions.NoSuchDriverException;
 import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-import io.appium.uiautomator2.core.finder.BySelectorFinder;
-import io.appium.uiautomator2.core.finder.UiSelectorFinder;
+import io.appium.uiautomator2.model.finder.impl.BySelectorFinder;
+import io.appium.uiautomator2.model.finder.impl.UiSelectorFinder;
 import io.appium.uiautomator2.model.AccessibilityNodeInfoList;
 import io.appium.uiautomator2.model.AndroidElement;
 
@@ -49,6 +49,7 @@ public class CoreFacade {
     private final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper;
     private final UiSelectorFinder uiSelectorFinder;
     private final BySelectorFinder bySelectorFinder;
+    private final RootNodesFinder rootNodesFinder;
 
     public CoreFacade(@NonNull final UiDeviceAdapter uiDeviceAdapter,
                       @NonNull final GesturesAdapter gesturesAdapter,
@@ -60,7 +61,8 @@ public class CoreFacade {
                       @NonNull final QueryControllerAdapter queryControllerAdapter,
                       @NonNull final AccessibilityNodeInfoDumper accessibilityNodeInfoDumper,
                       @NonNull final UiSelectorFinder uiSelectorFinder,
-                      @NonNull final BySelectorFinder bySelectorFinder) {
+                      @NonNull final BySelectorFinder bySelectorFinder,
+                      @NonNull final RootNodesFinder rootNodesFinder) {
         this.uiDeviceAdapter = uiDeviceAdapter;
         this.gesturesAdapter = gesturesAdapter;
         this.interactionControllerAdapter = interactionControllerAdapter;
@@ -71,6 +73,7 @@ public class CoreFacade {
         this.accessibilityNodeInfoDumper = accessibilityNodeInfoDumper;
         this.uiSelectorFinder = uiSelectorFinder;
         this.bySelectorFinder = bySelectorFinder;
+        this.rootNodesFinder = rootNodesFinder;
     }
 
     public void back() {
@@ -91,7 +94,7 @@ public class CoreFacade {
     }
 
     @NonNull
-    public AndroidElement findElement(UiSelector selector) throws ElementNotFoundException {
+    public AndroidElement findElement(@NonNull final UiSelector selector) throws ElementNotFoundException {
         return uiSelectorFinder.findElement(selector);
     }
 
@@ -101,29 +104,19 @@ public class CoreFacade {
     }
 
     @NonNull
-    public AndroidElement findElement(@NonNull final AccessibilityNodeInfoList nodeList) throws ElementNotFoundException {
-        return bySelectorFinder.findElement(nodeList);
-    }
-
-    @NonNull
-    public AndroidElement findElement(@NonNull final AccessibilityNodeInfo nodeInfo) throws ElementNotFoundException {
-        return bySelectorFinder.findElement(nodeInfo);
-    }
-
-    @NonNull
     public List<AndroidElement> findElements(@NonNull final BySelector selector) {
         return bySelectorFinder.findElements(selector);
     }
 
     @NonNull
-    public List<AndroidElement> findElements(@NonNull final UiSelector selector) throws ElementNotFoundException {
+    public List<AndroidElement> findElements(@NonNull final UiSelector selector)  {
         return uiSelectorFinder.findElements(selector);
     }
 
-    @NonNull
-    public List<AndroidElement> findElements(@NonNull final AccessibilityNodeInfoList nodeList) {
-        return bySelectorFinder.findElements(nodeList);
-    }
+//    @NonNull
+//    public List<AndroidElement> findElements(@NonNull final AccessibilityNodeInfoList nodeList) {
+//        return bySelectorFinder.findElements(nodeList);
+//    }
 
     public int getDisplayHeight() {
         return uiDeviceAdapter.getDisplayHeight();
@@ -138,7 +131,7 @@ public class CoreFacade {
     }
 
     public AccessibilityNodeInfo getRootNode() {
-        return queryControllerAdapter.getRootNode();
+        return rootNodesFinder.getWindowRoots()[0];
     }
 
     public int getScaledTouchSlop() {

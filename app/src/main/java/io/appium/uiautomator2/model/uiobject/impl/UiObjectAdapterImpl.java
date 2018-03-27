@@ -135,23 +135,27 @@ public class UiObjectAdapterImpl implements UiObjectAdapter {
     }
 
     @Override
-    public AndroidElement findElement(@NonNull UiSelector sel) throws StaleElementReferenceException, ElementNotFoundException {
-        return core.getUiObjectFinder().findElement(this, sel);
+    public AndroidElement findElement(@NonNull UiSelector selector) throws
+            StaleElementReferenceException, ElementNotFoundException {
+        return core.getUiSelectorFinder().findElement(this, selector);
     }
 
     @Override
-    public AndroidElement findElement(@NonNull BySelector sel) throws ElementNotFoundException, StaleElementReferenceException {
-        return core.getUiObject2Finder().findElement(this, sel);
+    public AndroidElement findElement(@NonNull BySelector selector) throws
+            ElementNotFoundException, StaleElementReferenceException {
+        return core.getBySelectorFinder().findElement(this, selector);
     }
 
     @Override
-    public List<AndroidElement> findElements(@NonNull UiSelector selector) throws StaleElementReferenceException, ElementNotFoundException {
-        return core.getUiObjectFinder().findElements(this, selector);
+    public List<AndroidElement> findElements(@NonNull UiSelector selector) throws
+            StaleElementReferenceException, ElementNotFoundException {
+        return core.getUiSelectorFinder().findElements(this, selector);
     }
 
     @Override
-    public List<AndroidElement> findElements(@NonNull BySelector selector) throws StaleElementReferenceException, ElementNotFoundException {
-        return core.getUiObject2Finder().findElements(this, selector);
+    public List<AndroidElement> findElements(@NonNull BySelector selector) throws
+            StaleElementReferenceException, ElementNotFoundException {
+        return core.getBySelectorFinder().findElements(this, selector);
     }
 
     @Override

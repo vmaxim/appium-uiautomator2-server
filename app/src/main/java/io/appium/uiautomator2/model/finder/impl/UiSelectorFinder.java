@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.appium.uiautomator2.core.finder;
+package io.appium.uiautomator2.model.finder.impl;
 
 import android.support.annotation.NonNull;
 import android.support.test.uiautomator.UiObject;
@@ -34,6 +34,7 @@ import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
 import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
 import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.finder.ElementFinder;
 import io.appium.uiautomator2.model.uiobject.UiObject2Adapter;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapter;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
@@ -42,7 +43,7 @@ import io.appium.uiautomator2.utils.Logger;
 /**
  * The helper class for finding {@link AndroidElement} by {@link UiSelector}.
  */
-public class UiSelectorFinder {
+public class UiSelectorFinder implements ElementFinder<UiSelector> {
 
     private static final Pattern UI_SELECTOR_ENDS_WITH_INSTANCE = Pattern.compile("" +
             ".*INSTANCE=\\d+]$");
@@ -103,8 +104,7 @@ public class UiSelectorFinder {
     }
 
     @NonNull
-    public List<AndroidElement> findElements(@NonNull final UiSelector selector) throws
-            ElementNotFoundException {
+    public List<AndroidElement> findElements(@NonNull final UiSelector selector) {
         final List<AndroidElement> elements = new ArrayList<>();
         final String selectorString = selector.toString();
         Logger.debug("findElements selector:" + selectorString);
@@ -157,8 +157,7 @@ public class UiSelectorFinder {
 
     @NonNull
     public List<AndroidElement> findElements(@NonNull final UiObjectAdapter parentElement,
-                                             @NonNull final UiSelector selector) throws
-            ElementNotFoundException, StaleElementReferenceException {
+                                             @NonNull final UiSelector selector) throws StaleElementReferenceException {
         if (!parentElement.exists()) {
             throw new StaleElementReferenceException(parentElement);
         }
@@ -197,7 +196,7 @@ public class UiSelectorFinder {
     @NonNull
     public List<AndroidElement> findElements(@NonNull final UiObject2Adapter parentContext,
                                              @NonNull final UiSelector selector) throws
-            NoSuchDriverException, StaleElementReferenceException, ElementNotFoundException {
+            NoSuchDriverException, StaleElementReferenceException {
         UiObjectAdapter uiObjectAdapter = convertUiObject2ToUiObject(parentContext);
         return findElements(uiObjectAdapter, selector);
     }

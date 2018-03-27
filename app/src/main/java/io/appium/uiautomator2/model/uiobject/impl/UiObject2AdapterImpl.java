@@ -155,23 +155,23 @@ public class UiObject2AdapterImpl implements UiObject2Adapter {
     }
 
     @Override
-    public AndroidElement findElement(@NonNull UiSelector sel) throws ElementNotFoundException, StaleElementReferenceException, NoSuchDriverException {
-        return core.getUiObjectFinder().findElement(this, sel);
+    public AndroidElement findElement(@NonNull UiSelector selector) throws ElementNotFoundException, StaleElementReferenceException, NoSuchDriverException {
+        return core.getUiSelectorFinder().findElement(this, selector);
     }
 
     @Override
-    public AndroidElement findElement(@NonNull BySelector sel) throws ElementNotFoundException {
-        return core.getUiObject2Finder().findElement(this, sel);
+    public AndroidElement findElement(@NonNull BySelector selector) throws ElementNotFoundException {
+        return core.getBySelectorFinder().findElement(this, selector);
     }
 
     @Override
     public List<AndroidElement> findElements(@NonNull UiSelector selector) throws ElementNotFoundException, StaleElementReferenceException, NoSuchDriverException {
-        return core.getUiObjectFinder().findElements(this, selector);
+        return core.getUiSelectorFinder().findElements(this, selector);
     }
 
     @Override
     public List<AndroidElement> findElements(@NonNull BySelector selector) {
-        return core.getUiObject2Finder().findElements(this, selector);
+        return core.getBySelectorFinder().findElements(this, selector);
     }
 
     @Override

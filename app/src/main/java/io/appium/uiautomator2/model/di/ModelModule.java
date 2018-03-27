@@ -21,6 +21,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import io.appium.uiautomator2.core.UiDeviceAdapter;
 import io.appium.uiautomator2.core.di.CoreModule;
 import io.appium.uiautomator2.model.AccessibilityNodeInfo2UiSelector;
 import io.appium.uiautomator2.model.uiobject.UiObjectAdapterFactory;
@@ -31,8 +32,10 @@ public class ModelModule {
     @Provides
     @NonNull
     @Singleton
-    UiObjectAdapterFactory provideUiObjectElementFactory() {
-        return new UiObjectAdapterFactory();
+    UiObjectAdapterFactory provideUiObjectElementFactory(
+            @NonNull final UiDeviceAdapter uiDeviceAdapter
+            ) {
+        return new UiObjectAdapterFactory(uiDeviceAdapter);
     }
 
     @Provides
