@@ -57,6 +57,7 @@ public class AlertHelpers {
         final long now = System.currentTimeMillis();
         while (System.currentTimeMillis() - now <= ALERT_TIMEOUT_MS) {
             if (!getUiDevice().findObjects(By.res(alertTitleResIdPattern)).isEmpty()) {
+                Device.waitForIdle();
                 return;
             }
             SystemClock.sleep(100);
