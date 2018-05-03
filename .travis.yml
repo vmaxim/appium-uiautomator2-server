@@ -28,7 +28,8 @@ env:
     - ANDROID_BUILD_TOOLS=26.0.2
     - E2E_TEST_PACKAGE=io.appium.uiautomator2.unittest.test
   matrix:
-    - TEST=unit START_EMU=0
+    - TEST=unit START_EMU=
+    - TEST=AlertCommandsTest ANDROID_EMU_TARGET=android-24
     - TEST=GestureCommandsTest ANDROID_EMU_TARGET=android-24
     - TEST=DeviceCommandsTest ANDROID_EMU_TARGET=android-24
     - TEST=ElementCommandsTest ANDROID_EMU_TARGET=android-24
