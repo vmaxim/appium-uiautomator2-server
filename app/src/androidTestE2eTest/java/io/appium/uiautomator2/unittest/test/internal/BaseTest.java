@@ -107,4 +107,7 @@ public abstract class BaseTest {
         waitForElementInvisibility(elementId);
     }
 
+    protected boolean isRunningOnCI() {
+        return System.getenv("E2E_TEST_PACKAGE") != null;
+    }
 }

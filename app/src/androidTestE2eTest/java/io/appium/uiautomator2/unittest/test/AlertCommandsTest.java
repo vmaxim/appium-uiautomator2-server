@@ -55,6 +55,10 @@ public class AlertCommandsTest extends BaseTest {
 
     @Test
     public void verifyDismissingAnAlertWithButton() throws JSONException {
+        if (isRunningOnCI()) {
+            return;
+        }
+
         setupView();
 
         Response response = findElement(By.accessibilityId("OK Cancel dialog with a long message"));
@@ -66,6 +70,10 @@ public class AlertCommandsTest extends BaseTest {
 
     @Test
     public void verifyGettingAlertText() throws JSONException {
+        if (isRunningOnCI()) {
+            return;
+        }
+
         setupView();
 
         Response response = findElement(By.accessibilityId("OK Cancel dialog with a message"));

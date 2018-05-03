@@ -53,7 +53,6 @@ public class AlertHelpers {
             Pattern.compile(".+:id/permission_\\w+_button$");
     private static final Pattern alertElementsResIdPattern = Pattern.compile(".+:id/.+");
     private static final long ALERT_TIMEOUT_MS = 1000;
-    private static final long TEXT_LOAD_TIMEOUT_MS = 500;
 
     private static String buttonResIdByIdx(int index) {
         return String.format("%s%s", regularAlertButtonResIdPrefix, index);
@@ -77,15 +76,10 @@ public class AlertHelpers {
 
     @Nullable
     private static UiObject2 filterButtonByLabel(Collection<UiObject2> buttons, String label) {
-        final long now = System.currentTimeMillis();
-        // Alert texts might be loaded with some delay
-        while (System.currentTimeMillis() - now <= TEXT_LOAD_TIMEOUT_MS) {
-            for (UiObject2 button : buttons) {
-                if (Objects.equals(button.getText(), label)) {
-                    return button;
-                }
+        for (UiObject2 button : buttons) {
+            if (Objects.equals(button.getText(), label)) {
+                return button;
             }
-            SystemClock.sleep(100);
         }
         return null;
     }
@@ -176,27 +170,18 @@ public class AlertHelpers {
         final String alertButtonsResIdPattern = alertType == AlertType.REGULAR
                 ? regularAlertButtonResIdPattern.toString()
                 : permissionAlertButtonResIdPattern.toString();
-        final long now = System.currentTimeMillis();
-        // Alert texts might be loaded with some delay
-        while (System.currentTimeMillis() - now <= TEXT_LOAD_TIMEOUT_MS) {
-            for (final UiObject2 element : alertElements) {
-                final String resName = element.getResourceName();
-                if (resName == null || resName.matches(alertButtonsResIdPattern)) {
-                    continue;
-                }
-
-                final String text = element.getText();
-                if (isBlank(text)) {
-                    continue;
-                }
-
-                result.add(text);
+        for (final UiObject2 element : alertElements) {
+            final String resName = element.getResourceName();
+            if (resName == null || resName.matches(alertButtonsResIdPattern)) {
+                continue;
             }
 
-            if (!result.isEmpty()) {
-                break;
+            final String text = element.getText();
+            if (isBlank(text)) {
+                continue;
             }
-            SystemClock.sleep(100);
+
+            result.add(text);
         }
         return join("\n", result);
     }
