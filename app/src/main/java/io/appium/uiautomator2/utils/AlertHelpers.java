@@ -16,7 +16,6 @@
 
 package io.appium.uiautomator2.utils;
 
-import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.UiObject2;
@@ -52,25 +51,21 @@ public class AlertHelpers {
     private static final Pattern permissionAlertButtonResIdPattern =
             Pattern.compile(".+:id/permission_\\w+_button$");
     private static final Pattern alertElementsResIdPattern = Pattern.compile(".+:id/.+");
-    private static final long ALERT_TIMEOUT_MS = 1000;
 
     private static String buttonResIdByIdx(int index) {
         return String.format("%s%s", regularAlertButtonResIdPrefix, index);
     }
 
     private static AlertType getAlertType() {
-        final long now = System.currentTimeMillis();
-        while (System.currentTimeMillis() - now <= ALERT_TIMEOUT_MS) {
-            if (!getUiDevice().findObjects(By.res(regularAlertTitleResIdPattern)).isEmpty()) {
-                Device.waitForIdle();
-                return AlertType.REGULAR;
-            }
-            if (!getUiDevice().findObjects(By.res(permissionAlertTitleResIdPattern)).isEmpty()) {
-                Device.waitForIdle();
-                return AlertType.PERMISSION;
-            }
-            SystemClock.sleep(100);
+        Device.waitForIdle();
+
+        if (!getUiDevice().findObjects(By.res(regularAlertTitleResIdPattern)).isEmpty()) {
+            return AlertType.REGULAR;
         }
+        if (!getUiDevice().findObjects(By.res(permissionAlertTitleResIdPattern)).isEmpty()) {
+            return AlertType.PERMISSION;
+        }
+
         throw new NoAlertOpenException();
     }
 

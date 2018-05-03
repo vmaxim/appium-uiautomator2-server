@@ -35,7 +35,6 @@ import io.appium.uiautomator2.model.By;
 import io.appium.uiautomator2.model.settings.Settings;
 import io.appium.uiautomator2.server.ServerInstrumentation;
 import io.appium.uiautomator2.unittest.test.Config;
-import io.netty.channel.ConnectTimeoutException;
 
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -62,8 +61,7 @@ public abstract class BaseTest {
      * start io.appium.uiautomator2.server and launch the application main activity
      */
     @BeforeClass
-    public static void startServer() throws InterruptedException,
-            JSONException, IOException {
+    public static void startServer() throws JSONException, IOException {
         if (serverInstrumentation != null) {
             return;
         }
@@ -81,7 +79,7 @@ public abstract class BaseTest {
     }
 
     @AfterClass
-    public static void stopSever() throws InterruptedException, ConnectTimeoutException {
+    public static void stopSever() {
         deleteSession();
         if (serverInstrumentation == null) {
             return;
@@ -92,7 +90,7 @@ public abstract class BaseTest {
     }
 
     @Before
-    public void launchAUT() throws InterruptedException, JSONException {
+    public void launchAUT() throws JSONException {
         updateSetting(Settings.ENABLE_NOTIFICATION_LISTENER.toString(), false);
         startActivity(Config.APP_NAME);
         waitForElement(By.accessibilityId("Accessibility"));
@@ -105,9 +103,5 @@ public abstract class BaseTest {
     protected void clickAndWaitForStaleness(String elementId) throws JSONException {
         click(elementId);
         waitForElementInvisibility(elementId);
-    }
-
-    protected boolean isRunningOnCI() {
-        return System.getenv("E2E_TEST_PACKAGE") != null;
     }
 }

@@ -28,7 +28,6 @@ import static io.appium.uiautomator2.unittest.test.internal.commands.DeviceComma
 import static io.appium.uiautomator2.unittest.test.internal.commands.DeviceCommands.dismissAlert;
 import static io.appium.uiautomator2.unittest.test.internal.commands.DeviceCommands.findElement;
 import static io.appium.uiautomator2.unittest.test.internal.commands.DeviceCommands.getAlertText;
-import static io.appium.uiautomator2.unittest.test.internal.commands.ElementCommands.click;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -47,7 +46,7 @@ public class AlertCommandsTest extends BaseTest {
         setupView();
 
         Response response = findElement(By.accessibilityId("OK Cancel dialog with a long message"));
-        click(response.getElementId());
+        clickAndWaitForStaleness(response.getElementId());
 
         response = acceptAlert(null);
         assertThat(response.getStatus(), equalTo(WDStatus.SUCCESS.code()));
@@ -55,14 +54,10 @@ public class AlertCommandsTest extends BaseTest {
 
     @Test
     public void verifyDismissingAnAlertWithButton() throws JSONException {
-        if (isRunningOnCI()) {
-            return;
-        }
-
         setupView();
 
         Response response = findElement(By.accessibilityId("OK Cancel dialog with a long message"));
-        click(response.getElementId());
+        clickAndWaitForStaleness(response.getElementId());
 
         response = dismissAlert("CANCEL");
         assertThat(response.getStatus(), equalTo(WDStatus.SUCCESS.code()));
@@ -70,14 +65,10 @@ public class AlertCommandsTest extends BaseTest {
 
     @Test
     public void verifyGettingAlertText() throws JSONException {
-        if (isRunningOnCI()) {
-            return;
-        }
-
         setupView();
 
         Response response = findElement(By.accessibilityId("OK Cancel dialog with a message"));
-        click(response.getElementId());
+        clickAndWaitForStaleness(response.getElementId());
 
         response = getAlertText();
         assertThat(response.getStatus(), equalTo(WDStatus.SUCCESS.code()));
