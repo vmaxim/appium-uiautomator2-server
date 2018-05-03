@@ -48,6 +48,7 @@ public class AlertHelpers {
             Pattern.compile("^android:id/(alertTitle|custom)$");
     private static final Pattern alertElementsResIdPattern = Pattern.compile("^android:id/.+");
     private static final long ALERT_TIMEOUT_MS = 1000;
+    private static final long TEXT_LOAD_TIMEOUT_MS = 500;
 
     private static String buttonResIdByIdx(int index) {
         return String.format("android:id/button%s", index);
@@ -100,11 +101,19 @@ public class AlertHelpers {
                         ? minButtonId + 1
                         : minButtonId));
         } else {
-            for (UiObject2 button : alertButtonsMapping.values()) {
-                if (Objects.equals(button.getText(), buttonLabel)) {
-                    dstButton = button;
+            final long now = System.currentTimeMillis();
+            // Alert texts might be loaded with some delay
+            while (System.currentTimeMillis() - now <= TEXT_LOAD_TIMEOUT_MS) {
+                for (UiObject2 button : alertButtonsMapping.values()) {
+                    if (Objects.equals(button.getText(), buttonLabel)) {
+                        dstButton = button;
+                        break;
+                    }
+                }
+                if (dstButton != null) {
                     break;
                 }
+                SystemClock.sleep(100);
             }
         }
         if (dstButton == null) {
@@ -134,18 +143,27 @@ public class AlertHelpers {
         final List<String> result = new ArrayList<>();
         final List<UiObject2> alertElements = alertRoots.get(0).findObjects(By.res(alertElementsResIdPattern));
         Log.d(TAG, String.format("Got %d alert elements", alertElements.size()));
-        for (final UiObject2 element : alertElements) {
-            final String resName = element.getResourceName();
-            if (resName == null || resName.matches(alertButtonResIdPattern.toString())) {
-                continue;
+        final long now = System.currentTimeMillis();
+        // Alert texts might be loaded with some delay
+        while (System.currentTimeMillis() - now <= TEXT_LOAD_TIMEOUT_MS) {
+            for (final UiObject2 element : alertElements) {
+                final String resName = element.getResourceName();
+                if (resName == null || resName.matches(alertButtonResIdPattern.toString())) {
+                    continue;
+                }
+
+                final String text = element.getText();
+                if (isBlank(text)) {
+                    continue;
+                }
+
+                result.add(text);
             }
 
-            final String text = element.getText();
-            if (isBlank(text)) {
-                continue;
+            if (!result.isEmpty()) {
+                break;
             }
-
-            result.add(text);
+            SystemClock.sleep(100);
         }
         return join("\n", result);
     }
