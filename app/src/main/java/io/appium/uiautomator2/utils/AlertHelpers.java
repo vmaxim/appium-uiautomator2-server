@@ -23,6 +23,7 @@ import android.support.test.uiautomator.UiObject2;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -40,30 +41,91 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 public class AlertHelpers {
     private static final String TAG = AlertHelpers.class.getSimpleName();
 
-    private static final String alertButtonResIdPrefix = "android:id/button";
-    private static final Pattern alertButtonResIdPattern =
-            Pattern.compile("^" + alertButtonResIdPrefix + "\\d+$");
-    private static final String alertParentPanelResId = "android:id/parentPanel";
-    private static final Pattern alertTitleResIdPattern =
-            Pattern.compile("^android:id/(alertTitle|custom)$");
-    private static final Pattern alertElementsResIdPattern = Pattern.compile("^android:id/.+");
+    private static final String regularAlertButtonResIdPrefix = "android:id/button";
+    private static final Pattern regularAlertButtonResIdPattern =
+            Pattern.compile("^" + regularAlertButtonResIdPrefix + "\\d+$");
+    private static final String alertContentResId = "android:id/content";
+    private static final Pattern regularAlertTitleResIdPattern =
+            Pattern.compile(".+:id/(alertTitle|custom)$");
+    private static final Pattern permissionAlertTitleResIdPattern =
+            Pattern.compile(".+:id/permission_message$");
+    private static final Pattern permissionAlertButtonResIdPattern =
+            Pattern.compile(".+:id/permission_\\w+_button$");
+    private static final Pattern alertElementsResIdPattern = Pattern.compile(".+:id/.+");
     private static final long ALERT_TIMEOUT_MS = 1000;
     private static final long TEXT_LOAD_TIMEOUT_MS = 500;
 
     private static String buttonResIdByIdx(int index) {
-        return String.format("android:id/button%s", index);
+        return String.format("%s%s", regularAlertButtonResIdPrefix, index);
     }
 
-    private static void verifyAlertPresence() {
+    private static AlertType getAlertType() {
         final long now = System.currentTimeMillis();
         while (System.currentTimeMillis() - now <= ALERT_TIMEOUT_MS) {
-            if (!getUiDevice().findObjects(By.res(alertTitleResIdPattern)).isEmpty()) {
+            if (!getUiDevice().findObjects(By.res(regularAlertTitleResIdPattern)).isEmpty()) {
                 Device.waitForIdle();
-                return;
+                return AlertType.REGULAR;
+            }
+            if (!getUiDevice().findObjects(By.res(permissionAlertTitleResIdPattern)).isEmpty()) {
+                Device.waitForIdle();
+                return AlertType.PERMISSION;
             }
             SystemClock.sleep(100);
         }
         throw new NoAlertOpenException();
+    }
+
+    @Nullable
+    private static UiObject2 filterButtonByLabel(Collection<UiObject2> buttons, String label) {
+        final long now = System.currentTimeMillis();
+        // Alert texts might be loaded with some delay
+        while (System.currentTimeMillis() - now <= TEXT_LOAD_TIMEOUT_MS) {
+            for (UiObject2 button : buttons) {
+                if (Objects.equals(button.getText(), label)) {
+                    return button;
+                }
+            }
+            SystemClock.sleep(100);
+        }
+        return null;
+    }
+
+    @Nullable
+    private static UiObject2 getRegularAlertButton(AlertAction action, @Nullable String buttonLabel) {
+        final Map<String, UiObject2> alertButtonsMapping = new HashMap<>();
+        final List<Integer> buttonIndexes = new ArrayList<>();
+        for (final UiObject2 button : getUiDevice().findObjects(By.res(regularAlertButtonResIdPattern))) {
+            final String resId = button.getResourceName();
+            alertButtonsMapping.put(resId, button);
+            buttonIndexes.add(Integer.parseInt(resId.substring(regularAlertButtonResIdPrefix.length())));
+        }
+
+        if (buttonLabel == null) {
+            final int minButtonId = Collections.min(buttonIndexes);
+            return action == AlertAction.ACCEPT
+                    ? alertButtonsMapping.get(buttonResIdByIdx(minButtonId))
+                    : alertButtonsMapping.get(buttonResIdByIdx(alertButtonsMapping.size() > 1
+                    ? minButtonId + 1
+                    : minButtonId));
+        }
+        return filterButtonByLabel(alertButtonsMapping.values(), buttonLabel);
+    }
+
+    @Nullable
+    private static UiObject2 getPermissionAlertButton(AlertAction action, @Nullable String buttonLabel) {
+        final List<UiObject2> buttons = getUiDevice()
+                .findObjects(By.res(permissionAlertButtonResIdPattern));
+        if (buttonLabel == null) {
+            if (action == AlertAction.ACCEPT) {
+                return buttons.size() > 1 ? buttons.get(1) : buttons.get(0);
+            }
+            if (action == AlertAction.DISMISS && buttons.size() > 0) {
+                return buttons.get(0);
+            }
+        } else {
+            return filterButtonByLabel(buttons, buttonLabel);
+        }
+        return null;
     }
 
     /**
@@ -79,43 +141,11 @@ public class AlertHelpers {
      * @throws InvalidElementStateException if no matching button can be found
      */
     public static String handle(AlertAction action, @Nullable String buttonLabel) {
-        verifyAlertPresence();
+        final AlertType alertType = getAlertType();
 
-        final Map<String, UiObject2> alertButtonsMapping = new HashMap<>();
-        final List<Integer> buttonIndexes = new ArrayList<>();
-        for (final UiObject2 button : getUiDevice().findObjects(By.res(alertButtonResIdPattern))) {
-            final String resId = button.getResourceName();
-            alertButtonsMapping.put(resId, button);
-            buttonIndexes.add(Integer.parseInt(resId.substring(alertButtonResIdPrefix.length())));
-        }
-        if (alertButtonsMapping.isEmpty()) {
-            throw new InvalidElementStateException("The on-screen alert contains no buttons");
-        }
-
-        UiObject2 dstButton = null;
-        if (buttonLabel == null) {
-            final int minButtonId = Collections.min(buttonIndexes);
-            dstButton = action == AlertAction.ACCEPT
-                    ? alertButtonsMapping.get(buttonResIdByIdx(minButtonId))
-                    : alertButtonsMapping.get(buttonResIdByIdx(alertButtonsMapping.size() > 1
-                        ? minButtonId + 1
-                        : minButtonId));
-        } else {
-            final long now = System.currentTimeMillis();
-            // Alert texts might be loaded with some delay
-            while (System.currentTimeMillis() - now <= TEXT_LOAD_TIMEOUT_MS) {
-                for (UiObject2 button : alertButtonsMapping.values()) {
-                    if (Objects.equals(button.getText(), buttonLabel)) {
-                        dstButton = button;
-                        break;
-                    }
-                }
-                if (dstButton != null) {
-                    break;
-                }
-                SystemClock.sleep(100);
-            }
-        }
+        final UiObject2 dstButton = alertType == AlertType.REGULAR
+                ? getRegularAlertButton(action, buttonLabel)
+                : getPermissionAlertButton(action, buttonLabel);
         if (dstButton == null) {
             throw new InvalidElementStateException("The expected button cannot be detected on the alert");
         }
@@ -133,9 +163,9 @@ public class AlertHelpers {
      * @throws NoAlertOpenException if no dialog is present on the screen
      */
     public static String getText() {
-        verifyAlertPresence();
+        final AlertType alertType = getAlertType();
 
-        final List<UiObject2> alertRoots = getUiDevice().findObjects(By.res(alertParentPanelResId));
+        final List<UiObject2> alertRoots = getUiDevice().findObjects(By.res(alertContentResId));
         if (alertRoots.isEmpty()) {
             throw new NoAlertOpenException();
         }
@@ -143,12 +173,15 @@ public class AlertHelpers {
         final List<String> result = new ArrayList<>();
         final List<UiObject2> alertElements = alertRoots.get(0).findObjects(By.res(alertElementsResIdPattern));
         Log.d(TAG, String.format("Got %d alert elements", alertElements.size()));
+        final String alertButtonsResIdPattern = alertType == AlertType.REGULAR
+                ? regularAlertButtonResIdPattern.toString()
+                : permissionAlertButtonResIdPattern.toString();
         final long now = System.currentTimeMillis();
         // Alert texts might be loaded with some delay
         while (System.currentTimeMillis() - now <= TEXT_LOAD_TIMEOUT_MS) {
             for (final UiObject2 element : alertElements) {
                 final String resName = element.getResourceName();
-                if (resName == null || resName.matches(alertButtonResIdPattern.toString())) {
+                if (resName == null || resName.matches(alertButtonsResIdPattern)) {
                     continue;
                 }
 
@@ -170,5 +203,9 @@ public class AlertHelpers {
 
     public enum AlertAction {
         ACCEPT, DISMISS
+    }
+
+    public enum AlertType {
+        REGULAR, PERMISSION
     }
 }
