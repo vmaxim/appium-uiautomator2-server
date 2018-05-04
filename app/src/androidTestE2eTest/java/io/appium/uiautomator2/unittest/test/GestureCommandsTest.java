@@ -62,7 +62,7 @@ public class GestureCommandsTest extends BaseTest {
     @Test
     public void dragAndDropTest() throws JSONException {
         startActivity(".view.DragAndDropDemo");
-        Response response = findElement(By.id("io.appium.android.apis:id/drag_dot_1"));
+        Response response = findElement(By.id("io.appium.android.apis:id/drag_dot_11"));
         String srcElementId = response.getElementId();
         response = getLocation(srcElementId);
         JSONObject srcLocation = response.getValue();
