@@ -83,6 +83,8 @@ after_failure:
     if [ "$TEST" != "unit" ]; then
       echo -e "----UIAUTOMATOR DUMPS----\n"
       adb pull /sdcard/hierarchy .
+      ls
+      pwd
       for f in ./*.xml
       do
         echo -e "Hierarchy dump for $f\n"
