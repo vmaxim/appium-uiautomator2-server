@@ -51,7 +51,6 @@ import static org.junit.Assert.assertNotNull;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseTest {
-    protected static ServerInstrumentation serverInstrumentation;
     private static Context ctx;
 
     @Rule
@@ -62,16 +61,13 @@ public abstract class BaseTest {
      */
     @BeforeClass
     public static void startServer() throws JSONException, IOException {
-        if (serverInstrumentation != null) {
-            return;
-        }
         assertNotNull(getUiDevice());
         ctx = InstrumentationRegistry.getInstrumentation().getContext();
-        serverInstrumentation = ServerInstrumentation.getInstance();
         Logger.info("Starting Server");
-        serverInstrumentation.startServer();
+        ServerInstrumentation.getInstance().startServer();
         Client.waitForNettyStatus(NettyStatus.ONLINE);
-        createSession();
+        Response response = createSession();
+        Client.setSessionId(response.getSessionId());
         Configurator.getInstance().setWaitForSelectorTimeout(0);
         Configurator.getInstance().setWaitForIdleTimeout(50000);
         TestUtils.grantPermission(getTargetContext(), READ_EXTERNAL_STORAGE);
@@ -81,12 +77,7 @@ public abstract class BaseTest {
     @AfterClass
     public static void stopSever() {
         deleteSession();
-        if (serverInstrumentation == null) {
-            return;
-        }
-        serverInstrumentation.stopServer();
         Client.waitForNettyStatus(NettyStatus.OFFLINE);
-        serverInstrumentation = null;
     }
 
     @Before

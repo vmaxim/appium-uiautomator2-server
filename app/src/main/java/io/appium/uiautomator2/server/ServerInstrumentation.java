@@ -55,27 +55,18 @@ public class ServerInstrumentation {
     }
 
     public void stopServer() {
-        try {
-            if (wakeLock != null) {
-                try {
-                    wakeLock.release();
-                } catch (Exception e) {/* ignore */}
-                wakeLock = null;
-            }
-            stopServerThread();
-
-        } finally {
-            instance = null;
+        if (wakeLock != null) {
+            try {
+                wakeLock.release();
+            } catch (Exception e) {/* ignore */}
+            wakeLock = null;
         }
+        stopServerThread();
     }
 
     public void startServer() throws SessionRemovedException {
         if (serverThread != null && serverThread.isAlive()) {
             return;
-        }
-
-        if (serverThread == null && isServerStopped) {
-            throw new SessionRemovedException("Delete Session has been invoked");
         }
 
         if (serverThread != null) {

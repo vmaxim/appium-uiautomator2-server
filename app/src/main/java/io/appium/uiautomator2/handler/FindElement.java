@@ -21,6 +21,7 @@ import io.appium.uiautomator2.handler.request.SafeRequestHandler;
 import io.appium.uiautomator2.http.AppiumResponse;
 import io.appium.uiautomator2.http.IHttpRequest;
 import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.AppiumUiAutomatorDriver;
 import io.appium.uiautomator2.model.By;
 import io.appium.uiautomator2.model.By.ByClass;
 import io.appium.uiautomator2.model.By.ById;
@@ -87,7 +88,8 @@ public class FindElement extends SafeRequestHandler {
             // transform "textToBeChanged" into:
             // com.example.android.testing.espresso.BasicSample:id/textToBeChanged
             // it's prefixed with the app package.
-            locator = Session.capabilities.get("appPackage") + ":id/" + by.getElementLocator();
+            final Session session = AppiumUiAutomatorDriver.getInstance().getSession();
+            locator = session.getCapabilities().get("appPackage") + ":id/" + by.getElementLocator();
             Logger.debug("Updated findElement locator strategy: " + locator);
         }
         return locator;

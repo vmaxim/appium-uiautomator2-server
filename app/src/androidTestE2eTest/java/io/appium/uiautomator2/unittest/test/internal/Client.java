@@ -37,6 +37,8 @@ public abstract class Client {
     private static final MediaType JSON = MediaType.parse("application/json; " + "charset=utf-8");
     private static final OkHttpClient HTTP_CLIENT = new OkHttpClient();
 
+    private static String sessionId;
+
     static {
         final int timeout = 15 * 1000;
         HTTP_CLIENT.setConnectTimeout(timeout, SECONDS);
@@ -45,7 +47,7 @@ public abstract class Client {
     }
 
     public static Response get(final String path) {
-        return get(Config.BASE_URL, path);
+        return get(getBaseUrl(), path);
     }
 
     private static Response get(final String baseUrl, final String path) {
@@ -54,7 +56,7 @@ public abstract class Client {
     }
 
     public static Response post(final String path, final JSONObject body) {
-        return post(Config.BASE_URL, path, body);
+        return post(getBaseUrl(), path, body);
     }
 
     public static Response post(final String baseUrl, final String path, final JSONObject body) {
@@ -64,7 +66,7 @@ public abstract class Client {
     }
 
     public static Response delete() {
-        Request request = new Request.Builder().url(Config.BASE_URL)
+        Request request = new Request.Builder().url(getBaseUrl())
                 .delete(RequestBody.create(JSON, new JSONObject().toString())).build();
         return execute(request);
     }
@@ -88,6 +90,14 @@ public abstract class Client {
         } while (elapsedRealtime() - start < Config.NETTY_STATUS_TIMEOUT);
         throw new TimeoutException(String.format("netty status. Expected:%s; Actual:%s;",
                 status, actualStatus));
+    }
+
+    public static void setSessionId(String newSessionId) {
+        sessionId = newSessionId;
+    }
+
+    public static String getBaseUrl() {
+        return Config.BASE_URL.replace(":sessionId", sessionId);
     }
 
     private static Response execute(final Request request) {

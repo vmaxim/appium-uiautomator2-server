@@ -55,6 +55,14 @@ public class Response {
         }
     }
 
+    public String getSessionId() {
+        try {
+            return new JSONObject(body).getString("sessionId");
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(String.format(ERR_MSG, "sessionId", body), e);
+        }
+    }
+
     public int code() {
         return code;
     }

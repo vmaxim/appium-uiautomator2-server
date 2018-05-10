@@ -16,9 +16,9 @@
 
 package io.appium.uiautomator2.model.settings;
 
+import io.appium.uiautomator2.model.AppiumUiAutomatorDriver;
+import io.appium.uiautomator2.model.Session;
 import io.appium.uiautomator2.utils.Logger;
-
-import static io.appium.uiautomator2.model.Session.capabilities;
 
 public class ElementResponseAttributes extends AbstractSetting<String> {
 
@@ -30,8 +30,9 @@ public class ElementResponseAttributes extends AbstractSetting<String> {
 
     @Override
     public String getValue() {
-        return capabilities.containsKey(getName()) ?
-                (String) capabilities.get(getName()) : "";
+        final Session session = AppiumUiAutomatorDriver.getInstance().getSession();
+        final String value = (String) session.getCapabilities().get(getName());
+        return value == null? "" : value;
     }
 
     @Override

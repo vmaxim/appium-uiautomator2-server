@@ -36,6 +36,7 @@ import io.appium.uiautomator2.core.AccessibilityNodeInfoGetter;
 import io.appium.uiautomator2.core.AccessibilityNodeInfoHelper;
 import io.appium.uiautomator2.handler.GetRect;
 import io.appium.uiautomator2.model.AndroidElement;
+import io.appium.uiautomator2.model.AppiumUiAutomatorDriver;
 import io.appium.uiautomator2.model.Session;
 
 import static io.appium.uiautomator2.handler.GetElementAttribute.getElementAttributeValue;
@@ -91,10 +92,11 @@ public abstract class ElementHelpers {
     public static JSONObject toJSON(AndroidElement el) throws JSONException, UiObjectNotFoundException {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("ELEMENT", el.getId());
-        if (Session.shouldUseCompactResponses()) {
+        final Session session = AppiumUiAutomatorDriver.getInstance().getSession();
+        if (session.shouldUseCompactResponses()) {
             return jsonObject;
         }
-        for (String field : Session.getElementResponseAttributes()) {
+        for (String field : session.getElementResponseAttributes()) {
             try {
                 if (Objects.equals(field, "name")) {
                     putNullable(jsonObject, field, el.getContentDesc());

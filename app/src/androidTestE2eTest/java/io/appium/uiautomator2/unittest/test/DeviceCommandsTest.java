@@ -33,6 +33,7 @@ import java.util.Map;
 
 import io.appium.uiautomator2.model.By;
 import io.appium.uiautomator2.model.internal.CustomUiDevice;
+import io.appium.uiautomator2.server.ServerInstrumentation;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.unittest.test.internal.BaseTest;
 import io.appium.uiautomator2.unittest.test.internal.NettyStatus;
@@ -566,9 +567,8 @@ public class DeviceCommandsTest extends BaseTest {
                     "su 0 am broadcast -a android.intent.action.ACTION_POWER_DISCONNECTED " +
                             "io.appium.uiautomator2.e2etest &");
             waitForNettyStatus(NettyStatus.OFFLINE);
-            assertTrue(serverInstrumentation.isServerStopped());
+            assertTrue(ServerInstrumentation.getInstance().isServerStopped());
         } finally {
-            serverInstrumentation = null;
             startServer();
         }
     }

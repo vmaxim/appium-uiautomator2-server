@@ -16,6 +16,7 @@
 
 package io.appium.uiautomator2.model.settings;
 
+import io.appium.uiautomator2.model.AppiumUiAutomatorDriver;
 import io.appium.uiautomator2.model.Session;
 import io.appium.uiautomator2.utils.Logger;
 
@@ -29,7 +30,8 @@ public class AllowInvisibleElements extends AbstractSetting<Boolean> {
 
     @Override
     public Boolean getValue() {
-        Object allowInvisibleElements = Session.capabilities.get(getName());
+        final Session session = AppiumUiAutomatorDriver.getInstance().getSession();
+        final Object allowInvisibleElements = session.getCapabilities().get(getName());
         return allowInvisibleElements != null && (boolean) allowInvisibleElements;
     }
 

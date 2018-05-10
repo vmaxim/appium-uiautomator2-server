@@ -174,8 +174,11 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
             children = null;
         } else {
             children = new ArrayList<>(childCount);
-            Object allowInvisibleElements = Session.capabilities.get(ALLOW_INVISIBLE_ELEMENTS.toString());
-            boolean isAllowInvisibleElements = allowInvisibleElements != null && (boolean) allowInvisibleElements;
+            final Session session = AppiumUiAutomatorDriver.getInstance().getSession();
+            Object allowInvisibleElements = session.getCapabilities()
+                    .get(ALLOW_INVISIBLE_ELEMENTS.toString());
+            boolean isAllowInvisibleElements = allowInvisibleElements != null
+                    && (boolean) allowInvisibleElements;
 
             for (int i = 0; i < childCount; i++) {
                 AccessibilityNodeInfo child = node.getChild(i);
