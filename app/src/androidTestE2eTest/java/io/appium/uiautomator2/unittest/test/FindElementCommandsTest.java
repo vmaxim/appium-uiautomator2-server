@@ -50,6 +50,7 @@ public class FindElementCommandsTest extends BaseTest {
     private static final String MAIN_ACTIVITY = ".ApiDemos";
     private static final String SCROLLBAR_ACTIVITY = ".view.ScrollBar1";
     private static final String CONTROLS_ACTIVITY = ".view.Controls1";
+
     private Response response;
     private By by;
     private By unsupportedBy = new By() {
@@ -163,7 +164,7 @@ public class FindElementCommandsTest extends BaseTest {
 
     // TODO: Move this test to element tests
     @Test
-    public void shouldThrowStaleElementExceptionIfElementIsNotLongerExist() {
+    public void shouldThrowStaleElementExceptionIfElementIsNotLongerExist() throws JSONException {
         List<By> byList = Arrays.asList(
                 By.xpath("//*[@text='Save']"),
                 By.className("android.widget.Button"),
@@ -175,7 +176,7 @@ public class FindElementCommandsTest extends BaseTest {
         for (By by : byList) {
             elements.add(findElement(by).getElementId());
         }
-        DeviceCommands.pressBack();
+        startActivity(MAIN_ACTIVITY);
         waitForElementInvisibility(elements.get(0));
 
         for (String element : elements) {
@@ -206,7 +207,7 @@ public class FindElementCommandsTest extends BaseTest {
     }
 
     @Test
-    public void shouldAllowTopHierarchyNodeInPath() {
+    public void shouldAddRootHierarchyNodeInPath() {
         by = By.xpath("//hierarchy//android.widget.ScrollView");
         response = findElement(by);
         assertEquals(WDStatus.SUCCESS.code(), response.getStatus());
