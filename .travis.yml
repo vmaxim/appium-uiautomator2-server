@@ -1,13 +1,13 @@
 language: android
 dist: precise
 android:
+  update_sdk: true
   components:
     # use the latest revision of Android SDK Tools
     - platform-tools
     - tools
     - build-tools-$ANDROID_BUILD_TOOLS
-    - android-22
-    - android-24
+    - ${ANDROID_EMU_TARGET}
 
     # Additional components
     - extra-google-google_play_services
@@ -17,8 +17,7 @@ android:
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-24
-    - sys-img-armeabi-v7a-android-22
+    - sys-img-armeabi-v7a-${ANDROID_EMU_TARGET}
 env:
   global:
     - DEVICE=android
@@ -52,9 +51,9 @@ before_script:
   - |
     if [ ${START_EMU} = "1" ]; then
       # update sdk
-      echo y | android update sdk --no-ui -t platform-tools
-      echo y | android update sdk --no-ui -t tools
-      echo y | android update sdk --no-ui -t ${ANDROID_EMU_TARGET}
+      #echo y | android update sdk --no-ui -t platform-tools
+      #echo y | android update sdk --no-ui -t tools
+      #echo y | android update sdk --no-ui -t ${ANDROID_EMU_TARGET}
 
       # print lists of android sdk and targets
       android list sdk --extended --no-ui --all
@@ -81,6 +80,8 @@ script:
         -Pandroid.testInstrumentationRunnerArguments.class=$E2E_TEST_PACKAGE.$TEST \
         -Pandroid.testInstrumentationRunnerArguments.notAnnotation=$E2E_TEST_PACKAGE.internal.SkipHeadlessDevices
     fi
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 after_failure:
   - |
     if [ "$TEST" != "unit" ]; then

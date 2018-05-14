@@ -91,6 +91,7 @@ public class FindElementCommandsTest extends BaseTest {
     @Before
     public void setUp() throws JSONException {
         startActivity(CONTROLS_ACTIVITY);
+        waitForElement(By.id("button"));
     }
 
     /* Common Tests */
@@ -129,6 +130,7 @@ public class FindElementCommandsTest extends BaseTest {
 
         for (Pair<String, By> pair : byList) {
             startActivity(pair.first);
+            waitForElement(pair.second);
             response = findElements(pair.second);
             assertEquals(WDStatus.SUCCESS.code(), response.getStatus());
             assertThat(response.getElementCount(), greaterThan(1));
@@ -162,7 +164,6 @@ public class FindElementCommandsTest extends BaseTest {
         assertEquals("Checkbox 2", response.getValue());
     }
 
-    // TODO: Move this test to element tests
     @Test
     public void shouldThrowStaleElementExceptionIfElementIsNotLongerExist() throws JSONException {
         List<By> byList = Arrays.asList(
@@ -200,14 +201,14 @@ public class FindElementCommandsTest extends BaseTest {
 
     /* By.xpath */
     @Test
-    public void shouldIgnoreTopHierarchyNode() {
+    public void shouldIgnoreRootHierarchyNode() {
         by = By.xpath("//hierarchy");
         response = findElement(by, 0L);
         assertEquals(WDStatus.NO_SUCH_ELEMENT.code(), response.getStatus());
     }
 
     @Test
-    public void shouldAddRootHierarchyNodeInPath() {
+    public void shouldAllowXPathWithRootHierarchyNode() {
         by = By.xpath("//hierarchy//android.widget.ScrollView");
         response = findElement(by);
         assertEquals(WDStatus.SUCCESS.code(), response.getStatus());

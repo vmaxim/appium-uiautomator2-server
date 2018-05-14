@@ -32,6 +32,7 @@ android {
     buildTypes {
         debug {
             debuggable true
+            testCoverageEnabled true
         }
         customDebuggableBuildType {
             debuggable true
