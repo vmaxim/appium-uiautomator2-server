@@ -119,20 +119,23 @@ public class UiAutomationElement extends UiElement<AccessibilityNodeInfo, UiAuto
         this.children = mutableChildren;
     }
 
-    public static UiAutomationElement newRootElement(AccessibilityNodeInfo rawElement,
+    public static UiAutomationElement newRootElement(@Nullable AccessibilityNodeInfo rootElement,
+                                                     @Nullable AccessibilityNodeInfo contextElement,
                                                      @Nullable List<CharSequence> toastMSGs) {
         clearData();
-        /**
-         * Injecting root element as hierarchy and adding rawElement as a child.
+        /*
+          Injecting root element as hierarchy and adding rawElement as a child.
          */
-        UiAutomationElement rootElement = new UiAutomationElement("hierarchy" /*root element*/, rawElement /* child nodInfo */, 0 /* index */);
+        UiAutomationElement newRootElement = contextElement == null
+                ? new UiAutomationElement("hierarchy" /*root element*/, rootElement /* child nodInfo */, 0 /* index */)
+                : new UiAutomationElement(contextElement /*root element*/, null /* child nodInfo */, 0 /* index */);
         if (toastMSGs != null && !toastMSGs.isEmpty()) {
             for (CharSequence toastMSG : toastMSGs) {
                 Logger.debug("Adding toastMSG to root:" + toastMSG);
-                rootElement.addToastMsgToRoot(toastMSG);
+                newRootElement.addToastMsgToRoot(toastMSG);
             }
         }
-        return rootElement;
+        return newRootElement;
     }
 
     private static void clearData() {

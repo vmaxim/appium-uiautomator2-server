@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package io.appium.uiautomator2.unittest.test;
 
 import android.graphics.Bitmap;
@@ -70,93 +71,6 @@ import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("JavaDoc")
 public class DeviceCommandsTest extends BaseTest {
-
-    /**
-     * Test for findElement
-     */
-    @Test
-    public void findElementTest() {
-        By by = By.xpath("//*[@text='API Demos']");
-        Response response = findElement(by);
-        assertTrue(by + " should be found", response.isSuccessful());
-
-        by = By.xpath("//hierarchy//*[@text='API Demos']");
-        response = findElement(by);
-        assertTrue(by + " should be found", response.isSuccessful());
-
-        by = By.xpath("//hierarchy");
-        response = findElement(by);
-        assertFalse(by + " should not be found", response.isSuccessful());
-
-        by = By.xpath("//*[@resource-id='android:id/action_bar']");
-        response = findElement(by);
-        assertEquals(WDStatus.SUCCESS.code(), response.getStatus());
-
-        by = By.xpath("(//*[@class='android.widget.TextView'])[3]");
-        response = findElement(by);
-        response = getAttribute(response.getElementId(), "text");
-        assertEquals("Accessibility", response.getValue());
-
-        by = By.xpath("//*[@resource-id='android:id/content']" +
-                "//*[@resource-id='android:id/text1'][5]");
-        response = findElement(by);
-        response = getAttribute(response.getElementId(), "text");
-        assertEquals("Content", response.getValue());
-    }
-
-    /**
-     * test to find element using "-android automator" property
-     */
-    @Test
-    public void findElementUsingUiAutomatorTest() throws JSONException {
-        scrollTo("Views"); // Due to 'Views' option not visible on small screen
-        Response response = findElement(By.accessibilityId("Views"));
-        clickAndWaitForStaleness(response.getElementId());
-
-        By androidUiAutomator = By.androidUiAutomator("new UiSelector().text(\"Radio Group\");" +
-                "new UiScrollable(new UiSelector().resourceId(\"android:id/list\"))" +
-                ".scrollIntoView(new UiSelector().text(\"Radio Group\"));");
-        response = findElement(androidUiAutomator);
-        assertTrue(androidUiAutomator + " should be found", response.isSuccessful());
-        click(response.getElementId());
-
-        response = waitForElementInvisibility(response.getElementId());
-        assertFalse(androidUiAutomator + " should not be found", response
-                .isSuccessful());
-    }
-
-    /**
-     * test to find elements using "-android automator" property
-     */
-    @Test
-    public void findElementsUsingUiAutomatorTest() throws JSONException {
-        scrollTo("Views"); // Due to 'Views' option not visible on small screen
-        Response response = findElement(By.accessibilityId("Views"));
-        clickAndWaitForStaleness(response.getElementId());
-
-        By by = By.androidUiAutomator("resourceId(\"android:id/text1\")");
-        response = findElements(by);
-        assertTrue(by + " should be found", response.isSuccessful());
-
-        JSONArray elements = response.getValue();
-        int elementCount = getJsonObjectCountInJsonArray(elements);
-        assertTrue("Elements Count in views screen should at least > 5, " +
-                "in all variants of screen sizes, but actual: " + elementCount, elementCount > 5);
-    }
-
-    /**
-     * Test for findElements
-     */
-    @Test
-    public void findElementsTest() {
-        By by = By.className("android.widget.TextView");
-        Response response = findElements(by);
-        assertTrue(by + " should be found", response.isSuccessful());
-        JSONArray elements = response.getValue();
-        int elementCount = getJsonObjectCountInJsonArray(elements);
-        assertTrue("Elements Count in Home launch screen should at least > 5, " +
-                "in all variants of screen sizes, but actual: " + elementCount, elementCount > 5);
-    }
 
     /**
      * Test for Device size
@@ -245,79 +159,6 @@ public class DeviceCommandsTest extends BaseTest {
     }
 
     @Test
-    public void findElementWithContextId() throws JSONException {
-        //parent element - By.androidUiAutomator (UiObject)
-        Response response = findElement(By.androidUiAutomator("new UiSelector().resourceId" +
-                "(\"android:id/list\")"));
-        String contextId = response.getElementId();
-
-        //child  element - By.className (UiObject2)
-        response = findElement(By.className("android.widget.TextView"), contextId);
-        response = getText(response.getElementId());
-        assertEquals("Access'ibility", response.getValue());
-
-        //parent element - By.className  (UiObject2)
-        response = findElement(By.className("android.widget.ListView"));
-        contextId = response.getElementId();
-
-        //child  element - By.className (UiObject2)
-        response = findElement(By.className("android.widget.TextView"), contextId);
-        response = getText(response.getElementId());
-        assertEquals("Access'ibility", response.getValue());
-
-        //child element - By.xpath  (UiObject2)
-        response = findElement(By.xpath("//*[@class='android.widget.TextView'][2]"), contextId);
-        response = getText(response.getElementId());
-        assertEquals("Accessibility", response.getValue());
-
-        //child element - By.xpath  (UiObject2)
-        response = findElement(By.xpath("//hierarchy//*[@class='android.widget.TextView'][2]"),
-                contextId);
-        response = getText(response.getElementId());
-        assertEquals("Accessibility", response.getValue());
-
-        //child  element - By.androidUiAutomator (UiObject)
-        response = findElement(By.androidUiAutomator("new UiSelector().text(\"Animation\");"),
-                contextId);
-        response = getText(response.getElementId());
-        assertEquals("Animation", response.getValue());
-
-        //parent element - By.xpath
-        response = findElement(By.xpath("//hierarchy//*[@class='android.widget.FrameLayout'][2]"));
-        contextId = response.getElementId();
-
-        //child element - By.xpath  (UiObject2)
-        response = findElement(By.xpath("//*[@class='android.widget.TextView'][2]"), contextId);
-        response = getText(response.getElementId());
-        assertEquals("Accessibility", response.getValue());
-
-        //parent element - By.androidUiAutomator (UiObject)
-        response = findElement(By.androidUiAutomator("new UiSelector()"
-                + ".resourceId(\"android:id/list\");"));
-        contextId = response.getElementId();
-
-        //child element - By.xpath  (UiObject2)
-        response = findElement(By.xpath("//*[@class='android.widget.TextView'][2]"), contextId);
-        response = getText(response.getElementId());
-        assertEquals("Accessibility", response.getValue());
-
-        response = findElement(By.accessibilityId("Animation"));
-        clickAndWaitForStaleness(response.getElementId());
-        response = findElement(By.accessibilityId("Events"));
-        clickAndWaitForStaleness(response.getElementId());
-
-        //parent element - By.xpath (UiObject2)
-        response = findElement(By.xpath("//*[@class='android.widget.LinearLayout'][3]"));
-        contextId = response.getElementId();
-
-        //child  element - By.androidUiAutomator (UiObject)
-        response = findElement(By.androidUiAutomator("new UiSelector().className(\"android.widget" +
-                ".TextView\")"), contextId);
-        response = getText(response.getElementId());
-        assertEquals("Animator Events:   ", response.getValue());
-    }
-
-    @Test
     public void findElementWithAttributes() throws JSONException {
         scrollTo("Views");
         Response response = findElement(By.accessibilityId("Views"));
@@ -333,13 +174,6 @@ public class DeviceCommandsTest extends BaseTest {
 
         response = getAttribute(elementId, "enabled");
         assertEquals("true", response.getValue());
-    }
-
-    @Test
-    public void findElementWithClassName() {
-        Response response = findElement(By.className("android.widget.TextView"));
-        response = getText(response.getElementId());
-        assertEquals("API Demos", response.getValue());
     }
 
     @Test
@@ -367,10 +201,10 @@ public class DeviceCommandsTest extends BaseTest {
         startActivity(".view.PopupMenu1");
         Response response = findElement(By.accessibilityId("Make a Popup!"));
         click(response.getElementId());
-        response = findElement(By.xpath(".//*[@text='Search']"));
+        response = findElement(By.xpath("./*//*[@text='Search']"));
         click(response.getElementId());
 
-        By by = By.xpath("//*[@text='Clicked popup menu item Search']");
+        By by = By.xpath("/*//*[@text='Clicked popup menu item Search']");
         response = waitForElement(by);
         response = getText(response.getElementId());
         assertEquals("Clicked popup menu item Search", response.getValue());
@@ -378,10 +212,10 @@ public class DeviceCommandsTest extends BaseTest {
 
         response = findElement(By.accessibilityId("Make a Popup!"));
         click(response.getElementId());
-        response = findElement(By.xpath(".//*[@text='Add']"));
+        response = findElement(By.xpath("./*//*[@text='Add']"));
         click(response.getElementId());
 
-        by = By.xpath("//*[contains(@text,'Clicked popup menu item Add')]");
+        by = By.xpath("/*//*[contains(@text,'Clicked popup menu item Add')]");
         response = waitForElement(by);
         assertEquals(by + " should be found", WDStatus.SUCCESS.code(), response.getStatus());
         response = getText(response.getElementId());
@@ -389,19 +223,19 @@ public class DeviceCommandsTest extends BaseTest {
 
         response = findElement(By.accessibilityId("Make a Popup!"));
         click(response.getElementId());
-        response = findElement(By.xpath(".//*[@text='Edit']"));
+        response = findElement(By.xpath("./*//*[@text='Edit']"));
         click(response.getElementId());
 
-        by = By.xpath("//*[@text='Clicked popup menu item Edit']");
+        by = By.xpath("/*//*[@text='Clicked popup menu item Edit']");
         response = waitForElement(by);
         assertEquals(by + " should be found", WDStatus.SUCCESS.code(), response.getStatus());
         response = getText(response.getElementId());
         assertEquals("Clicked popup menu item Edit", response.getValue());
 
-        response = findElement(By.xpath(".//*[@text='Share']"));
+        response = findElement(By.xpath("./*//*[@text='Share']"));
         click(response.getElementId());
 
-        by = By.xpath("//*[@text='Clicked popup menu item Share']");
+        by = By.xpath("/*//*[@text='Clicked popup menu item Share']");
         response = waitForElement(by);
         assertEquals(by + " should be found", WDStatus.SUCCESS.code(), response.getStatus());
         response = getText(response.getElementId());
@@ -479,39 +313,6 @@ public class DeviceCommandsTest extends BaseTest {
     }
 
     @Test
-    public void shouldBeAbleToFindElementViaUiSelectorWithQuotesInParams() throws JSONException {
-        startActivity(".view.TextFields");
-        Response response = waitForElement(By.id("io.appium.android.apis:id/edit"));
-        sendKeys(response.getElementId(), "Use a \"tel:\" URL");
-        By androidUiAutomator = By.androidUiAutomator("new UiSelector().textContains(" +
-                "\"Use a \\\"tel:\\\" URL\");");
-        response = findElement(androidUiAutomator);
-        assertTrue(androidUiAutomator + " should be found", response.isSuccessful());
-    }
-
-    @Test
-    public void shouldBeAbleToFindElementViaUiSelectorWithParenthesesInParams() throws JSONException {
-        startActivity(".view.TextFields");
-        Response response = waitForElement(By.id("io.appium.android.apis:id/edit"));
-        sendKeys(response.getElementId(), "(415)");
-        By androidUiAutomator = By.androidUiAutomator("new UiSelector().textContains(" +
-                "\"(415)\");");
-        response = findElement(androidUiAutomator);
-        assertTrue(androidUiAutomator + " should be found", response.isSuccessful());
-    }
-
-    @Test
-    public void shouldBeAbleToFindElementViaUiSelectorWithCommasInParams() throws JSONException {
-        startActivity(".view.TextFields");
-        Response response = waitForElement(By.id("io.appium.android.apis:id/edit"));
-        sendKeys(response.getElementId(), "Expressway, Suite 400, Austin");
-        By androidUiAutomator = By.androidUiAutomator("new UiSelector().text(" +
-                "\"Expressway, Suite 400, Austin\");");
-        response = findElement(androidUiAutomator);
-        assertTrue(androidUiAutomator + " should be found", response.isSuccessful());
-    }
-
-    @Test
     public void shouldBeAbleToFindElementViaUiScrollableScrollIntoView() throws JSONException {
         startActivity(".view.List1");
         waitForElement(By.id("android:id/list"));
@@ -542,18 +343,6 @@ public class DeviceCommandsTest extends BaseTest {
                         ". getChildByDescription ( new UiSelector() " +
                         ".className( android.widget.TextView ),\"Lorem ipsum dolor sit amet.\"," +
                         "true ) ; ");
-        Response response = findElement(androidUiAutomator);
-        assertTrue(androidUiAutomator + " should be found", response.isSuccessful());
-    }
-
-    @Test
-    public void scrollIntoViewShouldNotThrowExceptionIfScrollableDoesNotExist() throws
-            JSONException {
-        startActivity(".view.ScrollBar1");
-        waitForElement(By.accessibilityId("Lorem ipsum dolor sit amet."));
-        By androidUiAutomator = By.androidUiAutomator(
-                "new UiScrollable(new UiSelector().text(\"test\"))" +
-                        ".scrollIntoView(new UiSelector().text(\"Lorem ipsum dolor sit amet.\"))");
         Response response = findElement(androidUiAutomator);
         assertTrue(androidUiAutomator + " should be found", response.isSuccessful());
     }

@@ -43,14 +43,19 @@ public class DeviceCommands {
         return findElement(by, "");
     }
 
+    public static Response findElement(By by, Long timeout) {
+        return findElement(by, "", timeout);
+    }
+
     /**
      * finds the element using By selector
      *
      * @param by        Element locator
      * @param contextId Context id
+     * @param timeout   Explicit timeout
      * @return Response from UiAutomator2 server
      */
-    public static Response findElement(By by, String contextId) {
+    public static Response findElement(By by, String contextId, Long timeout) {
         final long start = elapsedRealtime();
         JSONObject json = TestUtils.convertByToJson(by, contextId);
         Response response;
@@ -61,8 +66,12 @@ public class DeviceCommands {
                 return response;
             }
             TestUtils.waitForMillis(Config.DEFAULT_POLLING_INTERVAL);
-        } while (elapsedRealtime() - start < Config.IMPLICIT_TIMEOUT);
+        } while (elapsedRealtime() - start < timeout);
         return response;
+    }
+
+    public static Response findElement(By by, String contextId) {
+        return findElement(by, contextId, Config.IMPLICIT_TIMEOUT);
     }
 
     /**
@@ -73,6 +82,18 @@ public class DeviceCommands {
      */
     public static Response findElements(By by) {
         JSONObject json = TestUtils.convertByToJson(by, "");
+        return Client.post("/elements", json);
+    }
+
+    /**
+     * finds the elements using By selector
+     *
+     * @param by        Element locator
+     * @param contextId Context id
+     * @return Response from UiAutomator2 server
+     */
+    public static Response findElements(By by, String contextId) {
+        JSONObject json = TestUtils.convertByToJson(by, contextId);
         return Client.post("/elements", json);
     }
 
@@ -132,8 +153,10 @@ public class DeviceCommands {
     }
 
     public static Response createSession() throws JSONException {
+        JSONObject caps = new JSONObject();
+        caps.put("appPackage", Config.APP_PKG);
         return Client.post(Config.HOST + "/wd/hub", "/session",
-                new JSONObject().put("desiredCapabilities", new JSONObject()));
+                new JSONObject().put("desiredCapabilities", caps));
     }
 
     public static Response deleteSession() {
@@ -172,7 +195,7 @@ public class DeviceCommands {
      */
     public static Response updateSettings(JSONObject settings) throws
             JSONException {
-        return Client.post("/appium/settings", new JSONObject().put("settings",settings));
+        return Client.post("/appium/settings", new JSONObject().put("settings", settings));
     }
 
     /**
@@ -266,5 +289,14 @@ public class DeviceCommands {
         JSONObject payload = new JSONObject();
         payload.put("actions", actions);
         return Client.post("/actions", payload);
+    }
+
+    /**
+     * Press Back button
+     *
+     * @return Response from UiAutomator2 server
+     */
+    public static Response pressBack() {
+        return Client.post("/back", new JSONObject());
     }
 }

@@ -138,12 +138,12 @@ public class XPathFinder implements Finder {
     }
 
     public static UiAutomationElement refreshUiElementTree() {
-        return UiAutomationElement.newRootElement(getRootAccessibilityNode(),
+        return UiAutomationElement.newRootElement(getRootAccessibilityNode(), null,
                 NotificationListener.getInstance().getToastMessage());
     }
 
     public static UiAutomationElement refreshUiElementTree(AccessibilityNodeInfo nodeInfo) {
-        return UiAutomationElement.newRootElement(nodeInfo, null /*Toast Messages*/);
+        return UiAutomationElement.newRootElement(null, nodeInfo, null /*Toast Messages*/);
     }
 
     public static AccessibilityNodeInfo getRootAccessibilityNode() throws UiAutomator2Exception {

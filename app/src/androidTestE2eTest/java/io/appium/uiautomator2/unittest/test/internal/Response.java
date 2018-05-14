@@ -15,6 +15,7 @@
  */
 package io.appium.uiautomator2.unittest.test.internal;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -40,11 +41,32 @@ public class Response {
 
     public String getElementId() {
         try {
-            return new JSONObject(body).getJSONObject("value")
-                    .getString("ELEMENT");
+            return ((JSONObject) getValue()).getString("ELEMENT");
         } catch (JSONException e) {
             throw new IllegalArgumentException(String.format(ERR_MSG, "ELEMENT", body), e);
         }
+    }
+
+    public String getElementId(int index) {
+        try {
+            return ((JSONArray) getValue()).getJSONObject(index).getString("ELEMENT");
+        } catch (JSONException e) {
+            throw new IllegalArgumentException(String.format(ERR_MSG, "ELEMENT", body), e);
+        }
+    }
+
+    public Integer getElementCount() {
+        int count = 0;
+        JSONArray jsonArray = getValue();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                if (jsonArray.getJSONObject(i).has("ELEMENT")) {
+                    count++;
+                }
+            } catch (JSONException ignore) {
+            }
+        }
+        return count;
     }
 
     public int getStatus() {

@@ -102,7 +102,8 @@ public class FindElement extends SafeRequestHandler {
         final String method = payload.getString("strategy");
         final String selector = payload.getString("selector");
         final String contextId = payload.getString("context");
-        Logger.info(String.format("find element command using '%s' with selector '%s'.", method, selector));
+        Logger.info(String.format("find element command using '%s' with selector '%s' " +
+                "in context '%s'.", method, selector, contextId));
         final By by = new NativeAndroidBySelector().pickFrom(method, selector);
 
         Device.waitForIdle();
