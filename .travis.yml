@@ -51,9 +51,9 @@ before_script:
   - |
     if [ ${START_EMU} = "1" ]; then
       # update sdk
-      #echo y | android update sdk --no-ui -t platform-tools
-      #echo y | android update sdk --no-ui -t tools
-      #echo y | android update sdk --no-ui -t ${ANDROID_EMU_TARGET}
+      echo y | android update sdk --no-ui -t platform-tools
+      echo y | android update sdk --no-ui -t tools
+      echo y | android update sdk --no-ui -t ${ANDROID_EMU_TARGET}
 
       # print lists of android sdk and targets
       android list sdk --extended --no-ui --all
