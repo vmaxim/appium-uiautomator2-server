@@ -226,6 +226,7 @@ public class FindElementCommandsTest extends BaseTest {
     @Test
     public void shouldFindElementFromContext() throws JSONException {
         startActivity(".app.SoftInputModes");
+        waitForElement(By.accessibilityId("Resize mode:"));
         for (By context : contextList) {
             response = findElement(context);
             String contextId = response.getElementId();
@@ -241,6 +242,7 @@ public class FindElementCommandsTest extends BaseTest {
     @Test
     public void shouldFindElementsFromContext() throws JSONException {
         startActivity(".app.SoftInputModes");
+        waitForElement(By.accessibilityId("Resize mode:"));
         for (By context : contextList) {
             response = findElement(context);
             String contextId = response.getElementId();
@@ -287,8 +289,7 @@ public class FindElementCommandsTest extends BaseTest {
     @Test
     public void shouldBeAbleToFindElementViaUiSelectorWithQuotesParenthesesAndCommasInParams()
             throws JSONException {
-        startActivity(".view.TextFields");
-        response = waitForElement(By.id("io.appium.android.apis:id/edit"));
+        response = waitForElement(By.id("edit"));
         sendKeys(response.getElementId(), "Use a \"tel:\" (415) Expressway, Suite 400, Austin");
         By androidUiAutomator = By.androidUiAutomator(".text(" +
                 "\"Use a \\\"tel:\\\" (415) Expressway, Suite 400, Austin\");");
