@@ -10,15 +10,12 @@ android:
     - android-24
 
     # Additional components
-    - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
-    - addon-google_apis-google-19
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-android-24
-    - sys-img-armeabi-v7a-android-22
+    - sys-img-${ANDROID_EMU_ABI}-${ANDROID_EMU_TARGET}
 env:
   global:
     - DEVICE=android
@@ -60,7 +57,7 @@ before_script:
       android list targets
 
       echo no | android create avd --force -n ${ANDROID_EMU_NAME} -t ${ANDROID_EMU_TARGET} --abi ${ANDROID_EMU_ABI} --sdcard 200M
-      emulator -avd ${ANDROID_EMU_NAME} -no-window &
+      QEMU_AUDIO_DRV=none emulator -avd ${ANDROID_EMU_NAME} -no-window &
 
       # make sure emulator started
       $(npm bin)/android-emu-travis-post
@@ -73,13 +70,15 @@ script:
   - |
     ./gradlew compileServerDebugSources compileServerDebugAndroidTestSources
     if [ "$TEST" == "unit" ]; then
-      ./gradlew testServerDebugUnitTest
+      ./gradlew createUnitTestCoverageReport
     else
       stdbuf -oL adb logcat -v time *:S appium:V appium-e2e-tests:V TestRunner:V *:E *:F > logcat.txt &
-      ./gradlew connectedE2eTestDebugAndroidTest \
+      ./gradlew createE2eTestDebugCoverageReport \
         -Pandroid.testInstrumentationRunnerArguments.class=$E2E_TEST_PACKAGE.$TEST \
         -Pandroid.testInstrumentationRunnerArguments.notAnnotation=$E2E_TEST_PACKAGE.internal.SkipHeadlessDevices
     fi
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 after_failure:
   - |
     if [ "$TEST" != "unit" ]; then

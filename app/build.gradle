@@ -13,6 +13,15 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'de.mobilej.unmock'
+apply plugin: 'jacoco'
+
+configurations {
+    jacocoAnt
+}
+
+jacoco {
+    toolVersion = '0.8.1'
+}
 
 android {
     compileSdkVersion 24
@@ -32,6 +41,7 @@ android {
     buildTypes {
         debug {
             debuggable true
+            testCoverageEnabled true
         }
         customDebuggableBuildType {
             debuggable true
@@ -90,6 +100,7 @@ dependencies {
     androidTestCompile 'com.android.support:support-annotations:23.1.1'
     androidTestCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
     androidTestCompile 'com.android.support.test.espresso:espresso-web:2.2.2'
+    jacocoAnt 'org.jacoco:org.jacoco.ant:0.8.1:nodeps'
 }
 
 task installAUT(type: Exec) {
@@ -105,6 +116,44 @@ task installAUT(type: Exec) {
         def command = sdkVersion.toInteger() < 24 ? "$adb install -rg $apk" : "$adb install -r -g $apk"
         println "Execute command: $command"
         commandLine command.split(' ')
+    }
+}
+
+task instrumentClasses(dependsOn : 'compileServerDebugSources') {
+    def outputDir = "$buildDir.path/intermediates/classes-instrumented/server/debug"
+    doLast {
+        println 'Instrumenting classes'
+        ant.taskdef(name: 'instrument',
+                classname: 'org.jacoco.ant.InstrumentTask',
+                classpath: configurations.jacocoAnt.asPath)
+        ant.instrument(destdir: outputDir) {
+            fileset(dir: "$buildDir.path/intermediates/classes/server/debug")
+        }
+        /* Add the instrumented classes to the beginning of classpath */
+        testServerDebugUnitTest.classpath = files(outputDir) + testServerDebugUnitTest.classpath
+    }
+}
+
+task createUnitTestCoverageReport(dependsOn: ['instrumentClasses', 'testServerDebugUnitTest']) {
+    doLast {
+        ant.taskdef(name: 'report',
+                classname: 'org.jacoco.ant.ReportTask',
+                classpath: configurations.jacocoAnt.asPath)
+        ant.report() {
+            executiondata {
+                ant.file(file: "$buildDir.path/jacoco/testServerDebugUnitTest.exec")
+            }
+            structure(name: 'ServerDebugUnitTest') {
+                classfiles {
+                    fileset(dir: "$project.buildDir/intermediates/classes/server/debug")
+                }
+                sourcefiles {
+                    fileset(dir: 'src/main/java')
+                }
+            }
+            html(destdir: "$buildDir.path/reports/jacoco")
+            xml(destfile: "$buildDir.path/reports/jacoco/coverage.xml")
+        }
     }
 }
 
