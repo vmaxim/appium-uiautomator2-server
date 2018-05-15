@@ -11,14 +11,12 @@ android:
     - android-22
 
     # Additional components
-    - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
-    - addon-google_apis-google-19
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    - sys-img-armeabi-v7a-${ANDROID_EMU_TARGET}
+    - sys-img-${ANDROID_EMU_ABI}-${ANDROID_EMU_TARGET}
 env:
   global:
     - DEVICE=android
@@ -77,7 +75,7 @@ script:
       ./gradlew testServerDebugUnitTest
     else
       stdbuf -oL adb logcat -v time *:S appium:V appium-e2e-tests:V TestRunner:V *:E *:F > logcat.txt &
-      ./gradlew connectedE2eTestDebugAndroidTest \
+      ./gradlew createE2eTestDebugCoverageReport \
         -Pandroid.testInstrumentationRunnerArguments.class=$E2E_TEST_PACKAGE.$TEST \
         -Pandroid.testInstrumentationRunnerArguments.notAnnotation=$E2E_TEST_PACKAGE.internal.SkipHeadlessDevices
     fi
