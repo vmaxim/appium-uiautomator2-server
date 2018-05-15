@@ -1,5 +1,7 @@
 language: android
 dist: precise
+jdk:
+  - oraclejdk8
 android:
   update_sdk: true
   components:
@@ -59,7 +61,7 @@ before_script:
       android list targets
 
       echo no | android create avd --force -n ${ANDROID_EMU_NAME} -t ${ANDROID_EMU_TARGET} --abi ${ANDROID_EMU_ABI} --sdcard 200M
-      emulator -avd ${ANDROID_EMU_NAME} -no-window &
+      QEMU_AUDIO_DRV=none emulator -avd ${ANDROID_EMU_NAME} -no-window &
 
       # make sure emulator started
       $(npm bin)/android-emu-travis-post

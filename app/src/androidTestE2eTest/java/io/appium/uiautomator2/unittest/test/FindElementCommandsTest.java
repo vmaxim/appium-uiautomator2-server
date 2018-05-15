@@ -18,7 +18,6 @@ package io.appium.uiautomator2.unittest.test;
 
 import android.util.Pair;
 
-import org.hamcrest.Matchers;
 import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,7 +32,6 @@ import io.appium.uiautomator2.model.By;
 import io.appium.uiautomator2.server.WDStatus;
 import io.appium.uiautomator2.unittest.test.internal.BaseTest;
 import io.appium.uiautomator2.unittest.test.internal.Response;
-import io.appium.uiautomator2.unittest.test.internal.commands.DeviceCommands;
 
 import static io.appium.uiautomator2.unittest.test.internal.TestUtils.waitForElement;
 import static io.appium.uiautomator2.unittest.test.internal.TestUtils.waitForElementInvisibility;
@@ -127,7 +125,6 @@ public class FindElementCommandsTest extends BaseTest {
                         By.androidUiAutomator("text(\"Lorem ipsum dolor sit amet.\")"))
 
         );
-
         for (Pair<String, By> pair : byList) {
             startActivity(pair.first);
             waitForElement(pair.second);
@@ -199,29 +196,6 @@ public class FindElementCommandsTest extends BaseTest {
     }
     /* End Common Tests */
 
-    /* By.xpath */
-    @Test
-    public void shouldIgnoreRootHierarchyNode() {
-        by = By.xpath("//hierarchy");
-        response = findElement(by, 0L);
-        assertEquals(WDStatus.NO_SUCH_ELEMENT.code(), response.getStatus());
-    }
-
-    @Test
-    public void shouldAllowXPathWithRootHierarchyNode() {
-        by = By.xpath("//hierarchy//android.widget.ScrollView");
-        response = findElement(by);
-        assertEquals(WDStatus.SUCCESS.code(), response.getStatus());
-    }
-
-    @Test
-    public void shouldReturnInvalidSelectorIfXpathExpIsInvalid() {
-        by = By.xpath("//[");
-        response = findElement(by, 0L);
-        assertEquals(WDStatus.INVALID_SELECTOR.code(), response.getStatus());
-    }
-    /* End By.xpath */
-
     /* Context Search */
     @Test
     public void shouldFindElementFromContext() throws JSONException {
@@ -261,12 +235,35 @@ public class FindElementCommandsTest extends BaseTest {
     }
 
     @Test
-    // TODO: Check the spec about SUCCESS responce status
+    // TODO: Check the specification about SUCCESS response status if context does not exist.
     public void findElementsShouldNOTReturnNoSuchElementIfContextDoesNotExist() {
         response = findElements(By.xpath("//*"), "invalidcontext");
         assertEquals(WDStatus.SUCCESS.code(), response.getStatus());
     }
     /* End Context Search */
+
+    /* By.xpath */
+    @Test
+    public void shouldIgnoreRootHierarchyNode() {
+        by = By.xpath("//hierarchy");
+        response = findElement(by, 0L);
+        assertEquals(WDStatus.NO_SUCH_ELEMENT.code(), response.getStatus());
+    }
+
+    @Test
+    public void shouldAllowXPathWithRootHierarchyNode() {
+        by = By.xpath("//hierarchy//android.widget.ScrollView");
+        response = findElement(by);
+        assertEquals(WDStatus.SUCCESS.code(), response.getStatus());
+    }
+
+    @Test
+    public void shouldReturnInvalidSelectorIfXpathExpIsInvalid() {
+        by = By.xpath("//[");
+        response = findElement(by, 0L);
+        assertEquals(WDStatus.INVALID_SELECTOR.code(), response.getStatus());
+    }
+    /* End By.xpath */
 
     /* By.androidUiAutomator */
     @Test

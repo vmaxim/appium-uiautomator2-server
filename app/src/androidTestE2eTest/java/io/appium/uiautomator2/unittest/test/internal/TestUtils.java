@@ -114,9 +114,11 @@ public class TestUtils {
         int retriesCount = 0;
         while (retriesCount < APP_LAUNCH_RETRIES_COUNT) {
             try {
+
                 Intent intent = new Intent().setClassName(Config.APP_PKG, fullActivityName)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                ctx.stopService(intent);
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                                | Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                | Intent.FLAG_ACTIVITY_NEW_TASK);
                 ctx.startActivity(intent);
                 Logger.info("Waiting for app to launch:" + fullActivityName);
                 waitForAppToLaunch(Config.APP_PKG);
