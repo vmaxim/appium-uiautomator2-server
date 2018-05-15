@@ -16,6 +16,8 @@
 
 package io.appium.uiautomator2.unittest.test;
 
+import android.support.test.uiautomator.UiScrollable;
+import android.support.test.uiautomator.UiSelector;
 import android.util.Pair;
 
 import org.json.JSONException;
@@ -102,7 +104,8 @@ public class FindElementCommandsTest extends BaseTest {
                 By.id("io.appium.android.apis:id/check1"),
                 By.className("android.widget.CheckBox"),
                 By.accessibilityId("Checkbox 1"),
-                By.androidUiAutomator("resourceId(\"io.appium.android.apis:id/check1\")")
+                By.androidUiAutomator("resourceId(\"io.appium.android.apis:id/check1\")" +
+                        ".checkable(true)")
 
         );
         for (By by : byList) {
@@ -335,6 +338,8 @@ public class FindElementCommandsTest extends BaseTest {
         invalidSelectors.put("Invalid string param type", "UiSelector().text(1)");
         invalidSelectors.put("Invalid boolean param type", "UiSelector().enabled(1)");
         invalidSelectors.put("Invalid integer param type", "UiSelector().index(a)");
+        invalidSelectors.put("UiScrollable's last method does not return a UiObject",
+                "UiScrollable(UiSelector()).scrollForward(5)");
         for (Map.Entry<String, String> entry : invalidSelectors.entrySet()) {
             by = By.androidUiAutomator(entry.getValue());
             response = findElement(by, 0L);
