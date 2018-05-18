@@ -18,8 +18,6 @@ package io.appium.uiautomator2.core;
 import android.app.UiAutomation.OnAccessibilityEventListener;
 import android.support.annotation.Nullable;
 
-import io.appium.uiautomator2.common.exceptions.UiAutomator2Exception;
-
 import static io.appium.uiautomator2.utils.ReflectionUtils.getField;
 
 public class UiAutomation {
@@ -42,7 +40,7 @@ public class UiAutomation {
         try {
             return (OnAccessibilityEventListener) getField(android.app.UiAutomation.class,
                     FIELD_ON_ACCESSIBILITY_EVENT_LISTENER, uiAutomation);
-        } catch (UiAutomator2Exception e) {
+        } catch (Exception e) {
             /* mOnAccessibilityEventListener is no longer accessible on Android P */
             return null;
         }
