@@ -5,11 +5,9 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         classpath 'com.github.JakeWharton:sdk-manager-plugin:0ce4cdf08009d79223850a59959d9d6e774d0f77'
         classpath 'de.mobilej.unmock:UnMockPlugin:0.6.4'
-//        classpath 'org.jacoco:org.jacoco.core:0.8.1'
-//        classpath 'org.jacoco:org.jacoco.agent:0.8.1'
     }
 }
 
@@ -144,21 +142,34 @@ gradle.taskGraph.whenReady { graph ->
         tasks.withType(Test) {
             doFirst {
                 /* Workaround for Robolectric */
-                systemProperty 'jacoco-agent.destfile', buildDir.path + '/jacoco/robolectricCoverage.exec'
+                systemProperty 'jacoco-agent.destfile',
+                        "$buildDir.path/jacoco/robolectricCoverage.exec"
             }
         }
     }
 }
 
 task createUnitTestCoverageReport(dependsOn: ['instrumentClasses', 'testServerDebugUnitTest']) {
+    def jacocoDir = "$buildDir.path/jacoco"
+    def reportDir = "$buildDir.path/reports/jacoco"
+    doFirst {
+        ant.taskdef(name: 'merge',
+                classname: 'org.jacoco.ant.MergeTask',
+                classpath: configurations.jacocoAnt.asPath)
+        ant.merge(destfile: "$jacocoDir/fullCoverage.exec") {
+            ant.file(file: "$jacocoDir/robolectricCoverage.exec")
+            ant.file(file: "$jacocoDir/testServerDebugUnitTest.exec")
+        }
+        file("$jacocoDir/robolectricCoverage.exec").delete()
+        file("$jacocoDir/testServerDebugUnitTest.exec").delete()
+    }
     doLast {
         ant.taskdef(name: 'report',
                 classname: 'org.jacoco.ant.ReportTask',
                 classpath: configurations.jacocoAnt.asPath)
         ant.report() {
             executiondata {
-                ant.file(file: "$buildDir.path/jacoco/robolectricCoverage.exec")
-                ant.file(file: "$buildDir.path/jacoco/testServerDebugUnitTest.exec")
+                ant.file(file: "$jacocoDir/fullCoverage.exec")
             }
             structure(name: 'ServerDebugUnitTest') {
                 classfiles {
@@ -168,8 +179,8 @@ task createUnitTestCoverageReport(dependsOn: ['instrumentClasses', 'testServerDe
                     fileset(dir: 'src/main/java')
                 }
             }
-            html(destdir: "$buildDir.path/reports/jacoco")
-            xml(destfile: "$buildDir.path/reports/jacoco/coverage.xml")
+            html(destdir: reportDir)
+            xml(destfile: "$reportDir/coverage.xml")
         }
     }
 }
