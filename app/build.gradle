@@ -142,6 +142,7 @@ gradle.taskGraph.whenReady { graph ->
         tasks.withType(Test) {
             doFirst {
                 /* Workaround for Robolectric */
+                systemProperty 'jacoco-agent.append', 'true'
                 systemProperty 'jacoco-agent.destfile',
                         "$buildDir.path/jacoco/robolectricCoverage.exec"
             }
@@ -157,8 +158,8 @@ task createUnitTestCoverageReport(dependsOn: ['instrumentClasses', 'testServerDe
                 classname: 'org.jacoco.ant.MergeTask',
                 classpath: configurations.jacocoAnt.asPath)
         ant.merge(destfile: "$jacocoDir/fullCoverage.exec") {
-            ant.file(file: "$jacocoDir/robolectricCoverage.exec")
             ant.file(file: "$jacocoDir/testServerDebugUnitTest.exec")
+            ant.file(file: "$jacocoDir/robolectricCoverage.exec")
         }
         file("$jacocoDir/robolectricCoverage.exec").delete()
         file("$jacocoDir/testServerDebugUnitTest.exec").delete()
@@ -181,6 +182,7 @@ task createUnitTestCoverageReport(dependsOn: ['instrumentClasses', 'testServerDe
             }
             html(destdir: reportDir)
             xml(destfile: "$reportDir/coverage.xml")
+
         }
     }
 }
