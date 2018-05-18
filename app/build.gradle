@@ -5,9 +5,11 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.2'
         classpath 'com.github.JakeWharton:sdk-manager-plugin:0ce4cdf08009d79223850a59959d9d6e774d0f77'
         classpath 'de.mobilej.unmock:UnMockPlugin:0.6.4'
+//        classpath 'org.jacoco:org.jacoco.core:0.8.1'
+//        classpath 'org.jacoco:org.jacoco.agent:0.8.1'
     }
 }
 
@@ -120,17 +122,31 @@ task installAUT(type: Exec) {
 }
 
 task instrumentClasses(dependsOn : 'compileServerDebugSources') {
-    def outputDir = "$buildDir.path/intermediates/classes-instrumented/server/debug"
-    doLast {
-        println 'Instrumenting classes'
+    def instrumentedClasesDir = "$buildDir.path/intermediates/classes-instrumented/server/debug"
+    def originalClassesDir = "$buildDir.path/intermediates/classes/server/debug"
+    doFirst {
+        println 'Instrumenting classes1'
         ant.taskdef(name: 'instrument',
                 classname: 'org.jacoco.ant.InstrumentTask',
                 classpath: configurations.jacocoAnt.asPath)
-        ant.instrument(destdir: outputDir) {
-            fileset(dir: "$buildDir.path/intermediates/classes/server/debug")
+        ant.instrument(destdir: instrumentedClasesDir) {
+            fileset(dir: originalClassesDir)
         }
-        /* Add the instrumented classes to the beginning of classpath */
-        testServerDebugUnitTest.classpath = files(outputDir) + testServerDebugUnitTest.classpath
+
+        /* Remove original classes from classpath and add the instrumented  */
+        testServerDebugUnitTest.classpath -= files(originalClassesDir)
+        testServerDebugUnitTest.classpath += files(instrumentedClasesDir)
+    }
+}
+
+gradle.taskGraph.whenReady { graph ->
+    if (graph.hasTask(instrumentClasses)) {
+        tasks.withType(Test) {
+            doFirst {
+                /* Workaround for Robolectric */
+                systemProperty 'jacoco-agent.destfile', buildDir.path + '/jacoco/robolectricCoverage.exec'
+            }
+        }
     }
 }
 
@@ -142,6 +158,7 @@ task createUnitTestCoverageReport(dependsOn: ['instrumentClasses', 'testServerDe
         ant.report() {
             executiondata {
                 ant.file(file: "$buildDir.path/jacoco/testServerDebugUnitTest.exec")
+                ant.file(file: "$buildDir.path/jacoco/robolectricCoverage.exec")
             }
             structure(name: 'ServerDebugUnitTest') {
                 classfiles {
