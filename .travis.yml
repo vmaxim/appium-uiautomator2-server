@@ -26,14 +26,14 @@ env:
     - E2E_TEST_PACKAGE=io.appium.uiautomator2.unittest.test
   matrix:
     - TEST=unit START_EMU=0
-    - TEST=AlertCommandsTest ANDROID_EMU_TARGET=android-24
-    - TEST=ActionsCommandsTest ANDROID_EMU_TARGET=android-24
-    - TEST=GestureCommandsTest ANDROID_EMU_TARGET=android-24
-    - TEST=DeviceCommandsTest ANDROID_EMU_TARGET=android-24
-    - TEST=ElementCommandsTest ANDROID_EMU_TARGET=android-24
-    - TEST=GestureCommandsTest ANDROID_EMU_TARGET=android-22
-    - TEST=DeviceCommandsTest ANDROID_EMU_TARGET=android-22
-    - TEST=ElementCommandsTest ANDROID_EMU_TARGET=android-22
+    #- TEST=AlertCommandsTest ANDROID_EMU_TARGET=android-24
+    #- TEST=ActionsCommandsTest ANDROID_EMU_TARGET=android-24
+    #- TEST=GestureCommandsTest ANDROID_EMU_TARGET=android-24
+    #- TEST=DeviceCommandsTest ANDROID_EMU_TARGET=android-24
+    #- TEST=ElementCommandsTest ANDROID_EMU_TARGET=android-24
+    #- TEST=GestureCommandsTest ANDROID_EMU_TARGET=android-22
+    #- TEST=DeviceCommandsTest ANDROID_EMU_TARGET=android-22
+    #- TEST=ElementCommandsTest ANDROID_EMU_TARGET=android-22
 before_script:
   # node stuff
   - curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash

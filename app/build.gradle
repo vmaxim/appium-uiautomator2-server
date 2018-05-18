@@ -125,7 +125,7 @@ task instrumentClasses(dependsOn : 'compileServerDebugSources') {
     def instrumentedClasesDir = "$buildDir.path/intermediates/classes-instrumented/server/debug"
     def originalClassesDir = "$buildDir.path/intermediates/classes/server/debug"
     doFirst {
-        println 'Instrumenting classes1'
+        println 'Instrumenting classes'
         ant.taskdef(name: 'instrument',
                 classname: 'org.jacoco.ant.InstrumentTask',
                 classpath: configurations.jacocoAnt.asPath)
@@ -157,8 +157,8 @@ task createUnitTestCoverageReport(dependsOn: ['instrumentClasses', 'testServerDe
                 classpath: configurations.jacocoAnt.asPath)
         ant.report() {
             executiondata {
-                ant.file(file: "$buildDir.path/jacoco/testServerDebugUnitTest.exec")
                 ant.file(file: "$buildDir.path/jacoco/robolectricCoverage.exec")
+                ant.file(file: "$buildDir.path/jacoco/testServerDebugUnitTest.exec")
             }
             structure(name: 'ServerDebugUnitTest') {
                 classfiles {
